@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#070707">
+  <meta name="description" content="Guia da Duodécima — sistema, Roma, magia, crafting e panteão da Legio XII Fulminata.">
+  <title>Guia da Duodécima</title>
+  <link rel="stylesheet" href="styles.css?v=1.0">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#page:sistema" aria-label="Guia da Duodécima">
+      <img src="assets/legio.webp" alt="Símbolo da Duodécima Legião Fulminata">
+      <span><b>LEGIO XII FULMINATA</b><strong>Guia da Duodécima</strong></span>
+    </a>
+    <nav class="page-nav" aria-label="Seções principais">
+      <button data-page="sistema">Sistema</button>
+      <button data-page="crafting">Crafting</button>
+      <button data-page="roma">Sobre Roma</button>
+      <button data-page="magia">Magia</button>
+      <button data-page="deuses">Deuses</button>
+    </nav>
+    <div class="sidebar-divider"></div>
+    <div class="section-nav-title">Nesta página</div>
+    <nav class="section-nav" id="sectionNav"></nav>
+    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · 2026</span></div>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Abrir menu">☰</button>
+      <div class="page-title"><span id="pageEyebrow">ARCHIVVM</span><h1 id="pageTitle">Sistema</h1></div>
+      <div class="search-wrap">
+        <input id="globalSearch" type="search" placeholder="Buscar regra, deus, habilidade..." autocomplete="off">
+        <kbd>⌘ K</kbd>
+        <div class="search-results" id="searchResults" hidden></div>
+      </div>
+    </header>
+    <div class="content" id="content"></div>
+    <footer class="site-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Sistema consolidado para GitHub Pages.</small></footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="content.js?v=1.0"></script>
+<script src="app.js?v=1.0"></script>
+</body>
+</html>
