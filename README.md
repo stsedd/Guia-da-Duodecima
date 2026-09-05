@@ -1,24 +1,28 @@
-# Guia da Duodécima — GitHub v1.2
+# Guia da Duodécima — GitHub Pages v1.3
 
-Versão estática otimizada para GitHub Pages.
+Versão visual final do Guia da Duodécima, reconstruída para GitHub Pages e refinada com a linguagem visual do Guia publicado no Netlify.
 
-## Ajustes visuais da v1.2
+## O que esta versão mantém
 
-- correção do título da sidebar para não ser cortado pela barra de rolagem;
-- status **KIT DISPONÍVEL** separado visualmente do nome do deus;
-- banners horizontais exibidos na proporção original, sem `cover` e sem recorte;
-- banners dos panteões reorganizados com a arte completa ao lado do texto;
-- comportamento responsivo revisto para celular;
-- espaçamentos entre títulos, cards, seções e atalhos refinados;
-- links internos antigos de Crafting/Sobre Roma normalizados para a navegação da aplicação.
+- Sistema completo consolidado.
+- Crafting, Magia e Sobre Roma.
+- 51 kits divinos completos.
+- Busca global.
+- Navegação lateral e versão mobile.
+- Imagens de banner preservadas sem crop.
 
-## Estrutura
+## Refinamentos visuais da v1.3
 
-- `index.html`
-- `styles.css`
-- `app.js`
-- `content.js`
-- `assets/`
-- `.nojekyll`
+- Preto mais profundo e vermelho mais vivo.
+- Interface com aparência de aplicativo digital, botões e cards mais arredondados.
+- Títulos principais em Times New Roman.
+- Capa grande da Legio XII mantida como destaque.
+- Atributos exibidos com círculos e cores próprias.
+- Perícias reorganizadas em cartões compactos, separados pela cor de cada atributo.
+- Recursos/status mais visuais.
+- Introduções de Triúnviros, Dii Consentis, Dii Inferi, Alati, Ventis e Numina com a arte completa menor e mais espaço para descrição.
+- Adaptação específica para celular.
 
-Não há build, npm ou framework. Publique a raiz do repositório via GitHub Pages.
+## Publicação
+
+Coloque o conteúdo desta pasta diretamente na raiz do repositório e publique com GitHub Pages usando a branch `main` e `/(root)`.

@@ -1,3 +1,5 @@
+# Deploy no GitHub Pages — v1.3
+
 # Deploy no GitHub Pages
 
 1. Extraia o ZIP.
