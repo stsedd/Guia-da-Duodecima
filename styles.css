@@ -131,3 +131,105 @@ body{background:
   .pantheon-banner{min-height:124px;padding:13px}
 }
 @media(max-width:480px){.jump-grid,.journey-strip{grid-template-columns:1fr}.content.page-sistema::before{height:88px}.banner-strip{height:62px;min-height:62px}}
+
+/* v1.2 — refinamento de navegação, espaçamento e imagens sem crop */
+:root{--sidebar-w:300px}
+.app-shell{grid-template-columns:var(--sidebar-w) minmax(0,1fr)}
+.sidebar{scrollbar-width:thin;scrollbar-color:#5a454b transparent}
+.sidebar::-webkit-scrollbar{width:7px}.sidebar::-webkit-scrollbar-track{background:transparent}.sidebar::-webkit-scrollbar-thumb{background:#5a454b;border-radius:999px}
+.brand{gap:13px;align-items:center;min-width:0}
+.brand img{flex:0 0 auto;width:64px;height:64px}
+.brand span{min-width:0;overflow:visible}
+.brand b{font-size:10px;line-height:1.25;white-space:normal}
+.brand strong{font-size:19px;line-height:1.05;white-space:normal;overflow-wrap:normal;word-break:normal;max-width:180px}
+
+/* Nomes e estados de kit: separar visualmente e permitir quebra limpa */
+.god-row{grid-template-columns:minmax(260px,.72fr) minmax(0,1.28fr);gap:16px;padding:10px 12px;align-items:center}
+.god-row>div{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-width:0}
+.god-row p{margin:0;color:#bfb3b6;line-height:1.42}
+.god-name{font:700 14px/1.2 var(--serif);min-width:0}
+.god-state{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;padding:3px 7px;border:1px solid #5b4930;border-radius:999px;background:#120f0a;font-size:7px;line-height:1;letter-spacing:.11em;color:#d1ac64;white-space:nowrap}
+.god-state.ready{border-color:#5b4930;color:#d1ac64}
+.pantheon-members{gap:7px}
+
+/* Hero do sistema como imagem real: 1400x296 inteiro */
+.content.page-sistema::before{display:none!important}
+.system-hero-media{margin:0 0 18px;padding:0;border:1px solid #553039;border-radius:8px;background:#080708;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.18)}
+.system-hero-media img{display:block;width:100%;height:auto;object-fit:contain}
+
+/* Aberturas principais: não usar cover; imagem real + texto separado */
+.content>.gods-opening,.content>.crafting-opening,.content>.magic-opening,.content>.about-opening{
+  min-height:0!important;display:grid!important;grid-template-columns:1fr!important;align-items:stretch!important;justify-content:initial!important;
+  padding:0!important;margin:0 0 18px!important;overflow:hidden;background:#0b090a!important;box-shadow:0 16px 42px rgba(0,0,0,.16)!important
+}
+.content>.gods-opening:after,.content>.crafting-opening:after,.content>.magic-opening:after,.content>.about-opening:after{display:none!important}
+.opening-visual{display:block;width:100%;height:auto;object-fit:contain;background:#050505;border-bottom:1px solid #3c2b30}
+.content>.gods-opening>.opening-visual{width:min(320px,100%);justify-self:center;border:0;border-bottom:1px solid #3c2b30}
+.content>.gods-opening>h1,.content>.gods-opening>p,.content>.gods-opening>.gods-opening__note,
+.content>.crafting-opening>h1,.content>.crafting-opening>p,.content>.crafting-opening>.gods-opening__note,
+.content>.magic-opening>h1,.content>.magic-opening>p,.content>.magic-opening>.gods-opening__note,
+.content>.about-opening>h1,.content>.about-opening>p,.content>.about-opening>.gods-opening__note{margin-left:26px!important;margin-right:26px!important}
+.content>.gods-opening>h1,.content>.crafting-opening>h1,.content>.magic-opening>h1,.content>.about-opening>h1{margin-top:21px!important}
+.content>.gods-opening>p:last-child,.content>.crafting-opening>p:last-child,.content>.magic-opening>p:last-child,.content>.about-opening>p:last-child{margin-bottom:24px!important}
+.content>.gods-opening>.gods-opening__note{margin-bottom:24px!important}
+
+/* Banners horizontais das seções: aspect ratio original, sem crop */
+.banner-strip{height:auto!important;min-height:0!important;aspect-ratio:auto!important;margin:8px 0 14px!important;border-radius:7px;background:none!important;box-shadow:none!important;border:1px solid #3e2a30}
+.banner-strip::after{display:none!important}
+.banner-strip .section-banner-img{display:block!important;width:100%;height:auto;object-fit:contain;background:#050505}
+
+/* Sobre Roma: substituir pseudo-banners cropados por imagens reais */
+#casa-lobo::before,#coortes::before,#nova-roma::before,#panteoes::before{display:none!important}
+.section-visual{margin:7px 0 14px;border:1px solid #3c2b30;border-radius:7px;overflow:hidden;background:#050505}
+.section-visual img{display:block;width:100%;height:auto;object-fit:contain}
+
+/* Panteões: arte quadrada inteira, sem esticar/cortar, e copy ao lado */
+.pantheon-banner{min-height:0!important;display:grid!important;grid-template-columns:minmax(190px,240px) minmax(0,1fr);align-items:center!important;gap:20px;padding:14px!important;background:#0d0b0c!important;box-shadow:none!important;overflow:hidden}
+.pantheon-banner::before{display:none!important}
+.pantheon-art{display:block!important;width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border:1px solid #3d2b30;border-radius:6px;background:#060606}
+.pantheon-banner__copy{max-width:none;padding:10px 12px 10px 0}
+.pantheon-banner__copy h2{font-size:clamp(28px,3vw,42px);margin:2px 0 7px}
+.pantheon-banner__copy p{font-size:14px;line-height:1.5;margin:5px 0;color:#d3c7ca}
+
+/* Espaçamento geral mais consistente */
+.section{padding-top:24px;margin-bottom:14px}
+.section-head{gap:16px;margin-bottom:14px}
+.section-head>span{flex:0 0 auto;padding:3px 7px;border:1px solid #34252a;border-radius:999px;color:#ad955e;font-size:8px;letter-spacing:.11em}
+.jump-grid,.journey-strip{margin-bottom:24px}
+.paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box,.foreign-cta,.discord-disclaimer,.map-panel,.torn-card{padding:14px 15px}
+
+@media(max-width:1180px){
+  :root{--sidebar-w:250px}
+  .brand img{width:56px;height:56px}.brand strong{font-size:16px;max-width:150px}.brand b{font-size:8.5px}
+  .god-row{grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr)}
+}
+
+@media(max-width:780px){
+  .sidebar{width:min(330px,88vw);padding:18px 16px}
+  .brand img{width:58px;height:58px}.brand strong{font-size:18px;max-width:none}.brand b{font-size:9px}
+  .content{padding:14px 12px 58px}
+  .system-hero-media{margin-bottom:12px}
+  .content>.gods-opening,.content>.crafting-opening,.content>.magic-opening,.content>.about-opening{margin-bottom:12px!important}
+  .content>.gods-opening>.opening-visual{width:min(250px,100%)}
+  .content>.gods-opening>h1,.content>.gods-opening>p,.content>.gods-opening>.gods-opening__note,
+  .content>.crafting-opening>h1,.content>.crafting-opening>p,.content>.crafting-opening>.gods-opening__note,
+  .content>.magic-opening>h1,.content>.magic-opening>p,.content>.magic-opening>.gods-opening__note,
+  .content>.about-opening>h1,.content>.about-opening>p,.content>.about-opening>.gods-opening__note{margin-left:16px!important;margin-right:16px!important}
+  .content>.gods-opening>h1,.content>.crafting-opening>h1,.content>.magic-opening>h1,.content>.about-opening>h1{margin-top:16px!important;font-size:31px}
+  .content>.gods-opening>p:last-child,.content>.crafting-opening>p:last-child,.content>.magic-opening>p:last-child,.content>.about-opening>p:last-child{margin-bottom:17px!important}
+  .pantheon-banner{grid-template-columns:1fr;gap:8px;padding:10px!important}
+  .pantheon-art{width:min(260px,100%);justify-self:center}
+  .pantheon-banner__copy{padding:7px 6px 10px}.pantheon-banner__copy h2{font-size:29px}.pantheon-banner__copy p{font-size:12.5px}
+  .god-row{grid-template-columns:1fr;gap:7px;padding:10px}.god-row>div{gap:7px}.god-row p{font-size:11.5px}
+  .god-name{font-size:13px}.god-state{font-size:6.5px;padding:3px 6px}
+  .section{padding-top:19px}.section-head{align-items:flex-start}.section-head>span{margin-top:2px}
+  .banner-strip,.section-visual{margin:6px 0 11px!important}
+}
+
+@media(max-width:430px){
+  .topbar{gap:8px}.page-title h1{font-size:18px}.page-title span{font-size:8px}
+  .content>.gods-opening>.opening-visual{width:min(220px,100%)}
+  .god-row>div{align-items:flex-start}.god-state{margin-top:1px}
+}
+.pantheon-banner>figure{margin:0;min-width:0;align-self:center}
+@media(max-width:780px){.pantheon-banner>figure{width:100%;display:flex;justify-content:center}}

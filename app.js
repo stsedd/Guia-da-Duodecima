@@ -16,6 +16,88 @@
 
   const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   function closeMenu(){sidebar.classList.remove('open');scrim.classList.remove('show')}
+
+  const visualMap={
+    poderes:['assets/visual/banner-sistema.webp','Sistema de jogo'],
+    legados:['assets/visual/banner-legados.webp','Legados'],
+    reclamacao:['assets/visual/reclamacoes.webp','Reclamação'],
+    criacao:['assets/visual/atributos.webp','Atributos'],
+    recursos:['assets/visual/banner-status.webp','Status'],
+    treinos:['assets/visual/banner-treinamento.webp','Treinamento'],
+    combate:['assets/visual/banner-combate.webp','Combate'],
+    condicoes:['assets/visual/banner-condicoes.webp','Condições'],
+    hierarquia:['assets/visual/hierarquia.webp','Hierarquia'],
+    afinidade:['assets/visual/afinidade.webp','Afinidade'],
+    'casa-lobo':['assets/visual/sobre-casa-lobo.webp','Casa do Lobo'],
+    coortes:['assets/visual/sobre-coortes.webp','Coortes'],
+    'nova-roma':['assets/visual/sobre-nova-roma.webp','Nova Roma'],
+  };
+  const pantheonVisuals={
+    triunviros:['assets/visual/deuses-triunviros.webp','Triúnviros'],
+    'dii-consentis':['assets/visual/deuses-dii-consentis.webp','Dii Consentis'],
+    'dii-inferi':['assets/visual/deuses-dii-inferi.webp','Dii Inferi'],
+    alati:['assets/visual/deuses-alati.webp','Alati'],
+    ventis:['assets/visual/deuses-ventis.webp','Ventis'],
+    numina:['assets/visual/deuses-numina.webp','Numina']
+  };
+  const openingVisuals={
+    crafting:['assets/visual/banner-crafting-custom.webp','Crafting'],
+    magia:['assets/visual/magia-hero.webp','Magia'],
+    roma:['assets/visual/roma-hero.webp','Sobre Roma'],
+    deuses:['assets/visual/deuses-triunviros.webp','Panteão romano']
+  };
+  function addImage(el,src,alt,cls){
+    if(!el||el.querySelector(':scope > img.'+cls)) return;
+    const img=document.createElement('img');img.className=cls;img.src=src;img.alt=alt;img.loading='eager';img.decoding='async';
+    el.prepend(img);
+  }
+  function enhanceVisuals(){
+    // Sistema: banner principal real, sem crop.
+    if(current==='sistema' && !content.querySelector(':scope > .system-hero-media')){
+      const fig=document.createElement('figure');fig.className='system-hero-media';
+      fig.innerHTML='<img src="assets/visual/legio.webp" alt="Legio XII Fulminata">';
+      content.prepend(fig);
+    }
+    // Aberturas principais. A imagem é elemento real para nunca ser cortada.
+    const open=content.querySelector(':scope > .gods-opening,:scope > .crafting-opening,:scope > .magic-opening,:scope > .about-opening');
+    if(open && openingVisuals[current]) addImage(open,...openingVisuals[current],'opening-visual');
+    // Banners horizontais das seções.
+    content.querySelectorAll('.section[id]').forEach(sec=>{
+      const info=visualMap[sec.id];
+      const strip=sec.querySelector(':scope > .banner-strip');
+      if(info && strip) addImage(strip,...info,'section-banner-img');
+      if(info && !strip && ['casa-lobo','coortes','nova-roma'].includes(sec.id)){
+        const fig=document.createElement('figure');fig.className='section-visual';
+        fig.innerHTML=`<img src="${info[0]}" alt="${info[1]}">`;
+        sec.prepend(fig);
+      }
+    });
+    // Outros panteões em Sobre Roma usa o banner horizontal próprio.
+    if(current==='roma'){
+      const sec=content.querySelector('#panteoes');
+      if(sec && !sec.querySelector(':scope > .section-visual')){
+        const fig=document.createElement('figure');fig.className='section-visual';
+        fig.innerHTML='<img src="assets/visual/sobre-panteoes.webp" alt="Outros panteões">';
+        sec.prepend(fig);
+      }
+    }
+    // Banners dos grupos divinos: arte quadrada inteira + texto, sem cover.
+    if(current==='deuses'){
+      Object.entries(pantheonVisuals).forEach(([id,info])=>{
+        const banner=content.querySelector(`#${CSS.escape(id)} .pantheon-banner`);
+        if(!banner) return;
+        const media=banner.querySelector(':scope > figure')||banner;
+        addImage(media,...info,'pantheon-art');
+      });
+    }
+  }
+  function fixInternalLinks(){
+    content.querySelectorAll('a[href]').forEach(a=>{
+      const href=(a.getAttribute('href')||'').replace(/\\/g,'');
+      if(href==='sobre-roma/#estrangeiros') a.setAttribute('href','#page:roma:estrangeiros');
+      if(href==='crafting/'||href==='crafting') a.setAttribute('href','#page:crafting');
+    });
+  }
   function sectionTitle(sec){
     const h=sec.querySelector('h2,h1'); if(h) return h.textContent.trim();
     return (sec.dataset.title||sec.id||'Seção').replace(/-/g,' ');
@@ -35,6 +117,8 @@
     current=key; deityFocus=null;
     content.className=`content page-${key}`;
     content.innerHTML=pages[key].html;
+    fixInternalLinks();
+    enhanceVisuals();
     title.textContent=pages[key].title;
     eyebrow.textContent=labels[key]||'ARCHIVVM';
     document.title=`${pages[key].title} · Guia da Duodécima`;
