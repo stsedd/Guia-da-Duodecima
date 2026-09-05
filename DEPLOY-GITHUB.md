@@ -1,11 +1,24 @@
 # Deploy no GitHub Pages
 
 1. Extraia o ZIP.
-2. Na raiz do repositório devem aparecer diretamente `index.html`, `styles.css`, `app.js`, `content.js` e `assets/`.
-3. Faça commit e push para a branch `main`.
-4. Abra **Settings → Pages**.
-5. Em **Source**, escolha **Deploy from a branch**.
-6. Selecione **main** e **/(root)**.
-7. Salve e aguarde a publicação.
+2. Substitua os arquivos da raiz do repositório atual do Guia pelos arquivos desta pasta.
+3. Confirme que `index.html`, `app.js`, `content.js`, `core-bridge.js`, `styles.css` e `assets/` estão na raiz.
+4. Faça commit e push para `main`.
+5. Em **Settings → Pages**, mantenha **Deploy from a branch → main → /(root)**.
+6. Aguarde o Pages publicar.
 
-A presença de `.nojekyll` evita processamento desnecessário pelo Jekyll.
+## Teste obrigatório
+
+Abra o Guia e confira a sidebar:
+
+- `CORE 2026.09.04.1` = integração funcionando.
+- `SNAPSHOT LOCAL` = o Guia abriu, mas não conseguiu ler o Core.
+
+Depois teste:
+
+- Sistema → Perícias;
+- Sistema → Talentos;
+- Sistema → Condições;
+- Deuses → Vulcano → Autômato.
+
+O Autômato deve mostrar **Bastião, Infiltrador e Utilitário** como blocos próprios, com as estacas internas de cada capacidade quando existirem.

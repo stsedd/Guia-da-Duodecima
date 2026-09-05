@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#070707">
   <meta name="description" content="Guia da Duodécima — sistema, Roma, magia, crafting e panteão da Legio XII Fulminata.">
   <title>Guia da Duodécima</title>
-  <link rel="stylesheet" href="styles.css?v=2.0">
+  <link rel="stylesheet" href="styles.css?v=2.1">
 </head>
 <body>
 <div class="app-shell">
@@ -26,7 +26,7 @@
     <div class="sidebar-divider"></div>
     <div class="section-nav-title">Nesta página</div>
     <nav class="section-nav" id="sectionNav"></nav>
-    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · 2026</span></div>
+    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · 2026</span><div class="core-status" id="coreStatus"><i></i><span>CORE · CARREGANDO</span></div></div>
   </aside>
 
   <main class="workspace">
@@ -45,7 +45,8 @@
 </div>
 <button class="to-top" id="toTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
 <div class="scrim" id="scrim"></div>
-<script src="content.js?v=2.0"></script>
-<script src="app.js?v=2.0"></script>
+<script src="content.js?v=2.1"></script>
+<script src="core-bridge.js?v=2.1"></script>
+<script>Promise.resolve(window.DUODECIMA_CORE_READY).finally(()=>{const s=document.createElement('script');s.src='app.js?v=2.1';document.body.appendChild(s);});</script>
 </body>
 </html>

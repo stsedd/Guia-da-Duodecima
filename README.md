@@ -1,40 +1,11 @@
-# Guia da Duodécima — GitHub Pages · Visual 2.0
+# Guia da Duodécima · v2.1 Core
 
-Versão consolidada do Guia da Duodécima reconstruída como site estático leve para GitHub Pages.
+Versão GitHub Pages do Guia da Duodécima conectada ao **Duodécima Core**.
 
-## O que esta versão contém
+- Visual v2.0 preservado.
+- 51 kits continuam disponíveis.
+- Regras compartilhadas são carregadas do Core em runtime.
+- `content.js` funciona como snapshot local/fallback.
+- Sem build, npm ou servidor.
 
-- Sistema completo da Duodécima.
-- Crafting, Forja, Runas e Alquimia.
-- Magia e progressão dos círculos.
-- Sobre Roma, Acampamento, Nova Roma, estrangeiros, panteões e lideranças.
-- 51 kits divinos completos: Triúnviros, Dii Consentis, Dii Inferi, Alati, Ventis e Numina.
-- Busca global.
-- Navegação responsiva.
-- Sidebar recolhível no desktop.
-- Design visual 2.0, com sistema tipográfico e espaçamento padronizados.
-
-## Visual 2.0
-
-A atualização reorganiza visualmente o conteúdo sem alterar as mecânicas:
-
-- fundo preto e vermelho mais vivo;
-- títulos em Times New Roman e interface em sans-serif;
-- seções separadas por barras e ritmos consistentes;
-- atributos e perícias codificados por cor;
-- Status, Sanidade e Energia em módulos de consulta;
-- progressões visuais para BP, Talentos e Estacas;
-- Talentos em grade de 3 colunas com badges de nível, categoria e uso único;
-- Condições com busca própria;
-- Morte & Vida em fluxo visual;
-- Fama e Afinidade em escalas;
-- Economia, Trabalhos, Familiares, Crafting e Magia com componentes próprios;
-- panteões e kits divinos redesenhados para consulta rápida;
-- todas as três estacas de habilidades ficam visualmente separadas quando aparecem na descrição;
-- responsividade revisada para tablet e celular.
-
-## Publicação
-
-Coloque os arquivos diretamente na raiz do repositório e publique com GitHub Pages usando `main` + `/(root)`.
-
-Consulte `DEPLOY-GITHUB.md`.
+Consulte `CORE-INTEGRATION.md` para detalhes da sincronização e `DEPLOY-GITHUB.md` para publicação.

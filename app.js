@@ -152,7 +152,7 @@
         const name=[...h.childNodes].filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join('').trim()||h.textContent.trim();
         const text=card.textContent;
         const meta=document.createElement('div');meta.className='talent-meta';
-        const group=talentGroup(name);meta.innerHTML=`<span class="talent-kind kind-${group}">${group.toUpperCase()}</span>${/s[oó] pode ser escolhido uma vez/i.test(text)?'<span class="talent-once">ÚNICO</span>':''}`;
+        const group=talentGroup(name);const unique=card.dataset.repeatable==='false'||/s[oó] pode ser escolhido uma vez/i.test(text);meta.innerHTML=`<span class="talent-kind kind-${group}">${group.toUpperCase()}</span>${unique?'<span class="talent-once">ÚNICO</span>':''}`;
         card.append(meta);
       }
     });
