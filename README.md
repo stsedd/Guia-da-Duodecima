@@ -1,14 +1,14 @@
-# Guia da Duodécima — GitHub Clean
+# Guia da Duodécima — GitHub Pages · v1.1
 
-Reconstrução estática do Guia da Duodécima para GitHub Pages.
+Versão estática, leve e pronta para GitHub Pages. Esta revisão mantém todo o conteúdo consolidado e adiciona novamente a identidade visual do Guia usando imagens otimizadas em WebP.
 
 ## Estrutura
 
-- `index.html` — aplicação inteira
-- `styles.css` — visual
-- `content.js` — conteúdo consolidado do Sistema, Crafting, Sobre Roma, Magia e 51 kits divinos
-- `app.js` — navegação, busca e interações
-- `assets/` — somente seis imagens realmente informativas/identitárias, otimizadas em WebP
-- `.nojekyll` — compatibilidade com GitHub Pages
+- `index.html`
+- `styles.css`
+- `app.js`
+- `content.js`
+- `assets/` — mapas, perfis e visuais comprimidos
+- `.nojekyll`
 
-Não há build, npm, framework ou dependências externas.
+Não requer build, npm ou servidor.

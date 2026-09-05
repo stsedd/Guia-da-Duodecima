@@ -33,7 +33,7 @@
   function showPage(key, anchor=null, push=true){
     if(!pages[key]) key='sistema';
     current=key; deityFocus=null;
-    content.classList.remove('deity-focus');
+    content.className=`content page-${key}`;
     content.innerHTML=pages[key].html;
     title.textContent=pages[key].title;
     eyebrow.textContent=labels[key]||'ARCHIVVM';

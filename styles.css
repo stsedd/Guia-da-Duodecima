@@ -33,3 +33,101 @@
 .pantheon-card small{color:#a88c57;font-size:9px;line-height:1.35}
 .pantheon-card strong{font:700 17px/1.1 var(--serif);color:#f1ebed}
 .pantheon-card b{font-size:10px;color:#cfad6a}
+
+
+/* v1.1 — polimento visual e espaçamento */
+:root{--radius:6px;--content-max:1360px}
+body{background:
+  radial-gradient(circle at 78% 12%,rgba(128,20,35,.07),transparent 29rem),
+  linear-gradient(180deg,#080708 0,#050505 100%)}
+.sidebar{padding:20px 17px;background:linear-gradient(180deg,#0a0809 0,#070707 70%);box-shadow:10px 0 34px rgba(0,0,0,.18)}
+.brand{margin-bottom:20px;padding-bottom:17px;border-bottom:1px solid #251b1e}
+.brand img{width:58px;height:58px;border-radius:7px;box-shadow:0 0 0 3px #0b090a,0 0 0 4px #4c2830}
+.page-nav{gap:4px}.page-nav button{padding:9px 10px}
+.sidebar-divider{margin:17px 0}.section-nav{gap:0}.section-nav a{padding:4px 8px;line-height:1.35}
+.topbar{padding:12px 24px;min-height:68px}.content{max-width:var(--content-max);padding:24px 30px 72px}.site-footer{max-width:var(--content-max);padding:18px 30px}
+
+/* abertura visual da página de sistema */
+.content.page-sistema::before{content:"";display:block;height:156px;margin:0 0 14px;border:1px solid #553039;border-radius:7px;background:
+  linear-gradient(90deg,rgba(7,7,7,.2),rgba(7,7,7,.62)),
+  linear-gradient(0deg,rgba(150,18,38,.12),transparent 65%),
+  url('assets/visual/legio.webp') center/cover no-repeat;box-shadow:inset 0 -46px 70px rgba(0,0,0,.48)}
+
+/* aberturas com imagem do material visual original, otimizada para GitHub */
+.content>.gods-opening,.content>.crafting-opening,.content>.magic-opening,.content>.about-opening{min-height:190px;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 27px;margin:0 0 14px;border-radius:7px;background-color:#0a0809;background-size:cover;background-position:center;box-shadow:inset 0 -90px 120px rgba(0,0,0,.75)}
+.content>.crafting-opening{background-image:linear-gradient(90deg,rgba(7,7,7,.2),rgba(7,7,7,.58)),url('assets/visual/banner-crafting-custom.webp')}
+.content>.magic-opening{background-image:linear-gradient(90deg,rgba(7,7,7,.15),rgba(7,7,7,.6)),url('assets/visual/magia-hero.webp')}
+.content>.about-opening{background-image:linear-gradient(90deg,rgba(7,7,7,.18),rgba(7,7,7,.65)),url('assets/visual/roma-hero.webp');background-position:center 43%}
+.content>.gods-opening{background-image:linear-gradient(90deg,rgba(7,7,7,.18),rgba(7,7,7,.67)),url('assets/visual/deuses-triunviros.webp');background-position:center 42%}
+.content>.gods-opening:after,.content>.crafting-opening:after,.content>.magic-opening:after,.content>.about-opening:after{font-size:82px;bottom:-13px;right:18px;color:rgba(225,29,52,.12)}
+.content>.gods-opening h1,.content>.crafting-opening h1,.content>.magic-opening h1,.content>.about-opening h1{font-size:clamp(31px,4vw,50px);margin:.08em 0 .14em;text-shadow:0 2px 14px #000}
+.content>.gods-opening p,.content>.crafting-opening p,.content>.magic-opening p,.content>.about-opening p{margin:0;max-width:820px;color:#d8ced1;text-shadow:0 1px 8px #000}
+
+/* atalhos: mais respiro e hierarquia correta */
+.jump-grid,.journey-strip{gap:8px;margin:0 0 20px}.jump-grid a,.journey-strip>*{min-height:66px;padding:10px 11px;border-radius:5px;background:linear-gradient(180deg,#0d0a0b,#090809)}
+.jump-grid a{grid-template-columns:27px minmax(0,1fr);column-gap:8px;row-gap:3px}
+.jump-grid a>span{font-size:11px;padding-top:1px;color:#e23a4e}
+.jump-grid a>strong{font-size:12.5px;line-height:1.25;letter-spacing:.01em}
+.jump-grid a>small{font-size:9.5px;line-height:1.35;color:#9f9497}
+.journey-strip>*{display:grid;grid-template-columns:24px 1fr;gap:2px 7px}.journey-strip b{grid-row:1/3;color:var(--red);font:700 11px var(--serif)}.journey-strip strong{font-size:12px}.journey-strip small{font-size:9px;color:#8e8386}
+
+/* seções mais compactas e consistentes */
+.section{padding:22px 0 8px;margin:0 0 10px;scroll-margin-top:76px}.section-head{margin-bottom:12px;align-items:center}.section h2{margin:3px 0 7px;font-size:clamp(23px,2.7vw,34px)}.section h3{margin:6px 0;font-size:17px}.section p{margin:6px 0 9px;line-height:1.5}.section ul,.section ol{margin:7px 0;padding-left:19px}.section li{margin:4px 0}
+.grid,.attr-grid,.resource-grid,.training-grid,.combat-facts,.ability-grid,.money-grid,.job-grid,.job-grid-full,.honor-grid,.rank-grid,.pantheon-grid,.pantheon-children,.talent-grid-full,.close-grid,.familiar-rules,.death-flow{gap:8px}
+.paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box,.foreign-cta,.discord-disclaimer,.map-panel,.torn-card{padding:12px 13px}
+.foreign-cta{margin:11px 0}.formula,.big-formula,.micro,.label,.job-meta,.rule-line,.event-lines{margin:5px 0;padding:7px 9px}
+.table-wrap{margin:9px 0}.subheading{margin-top:17px}
+
+/* banners visuais reaproveitados, comprimidos para menos de 1 MB no total */
+.banner-strip{height:104px;min-height:104px;margin:7px 0 12px;border-radius:6px;border:1px solid #3e2a30;background-position:center;background-size:cover;background-repeat:no-repeat;position:relative;box-shadow:inset 0 -30px 50px rgba(0,0,0,.35)}
+.banner-strip::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,7,7,.08),rgba(7,7,7,.48));pointer-events:none}
+#poderes .banner-strip{background-image:url('assets/visual/banner-sistema.webp')}
+#legados .banner-strip{background-image:url('assets/visual/banner-legados.webp')}
+#reclamacao .banner-strip{background-image:url('assets/visual/reclamacoes.webp')}
+#criacao .banner-strip{background-image:url('assets/visual/atributos.webp')}
+#recursos .banner-strip{background-image:url('assets/visual/banner-status.webp')}
+#treinos .banner-strip{background-image:url('assets/visual/banner-treinamento.webp')}
+#combate .banner-strip{background-image:url('assets/visual/banner-combate.webp')}
+#condicoes .banner-strip{background-image:url('assets/visual/banner-condicoes.webp')}
+#hierarquia .banner-strip{background-image:url('assets/visual/hierarquia.webp')}
+#afinidade .banner-strip{background-image:url('assets/visual/afinidade.webp')}
+
+/* Roma: imagens pontuais sem voltar a pesar o repositório */
+#casa-lobo{position:relative}#casa-lobo::before,#coortes::before,#nova-roma::before,#panteoes::before{content:"";display:block;height:96px;margin:4px 0 12px;border-radius:6px;border:1px solid #33252a;background-size:cover;background-position:center;box-shadow:inset 0 -35px 50px rgba(0,0,0,.38)}
+#casa-lobo::before{background-image:url('assets/visual/sobre-casa-lobo.webp')}
+#coortes::before{background-image:url('assets/visual/sobre-coortes.webp')}
+#nova-roma::before{background-image:url('assets/visual/sobre-nova-roma.webp')}
+.content.page-roma #panteoes::before{background-image:url('assets/visual/sobre-panteoes.webp')}
+.content.page-deuses #panteoes::before{display:none}
+
+/* panteão mais visual */
+.pantheon-banner{min-height:150px;padding:17px 18px;display:flex;align-items:flex-end;overflow:hidden;position:relative;background-size:cover;background-position:center;border-color:#483038;box-shadow:inset 0 -80px 95px rgba(0,0,0,.72)}
+.pantheon-banner::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,7,7,.15),rgba(7,7,7,.54));pointer-events:none}.pantheon-banner__copy{position:relative;z-index:1;max-width:760px}.pantheon-banner__copy p{margin-bottom:0;color:#d0c4c7}
+#triunviros .pantheon-banner{background-image:url('assets/visual/deuses-triunviros.webp')}
+#dii-consentis .pantheon-banner{background-image:url('assets/visual/deuses-dii-consentis.webp')}
+#dii-inferi .pantheon-banner{background-image:url('assets/visual/deuses-dii-inferi.webp')}
+#alati .pantheon-banner{background-image:url('assets/visual/deuses-alati.webp')}
+#ventis .pantheon-banner{background-image:url('assets/visual/deuses-ventis.webp')}
+#numina .pantheon-banner{background-image:url('assets/visual/deuses-numina.webp')}
+
+/* cards e kits */
+.paper-card,.feature,.talent-card,.pantheon-card,.deity-info,.deity-ability{box-shadow:0 7px 20px rgba(0,0,0,.08)}
+.pantheon-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}.pantheon-card{min-height:78px;padding:13px 14px;background:linear-gradient(145deg,#100c0d,#080708)}
+.god-row{padding:7px 9px}.deity-detail{max-width:1120px}.deity-title{padding:16px 17px;margin-bottom:8px}.deity-title h2{font-size:36px}.deity-info-grid{gap:6px}.deity-info{padding:9px}.deity-tools{margin:15px 0 6px}.deity-abilities{gap:4px}.deity-ability summary{padding:8px 10px}.ability-body{padding:5px 11px 11px}
+
+@media(max-width:1100px){
+  .content{padding:22px 20px 64px}
+  .content.page-sistema::before{height:132px}
+  .banner-strip{height:90px;min-height:90px}
+}
+@media(max-width:780px){
+  .topbar{padding:9px 11px}.content{padding:14px 10px 54px}
+  .content.page-sistema::before{height:104px;margin-bottom:10px}
+  .content>.gods-opening,.content>.crafting-opening,.content>.magic-opening,.content>.about-opening{min-height:154px;padding:18px 16px;margin-bottom:10px}
+  .jump-grid,.journey-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:14px}.jump-grid a,.journey-strip>*{min-height:60px;padding:8px}
+  .section{padding-top:17px;margin-bottom:7px}.section-head{margin-bottom:9px}.section h2{font-size:25px}
+  .banner-strip{height:72px;min-height:72px;margin:5px 0 9px}
+  #casa-lobo::before,#coortes::before,#nova-roma::before,#panteoes::before{height:72px;margin-bottom:9px}
+  .pantheon-banner{min-height:124px;padding:13px}
+}
+@media(max-width:480px){.jump-grid,.journey-strip{grid-template-columns:1fr}.content.page-sistema::before{height:88px}.banner-strip{height:62px;min-height:62px}}
