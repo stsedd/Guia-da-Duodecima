@@ -10,6 +10,8 @@
   const results=document.querySelector('#searchResults');
   const sidebar=document.querySelector('#sidebar');
   const scrim=document.querySelector('#scrim');
+  const sidebarCollapse=document.querySelector('#sidebarCollapse');
+  const toTop=document.querySelector('#toTop');
   const labels={sistema:'ARCHIVVM · SISTEMA',crafting:'ARS · PRODUÇÃO',roma:'ROMA · LORE',magia:'ARS ARCANA',deuses:'PANTHEON · ROMA'};
   let current='sistema';
   let deityFocus=null;
@@ -91,6 +93,116 @@
       });
     }
   }
+
+  const TALENT_GROUPS={
+    combate:/ataque|duelista|campe[aã]o|mestre das armas|gambito|comandante|descuidado/i,
+    defesa:/defensor|interceptador|resiliente|bruto|[áa]gil|escudos|corpo saud[aá]vel|dur[aá]vel/i,
+    pericia:/expert|perito|l[ií]ngua de prata|pau pra toda obra|aumento de atributo/i,
+    suporte:/curandeiro|chef|querido|inspirado/i,
+    magia:/magia|m[aá]gico|elemental|habilidades|invocador/i
+  };
+  function talentGroup(name){for(const [k,re] of Object.entries(TALENT_GROUPS))if(re.test(name))return k;return 'utilidade';}
+  function addSectionChrome(){
+    content.querySelectorAll(':scope > .section[id]').forEach((sec,i)=>{
+      const head=sec.querySelector(':scope > .section-head'); if(!head)return;
+      sec.style.setProperty('--section-index',String(i+1).padStart(2,'0'));
+      if(!head.querySelector('.section-rule')){const line=document.createElement('span');line.className='section-rule';head.append(line);}
+    });
+  }
+  function enhanceSkills(){
+    const sec=content.querySelector('#pericias'); if(!sec)return;
+    const grid=sec.querySelector('.skill-grid'); if(!grid)return;
+    if(!sec.querySelector('.skill-legend')){
+      const legend=document.createElement('div');legend.className='skill-legend';legend.innerHTML=`
+        <span class="tone-for"><i>FOR</i>Força</span><span class="tone-des"><i>DES</i>Destreza</span><span class="tone-con"><i>CON</i>Constituição</span>
+        <span class="tone-int"><i>INT</i>Inteligência</span><span class="tone-fe"><i>FÉ</i>Fé</span><span class="tone-car"><i>CAR</i>Carisma</span>`;
+      grid.before(legend);
+    }
+  }
+  function enhanceResources(){
+    const sec=content.querySelector('#recursos'); if(!sec)return;
+    const table=sec.querySelector('.table-wrap table');
+    if(table && !sec.querySelector('.sanity-scale')){
+      const rows=[...table.querySelectorAll('tbody tr')];
+      const scale=document.createElement('div');scale.className='sanity-scale';
+      scale.innerHTML=rows.map((r,i)=>{const c=[...r.children].map(x=>x.innerHTML);return `<article data-band="${i}"><b>${c[0]}</b><strong>${c[1]}</strong><p>${c[2]}</p></article>`}).join('');
+      table.closest('.table-wrap').replaceWith(scale);
+    }
+  }
+  function enhanceProgressions(){
+    const milestones=content.querySelector('#talentos .milestones');
+    if(milestones && !milestones.dataset.enhanced){
+      milestones.dataset.enhanced='1'; const labels=['INÍCIO','II','III','IV'];
+      [...milestones.children].forEach((n,i)=>{n.innerHTML=`<b>${n.textContent.trim()}</b><small>${labels[i]}</small>`;});
+    }
+    const bp=content.querySelector('#prof .bp-list');
+    if(bp) bp.classList.add('progress-track');
+    const train=content.querySelector('#treinos .feature');
+    if(train && !content.querySelector('#treinos .stake-track')){
+      const track=document.createElement('div');track.className='stake-track';track.innerHTML=`<span><b>0–15</b><small>INICIAL</small></span><span><b>16–29</b><small>INTERMEDIÁRIO</small></span><span><b>30+</b><small>DOMÍNIO</small></span>`;
+      train.after(track);
+    }
+  }
+  function enhanceTalents(){
+    const grid=content.querySelector('#talentos .talent-grid-full'); if(!grid)return;
+    [...grid.children].forEach(card=>{
+      const h=card.querySelector('h3'); if(!h)return;
+      const requirement=h.querySelector('span'); if(requirement) requirement.classList.add('talent-level');
+      if(!card.querySelector('.talent-meta')){
+        const name=[...h.childNodes].filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join('').trim()||h.textContent.trim();
+        const text=card.textContent;
+        const meta=document.createElement('div');meta.className='talent-meta';
+        const group=talentGroup(name);meta.innerHTML=`<span class="talent-kind kind-${group}">${group.toUpperCase()}</span>${/s[oó] pode ser escolhido uma vez/i.test(text)?'<span class="talent-once">ÚNICO</span>':''}`;
+        card.append(meta);
+      }
+    });
+  }
+  function enhanceConditions(){
+    const sec=content.querySelector('#condicoes'); if(!sec)return;
+    const list=sec.querySelector('.condition-list'); if(!list)return;
+    if(!sec.querySelector('.condition-toolbar')){
+      const bar=document.createElement('div');bar.className='condition-toolbar';bar.innerHTML='<input type="search" placeholder="Buscar condição…" aria-label="Buscar condição"><button type="button">Recolher todas</button>';
+      list.before(bar);
+      const input=bar.querySelector('input');input.addEventListener('input',()=>{const q=norm(input.value);[...list.children].forEach(d=>d.hidden=q&&!norm(d.textContent).includes(q));});
+      bar.querySelector('button').addEventListener('click',e=>{const any=[...list.querySelectorAll('details')].some(d=>d.open);list.querySelectorAll('details').forEach(d=>d.open=!any);e.currentTarget.textContent=any?'Expandir todas':'Recolher todas';});
+    }
+  }
+  function enhanceAffinity(){
+    const sec=content.querySelector('#afinidade'); if(!sec)return;
+    const scale=sec.querySelector('.affinity-scale'); if(scale && !sec.querySelector('.affinity-axis')){
+      const axis=document.createElement('div');axis.className='affinity-axis';axis.innerHTML='<span><b>−100</b><small>ÓDIO</small></span><span><b>−50</b><small>INIMIZADE</small></span><span><b>−25</b><small>DESCONFIANÇA</small></span><span><b>0</b><small>NEUTRO</small></span><span><b>+30</b><small>RECONHECIMENTO</small></span><span><b>+60</b><small>CONFIANÇA</small></span><span><b>+100</b><small>VÍNCULO</small></span>';
+      scale.before(axis);
+    }
+  }
+  function enhancePantheonFilters(){
+    if(current!=='deuses')return;
+    const sec=content.querySelector('#panteoes'); if(!sec)return;
+    if(!sec.querySelector('.pantheon-filter')){
+      const filter=document.createElement('div');filter.className='pantheon-filter';
+      filter.innerHTML='<button class="active" data-pfilter="all">Todos</button><button data-pfilter="triunviros">Triúnviros</button><button data-pfilter="dii-consentis">Consentis</button><button data-pfilter="dii-inferi">Inferi</button><button data-pfilter="alati">Alati</button><button data-pfilter="ventis">Ventis</button><button data-pfilter="numina">Numina</button>';
+      const grid=sec.querySelector('.pantheon-grid');grid?.before(filter);
+      filter.addEventListener('click',e=>{const b=e.target.closest('[data-pfilter]');if(!b)return;filter.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));const id=b.dataset.pfilter;if(id==='all'){content.querySelectorAll('.pantheon-section').forEach(x=>x.hidden=false);sec.querySelectorAll('.pantheon-card').forEach(x=>x.hidden=false);}else{content.querySelectorAll('.pantheon-section').forEach(x=>x.hidden=x.id!==id);sec.querySelectorAll('.pantheon-card').forEach(x=>x.hidden=!(x.getAttribute('href')||'').includes('#'+id));content.querySelector('#'+CSS.escape(id))?.scrollIntoView({behavior:'smooth',block:'start'});}});
+    }
+  }
+  function enhanceDeityAbilities(){
+    if(current!=='deuses')return;
+    content.querySelectorAll('.deity-ability').forEach(d=>{
+      const body=d.querySelector('.ability-body'); if(!body||body.dataset.enhanced)return;body.dataset.enhanced='1';
+      [...body.querySelectorAll('p')].forEach(p=>{const m=p.innerHTML.match(/^<strong>(0-15|16-29|30\+):<\/strong>\s*(.*)$/i);if(m){p.classList.add('stake-line');p.dataset.stake=m[1];p.innerHTML=`<span>${m[1]}</span><em>${m[2]}</em>`;}});
+      const summary=d.querySelector('summary'); const type=summary?.querySelector('b'); if(type)type.classList.add('ability-type');
+    });
+  }
+  function enhanceJobs(){content.querySelectorAll('.job-grid>article').forEach((x,i)=>{if(!x.dataset.job)x.dataset.job=String(i+1).padStart(2,'0');});}
+  function enhanceFamiliars(){content.querySelectorAll('#familiares .familiar-grid>article').forEach((x,i)=>x.style.setProperty('--familiar-index',String(i+1).padStart(2,'0')));}
+  function enhanceMagic(){
+    const circles=content.querySelector('#circulos .circle-grid'); if(circles)circles.classList.add('progression-circles');
+    content.querySelectorAll('#alta-magia .high-magic-grid>article').forEach(x=>x.classList.add('arcane-card'));
+  }
+  function enhanceCrafting(){content.querySelectorAll('.material-grid>article').forEach((x,i)=>x.style.setProperty('--material-index',String(i+1).padStart(2,'0')));}
+  function enhanceRoma(){content.querySelectorAll('#liderancas .leader-card').forEach((x,i)=>x.style.setProperty('--leader-index',String(i+1).padStart(2,'0')));}
+  function enhanceInterface(){
+    addSectionChrome();enhanceSkills();enhanceResources();enhanceProgressions();enhanceTalents();enhanceConditions();enhanceAffinity();enhancePantheonFilters();enhanceDeityAbilities();enhanceJobs();enhanceFamiliars();enhanceMagic();enhanceCrafting();enhanceRoma();
+  }
   function fixInternalLinks(){
     content.querySelectorAll('a[href]').forEach(a=>{
       const href=(a.getAttribute('href')||'').replace(/\\/g,'');
@@ -119,6 +231,7 @@
     content.innerHTML=pages[key].html;
     fixInternalLinks();
     enhanceVisuals();
+    enhanceInterface();
     title.textContent=pages[key].title;
     eyebrow.textContent=labels[key]||'ARCHIVVM';
     document.title=`${pages[key].title} · Guia da Duodécima`;
@@ -164,6 +277,8 @@
     if(href?.startsWith('#')){e.preventDefault();navigateAnchor(href);closeMenu();}
   });
   document.querySelector('#menuBtn').addEventListener('click',()=>{sidebar.classList.toggle('open');scrim.classList.toggle('show')}); scrim.addEventListener('click',closeMenu);
+  if(sidebarCollapse){let stored=false;try{stored=localStorage.getItem('guia_sidebar_collapsed')==='1'}catch{}document.body.classList.toggle('sidebar-collapsed',stored);sidebarCollapse.textContent=stored?'›':'‹';sidebarCollapse.addEventListener('click',()=>{const v=document.body.classList.toggle('sidebar-collapsed');sidebarCollapse.textContent=v?'›':'‹';try{localStorage.setItem('guia_sidebar_collapsed',v?'1':'0')}catch{}});}
+  if(toTop){window.addEventListener('scroll',()=>toTop.classList.toggle('show',scrollY>700),{passive:true});toTop.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));}
 
   function doSearch(q){
     q=norm(q.trim()); if(q.length<2){results.hidden=true;results.innerHTML='';return;}

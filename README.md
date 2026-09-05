@@ -1,28 +1,40 @@
-# Guia da Duodécima — GitHub Pages v1.3
+# Guia da Duodécima — GitHub Pages · Visual 2.0
 
-Versão visual final do Guia da Duodécima, reconstruída para GitHub Pages e refinada com a linguagem visual do Guia publicado no Netlify.
+Versão consolidada do Guia da Duodécima reconstruída como site estático leve para GitHub Pages.
 
-## O que esta versão mantém
+## O que esta versão contém
 
-- Sistema completo consolidado.
-- Crafting, Magia e Sobre Roma.
-- 51 kits divinos completos.
+- Sistema completo da Duodécima.
+- Crafting, Forja, Runas e Alquimia.
+- Magia e progressão dos círculos.
+- Sobre Roma, Acampamento, Nova Roma, estrangeiros, panteões e lideranças.
+- 51 kits divinos completos: Triúnviros, Dii Consentis, Dii Inferi, Alati, Ventis e Numina.
 - Busca global.
-- Navegação lateral e versão mobile.
-- Imagens de banner preservadas sem crop.
+- Navegação responsiva.
+- Sidebar recolhível no desktop.
+- Design visual 2.0, com sistema tipográfico e espaçamento padronizados.
 
-## Refinamentos visuais da v1.3
+## Visual 2.0
 
-- Preto mais profundo e vermelho mais vivo.
-- Interface com aparência de aplicativo digital, botões e cards mais arredondados.
-- Títulos principais em Times New Roman.
-- Capa grande da Legio XII mantida como destaque.
-- Atributos exibidos com círculos e cores próprias.
-- Perícias reorganizadas em cartões compactos, separados pela cor de cada atributo.
-- Recursos/status mais visuais.
-- Introduções de Triúnviros, Dii Consentis, Dii Inferi, Alati, Ventis e Numina com a arte completa menor e mais espaço para descrição.
-- Adaptação específica para celular.
+A atualização reorganiza visualmente o conteúdo sem alterar as mecânicas:
+
+- fundo preto e vermelho mais vivo;
+- títulos em Times New Roman e interface em sans-serif;
+- seções separadas por barras e ritmos consistentes;
+- atributos e perícias codificados por cor;
+- Status, Sanidade e Energia em módulos de consulta;
+- progressões visuais para BP, Talentos e Estacas;
+- Talentos em grade de 3 colunas com badges de nível, categoria e uso único;
+- Condições com busca própria;
+- Morte & Vida em fluxo visual;
+- Fama e Afinidade em escalas;
+- Economia, Trabalhos, Familiares, Crafting e Magia com componentes próprios;
+- panteões e kits divinos redesenhados para consulta rápida;
+- todas as três estacas de habilidades ficam visualmente separadas quando aparecem na descrição;
+- responsividade revisada para tablet e celular.
 
 ## Publicação
 
-Coloque o conteúdo desta pasta diretamente na raiz do repositório e publique com GitHub Pages usando a branch `main` e `/(root)`.
+Coloque os arquivos diretamente na raiz do repositório e publique com GitHub Pages usando `main` + `/(root)`.
+
+Consulte `DEPLOY-GITHUB.md`.
