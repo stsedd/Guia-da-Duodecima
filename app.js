@@ -60,6 +60,13 @@
       fig.innerHTML='<img src="assets/visual/legio.webp" alt="Legio XII Fulminata">';
       content.prepend(fig);
     }
+    if(current==='sistema' && !content.querySelector(':scope > .sheet-cta-hero')){
+      const cta=document.createElement('aside');
+      cta.className='sheet-cta-hero';
+      cta.innerHTML=`<div><span>FICHA OFICIAL DA DUODÉCIMA</span><h2>Crie sua ficha aqui</h2><p>Monte seu personagem e acompanhe nível, prole, atributos, recursos, talentos, equipamentos e poderes em uma ficha integrada ao mesmo sistema do Guia.</p></div><a href="https://stsedd.github.io/ficha-oficial-duodecima-rpg/" target="_blank" rel="noopener noreferrer">ABRIR CRIADOR <b>↗</b></a>`;
+      const hero=content.querySelector(':scope > .system-hero-media');
+      hero?.after(cta);
+    }
     // Aberturas principais. A imagem é elemento real para nunca ser cortada.
     const open=content.querySelector(':scope > .gods-opening,:scope > .crafting-opening,:scope > .magic-opening,:scope > .about-opening');
     if(open && openingVisuals[current]) addImage(open,...openingVisuals[current],'opening-visual');
