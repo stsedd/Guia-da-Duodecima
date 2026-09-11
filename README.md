@@ -1,11 +1,12 @@
-# Guia da Duodécima · v2.1 Core
+# Guia da Duodécima
 
-Versão GitHub Pages do Guia da Duodécima conectada ao **Duodécima Core**.
+Versão **v2.4** preparada para GitHub Pages.
 
-- Visual v2.0 preservado.
-- 51 kits continuam disponíveis.
-- Regras compartilhadas são carregadas do Core em runtime.
-- `content.js` funciona como snapshot local/fallback.
-- Sem build, npm ou servidor.
+O Guia consome o **Duodécima Core** como fonte canônica das regras compartilhadas e mantém um snapshot local como fallback. A v2.4 adiciona modo Claro/Escuro e melhorias de navegação, busca, links diretos, leitura mobile, acessibilidade, impressão e carregamento de imagens sem alterar as regras do Core.
 
-Consulte `CORE-INTEGRATION.md` para detalhes da sincronização e `DEPLOY-GITHUB.md` para publicação.
+## Publicação
+Envie **o conteúdo desta pasta** para a raiz do repositório do Guia. O arquivo `index.html` já referencia os arquivos v2.4 e a pasta `assets/` local.
+
+## Ficha Oficial
+O Guia mantém os atalhos para:
+`https://stsedd.github.io/ficha-oficial-duodecima-rpg/`

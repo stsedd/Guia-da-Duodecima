@@ -3,12 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#070707">
+  <meta name="theme-color" content="#070707" id="themeColorMeta">
   <meta name="description" content="Guia da Duodécima — sistema, Roma, magia, crafting e panteão da Legio XII Fulminata.">
   <title>Guia da Duodécima</title>
-  <link rel="stylesheet" href="styles.css?v=2.3">
+  <script>
+  (function(){
+    try{
+      var saved=localStorage.getItem('guia_theme');
+      var theme=saved==='light'?'light':'dark';
+      document.documentElement.dataset.theme=theme;
+      document.documentElement.style.colorScheme=theme;
+      var meta=document.querySelector('meta[name="theme-color"]');
+      if(meta) meta.setAttribute('content',theme==='light'?'#f4efe8':'#070707');
+    }catch(_){document.documentElement.dataset.theme='dark';}
+  })();
+</script>
+<link rel="stylesheet" href="styles-v24.css?v=2.4">
 </head>
 <body>
+<a class="skip-link" href="#content">Pular para o conteúdo</a>
 <div class="app-shell">
   <aside class="sidebar" id="sidebar">
     <button class="sidebar-collapse" id="sidebarCollapse" type="button" aria-label="Recolher menu" title="Recolher menu">‹</button>
@@ -31,27 +44,35 @@
     <div class="sidebar-divider"></div>
     <div class="section-nav-title">Nesta página</div>
     <nav class="section-nav" id="sectionNav"></nav>
-    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · 2026</span><div class="core-status" id="coreStatus"><i></i><span>CORE · CARREGANDO</span></div></div>
+    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · v2.4 · 2026</span><div class="core-status" id="coreStatus"><i></i><span>CORE · CARREGANDO</span></div></div>
   </aside>
 
   <main class="workspace">
     <header class="topbar">
       <button class="menu-btn" id="menuBtn" aria-label="Abrir menu">☰</button>
       <div class="page-title"><span id="pageEyebrow">ARCHIVVM</span><h1 id="pageTitle">Sistema</h1></div>
-      <div class="search-wrap">
-        <input id="globalSearch" type="search" placeholder="Buscar regra, deus, habilidade..." autocomplete="off">
-        <kbd>⌘ K</kbd>
-        <div class="search-results" id="searchResults" hidden></div>
+      <div class="topbar-actions">
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" title="Alternar tema claro e escuro"><span aria-hidden="true">☾</span><b>Escuro</b></button>
+        <div class="search-wrap">
+          <input id="globalSearch" type="search" placeholder="Buscar regra, deus, habilidade..." autocomplete="off" aria-controls="searchResults" aria-expanded="false" aria-autocomplete="list">
+          <kbd>Ctrl/⌘ K</kbd>
+          <div class="search-results" id="searchResults" role="listbox" hidden></div>
+        </div>
       </div>
     </header>
-    <div class="content" id="content"></div>
-    <footer class="site-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Sistema consolidado para GitHub Pages.</small></footer>
+    <div class="mobile-section-jump" id="mobileSectionJump" hidden>
+      <label for="mobileSectionSelect">Nesta página</label>
+      <select id="mobileSectionSelect" aria-label="Ir para seção da página"></select>
+    </div>
+    <div class="core-fallback-notice" id="coreFallbackNotice" hidden role="status"><strong>Conteúdo local em uso.</strong><span>Algumas atualizações recentes podem não estar disponíveis enquanto o Core estiver indisponível.</span></div>
+    <div class="content" id="content" tabindex="-1"></div>
+    <footer class="site-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Sistema consolidado para GitHub Pages · v2.4</small></footer>
   </main>
 </div>
 <button class="to-top" id="toTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
 <div class="scrim" id="scrim"></div>
-<script src="content.js?v=2.3"></script>
-<script src="core-bridge.js?v=2.3"></script>
-<script>Promise.resolve(window.DUODECIMA_CORE_READY).finally(()=>{const s=document.createElement('script');s.src='app.js?v=2.3';document.body.appendChild(s);});</script>
+<script src="content-v24.js?v=2.4"></script>
+<script src="core-bridge-v24.js?v=2.4"></script>
+<script>Promise.resolve(window.DUODECIMA_CORE_READY).finally(()=>{const s=document.createElement('script');s.src='app-v24.js?v=2.4';document.body.appendChild(s);});</script>
 </body>
 </html>
