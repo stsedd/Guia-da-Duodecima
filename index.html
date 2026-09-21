@@ -18,7 +18,7 @@
     }catch(_){document.documentElement.dataset.theme='dark';}
   })();
 </script>
-<link rel="stylesheet" href="styles-v24.css?v=2.4.1">
+<link rel="stylesheet" href="styles-v24.css?v=2.5.0">
 </head>
 <body>
 <a class="skip-link" href="#content">Pular para o conteúdo</a>
@@ -44,7 +44,7 @@
     <div class="sidebar-divider"></div>
     <div class="section-nav-title">Nesta página</div>
     <nav class="section-nav" id="sectionNav"></nav>
-    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · v2.4.1 · 2026</span><div class="core-status" id="coreStatus"><i></i><span>CORE · CARREGANDO</span></div></div>
+    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · v2.5.0 · 2026</span><div class="core-status" id="coreStatus"><i></i><span>CORE · CARREGANDO</span></div></div>
   </aside>
 
   <main class="workspace">
@@ -66,13 +66,14 @@
     </div>
     <div class="core-fallback-notice" id="coreFallbackNotice" hidden role="status"><strong>Conteúdo local em uso.</strong><span>Algumas atualizações recentes podem não estar disponíveis enquanto o Core estiver indisponível.</span></div>
     <div class="content" id="content" tabindex="-1"></div>
-    <footer class="site-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Sistema consolidado para GitHub Pages · v2.4.1</small></footer>
+    <footer class="site-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Sistema consolidado para GitHub Pages · v2.5.0</small></footer>
   </main>
 </div>
 <button class="to-top" id="toTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
 <div class="scrim" id="scrim"></div>
-<script src="content-v24.js?v=2.4.1"></script>
-<script src="core-bridge-v24.js?v=2.4.1"></script>
-<script>Promise.resolve(window.DUODECIMA_CORE_READY).finally(()=>{const s=document.createElement('script');s.src='app-v24.js?v=2.4.1';document.body.appendChild(s);});</script>
+<script src="content-v24.js?v=2.5.0"></script>
+<script src="core-bridge-v24.js?v=2.5.0"></script>
+<script src="lineage-core-v25.js?v=2.5.0"></script>
+<script>Promise.allSettled([window.DUODECIMA_CORE_READY,window.DUODECIMA_LINEAGE_GUIDE_READY]).finally(()=>{const s=document.createElement('script');s.src='app-v24.js?v=2.5.0';document.body.appendChild(s);});</script>
 </body>
 </html>
