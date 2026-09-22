@@ -1,6 +1,6 @@
 # Runtime ativo do Guia
 
-Este arquivo separa o runtime publicado das cópias históricas mantidas no repositório.
+Este arquivo separa o runtime publicado do histórico preservado pelo Git.
 
 ## Entrada publicada
 
@@ -15,7 +15,7 @@ Este arquivo separa o runtime publicado das cópias históricas mantidas no repo
 - `core-snapshot.json` quando gerado pelo workflow de sincronização
 - `assets/` e `assets/visual/`
 
-`content.js`, `app.js`, `styles.css`, cópias anteriores e a pasta `guia-duodecima-github-clean/` permanecem apenas como histórico. Novas correções do site publicado devem ser feitas exclusivamente nos arquivos listados acima.
+Cópias completas antigas deixaram de permanecer duplicadas no `main`: o histórico continua acessível pelos commits e versões do Git. Arquivos legados isolados que ainda existirem não fazem parte do runtime publicado e não devem receber correções novas.
 
 ## Ordem de boot
 
