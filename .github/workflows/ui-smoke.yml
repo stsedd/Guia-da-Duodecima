@@ -1,0 +1,64 @@
+name: Guia UI smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'app-v24.js'
+      - 'styles-v24.css'
+      - 'core-bridge-v24.js'
+      - 'lineage-core-v25.js'
+      - 'core-fetch-policy-v251.js'
+      - 'guide-stabilization-v251.js'
+      - 'scripts/ui-smoke.mjs'
+      - '.github/workflows/ui-smoke.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax check
+        run: |
+          node --check core-bridge-v24.js
+          node --check lineage-core-v25.js
+          node --check core-fetch-policy-v251.js
+          node --check guide-stabilization-v251.js
+          node --check app-v24.js
+
+      - name: Install Playwright
+        run: npm install --no-save playwright@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start local site
+        run: |
+          python3 -m http.server 4173 > /tmp/duodecima-guide-http.log 2>&1 &
+          sleep 2
+
+      - name: Run UI smoke
+        run: node scripts/ui-smoke.mjs
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: guia-ui-smoke
+          path: ui-artifacts
+          if-no-files-found: ignore
