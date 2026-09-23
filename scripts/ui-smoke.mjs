@@ -20,12 +20,18 @@ for(const test of cases){
   page.on('pageerror',error=>failures.push(`${test.name}: pageerror ${error.message}`));
   await page.goto(base,{waitUntil:'networkidle',timeout:60000});
   await page.waitForSelector('#content .section',{timeout:30000});
-  for(const route of ['sistema','crafting','roma','deuses']){
+  for(const route of ['sistema','crafting','roma','magia','deuses']){
     await page.goto(`${base}#page:${route}`,{waitUntil:'networkidle',timeout:60000});
-    await page.waitForTimeout(250);
-    const layout=await page.evaluate(()=>({viewport:window.innerWidth,scroll:document.documentElement.scrollWidth,title:document.querySelector('#pageTitle')?.textContent||''}));
+    await page.waitForTimeout(350);
+    const layout=await page.evaluate(()=>({
+      viewport:window.innerWidth,
+      scroll:document.documentElement.scrollWidth,
+      title:document.querySelector('#pageTitle')?.textContent||'',
+      hero:document.querySelector('#content > .guide-page-hero')?.dataset.page||''
+    }));
     if(layout.scroll>layout.viewport+2)failures.push(`${test.name}/${route}: overflow horizontal ${layout.scroll}px > ${layout.viewport}px`);
     if(!layout.title)failures.push(`${test.name}/${route}: título de página ausente`);
+    if((route==='roma'||route==='magia')&&layout.hero!==route)failures.push(`${test.name}/${route}: hero editorial não foi aplicado`);
     await page.screenshot({path:`ui-artifacts/${test.name}-${route}.png`,fullPage:true});
   }
 
@@ -45,4 +51,4 @@ for(const test of cases){
 
 await browser.close();
 if(failures.length){console.error('❌ Smoke do Guia falhou\n- '+failures.join('\n- '));process.exit(1)}
-console.log('✅ Smoke do Guia concluído em desktop e mobile.');
+console.log('✅ Smoke do Guia concluído em desktop e mobile, incluindo Roma e Magia.');
