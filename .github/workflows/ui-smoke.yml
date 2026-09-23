@@ -11,6 +11,8 @@ on:
       - 'lineage-core-v25.js'
       - 'core-fetch-policy-v251.js'
       - 'guide-stabilization-v251.js'
+      - 'guide-visual-v253.css'
+      - 'guide-visual-v253.js'
       - 'scripts/ui-smoke.mjs'
       - '.github/workflows/ui-smoke.yml'
   pull_request:
@@ -39,6 +41,7 @@ jobs:
           node --check lineage-core-v25.js
           node --check core-fetch-policy-v251.js
           node --check guide-stabilization-v251.js
+          node --check guide-visual-v253.js
           node --check app-v24.js
 
       - name: Install Playwright
