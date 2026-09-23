@@ -1,0 +1,115 @@
+/* Guia da Duodécima · v2.5.3
+   Sobre Roma = arquivo imperial / atlas de campanha
+   Magia = grimório técnico / ocultismo acadêmico
+*/
+
+body[data-guide-page="roma"]{--guide-accent:#b42d43;--guide-accent-soft:#672433;--guide-metal:#c7a66a;--guide-ink:#e9e1e3}
+body[data-guide-page="magia"]{--guide-accent:#7c5a94;--guide-accent-soft:#3a2846;--guide-metal:#cbb06f;--guide-ink:#e9e0ed}
+
+/* HERO EDITORIAL */
+.guide-page-hero{position:relative;min-height:300px;margin:8px 0 42px;border:1px solid color-mix(in srgb,var(--guide-accent) 42%,#2d2226 58%);border-radius:18px;overflow:hidden;isolation:isolate;background:#070607;box-shadow:0 28px 70px rgba(0,0,0,.34)}
+.guide-page-hero::before{content:"";position:absolute;inset:0;z-index:-2;background-image:linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(90deg,#000,transparent 82%)}
+.guide-page-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(3,3,4,.97) 0%,rgba(3,3,4,.86) 40%,rgba(3,3,4,.28) 72%,rgba(3,3,4,.08) 100%),linear-gradient(180deg,transparent 46%,rgba(0,0,0,.72));pointer-events:none}
+.guide-page-hero-bg{position:absolute;inset:0;z-index:-3;background-size:cover;background-position:center;filter:saturate(.78) contrast(1.06)}
+.guide-page-hero--roma .guide-page-hero-bg{background-image:url('assets/visual/roma-hero.webp');background-position:center 44%}
+.guide-page-hero--magia .guide-page-hero-bg{background-image:url('assets/visual/magia-hero.webp');background-position:center 48%;filter:saturate(.68) hue-rotate(9deg) contrast(1.08)}
+.guide-page-hero-copy{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:300px;width:min(720px,78%);padding:34px 38px}
+.guide-page-hero-kicker{font-size:9px;font-weight:900;letter-spacing:.23em;text-transform:uppercase;color:var(--guide-accent);margin-bottom:8px}
+.guide-page-hero h2{margin:0!important;font:700 clamp(42px,6vw,72px)/.95 var(--serif)!important;letter-spacing:-.045em!important;color:#fff!important;text-shadow:0 4px 26px #000}
+.guide-page-hero p{max-width:62ch!important;margin:14px 0 18px!important;color:#c9bec2;font-size:14px;line-height:1.6!important}
+.guide-page-hero-tags{display:flex;gap:7px;flex-wrap:wrap}
+.guide-page-hero-tags span{display:inline-flex;align-items:center;min-height:26px;padding:4px 9px;border:1px solid color-mix(in srgb,var(--guide-accent) 38%,#45383d);border-radius:999px;background:rgba(6,5,7,.66);color:#d8cdd1;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;backdrop-filter:blur(5px)}
+.guide-page-hero-index{position:absolute;right:20px;bottom:18px;display:flex;gap:5px;align-items:center;color:#b6aaae;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.guide-page-hero-index::before{content:"";width:52px;height:1px;background:linear-gradient(90deg,transparent,var(--guide-metal))}
+
+/* BASE DE PÁGINA */
+body[data-guide-page="roma"] .content,body[data-guide-page="magia"] .content{max-width:1360px!important}
+body[data-guide-page="roma"] .section,body[data-guide-page="magia"] .section{position:relative}
+body[data-guide-page="roma"] .section::before,body[data-guide-page="magia"] .section::before{content:attr(data-guide-index);position:absolute;right:2px;top:38px;font:800 10px/1 var(--serif);letter-spacing:.16em;color:color-mix(in srgb,var(--guide-accent) 76%,#797075);opacity:.9}
+body[data-guide-page="roma"] .section-head,body[data-guide-page="magia"] .section-head{position:relative;border-bottom-color:color-mix(in srgb,var(--guide-accent) 28%,var(--line))!important}
+body[data-guide-page="roma"] .section-head::after,body[data-guide-page="magia"] .section-head::after{content:"";position:absolute;left:0;bottom:-1px;width:96px;height:1px;background:linear-gradient(90deg,var(--guide-accent),transparent)}
+body[data-guide-page="roma"] .section h2,body[data-guide-page="magia"] .section h2{max-width:900px}
+body[data-guide-page="roma"] .section h3,body[data-guide-page="magia"] .section h3{font-family:var(--serif)}
+
+/* ROMA · ARQUIVO IMPERIAL / ATLAS */
+body[data-guide-page="roma"] .content{background-image:radial-gradient(circle at 92% 6%,rgba(164,36,56,.055),transparent 31rem)}
+body[data-guide-page="roma"] .section{padding-left:22px}
+body[data-guide-page="roma"] .section::after{content:"";position:absolute;left:0;top:48px;bottom:18px;width:1px;background:linear-gradient(180deg,var(--guide-accent),rgba(180,45,67,.14) 28%,transparent 88%)}
+body[data-guide-page="roma"] .paper-card,body[data-guide-page="roma"] .feature,body[data-guide-page="roma"] .pantheon-card,body[data-guide-page="roma"] .map-panel{border-color:#3d282e!important;background:linear-gradient(145deg,#0b0909,#050505 76%)!important;box-shadow:0 16px 36px rgba(0,0,0,.17)!important}
+body[data-guide-page="roma"] .paper-card:hover,body[data-guide-page="roma"] .pantheon-card:hover{border-color:#5e303b!important}
+
+/* Fio da Trama vira dossiê, não caixa genérica */
+body[data-guide-page="roma"] .editorial-story{position:relative;max-width:980px!important;margin:22px 0 34px!important;padding:30px 32px 30px 36px!important;border:1px solid #4b2931!important;border-left:3px solid var(--guide-accent)!important;border-radius:4px 16px 16px 4px!important;background:linear-gradient(135deg,#0d090a 0,#070606 62%,#090607 100%)!important;box-shadow:0 24px 54px rgba(0,0,0,.24)!important}
+body[data-guide-page="roma"] .editorial-story::before{content:"";position:absolute;right:19px;top:18px;width:58px;height:58px;border:1px solid rgba(199,166,106,.18);border-radius:50%;box-shadow:inset 0 0 0 6px rgba(199,166,106,.025);background:radial-gradient(circle,rgba(199,166,106,.06),transparent 62%);pointer-events:none}
+body[data-guide-page="roma"] .editorial-story::after{content:"DOSSIÊ " attr(data-dossier);position:absolute;right:22px;top:42px;color:rgba(213,183,126,.62);font:800 7px/1 var(--serif);letter-spacing:.14em;transform:rotate(-9deg);pointer-events:none}
+body[data-guide-page="roma"] .editorial-story>small:first-child,body[data-guide-page="roma"] .editorial-story .eyebrow{color:#e14a61!important}
+body[data-guide-page="roma"] .editorial-story h2,body[data-guide-page="roma"] .editorial-story h3{max-width:760px;font-size:clamp(25px,3vw,35px)!important}
+body[data-guide-page="roma"] .editorial-story p{max-width:75ch!important;color:#d0c6c8}
+body[data-guide-page="roma"] .editorial-story blockquote{position:relative;margin:18px 0!important;padding:14px 18px 14px 20px!important;border-left:2px solid var(--guide-metal)!important;background:#100c0d!important;color:#eee2dd!important;font-family:var(--serif);font-size:14px}
+body[data-guide-page="roma"] .editorial-story blockquote::before{content:"TESTIMONIVM";display:block;margin-bottom:5px;color:#997f55;font:800 7px/1.2 system-ui,sans-serif;letter-spacing:.16em}
+
+/* mapas e imagens ganham leitura de atlas */
+body[data-guide-page="roma"] img.archive-map{display:block;width:100%;border:1px solid #51313a;border-radius:14px;box-shadow:0 20px 48px rgba(0,0,0,.32);filter:saturate(.84) contrast(1.05)}
+body[data-guide-page="roma"] .map-panel:has(img.archive-map){position:relative;padding:10px!important;background:#060606!important}
+body[data-guide-page="roma"] .map-panel:has(img.archive-map)::after{content:"ARCHIVVM XII · CARTOGRAPHIA";position:absolute;right:18px;bottom:16px;padding:5px 8px;border:1px solid rgba(199,166,106,.28);background:rgba(4,4,4,.72);color:#c2a76f;font-size:7px;font-weight:900;letter-spacing:.15em;backdrop-filter:blur(5px)}
+
+/* Panteões como fichas de arquivo */
+body[data-guide-page="roma"] .editorial-pantheons .grid>article,body[data-guide-page="roma"] .editorial-pantheons .pantheon-grid>article{position:relative;min-height:190px;padding:24px 22px 22px 24px!important;border-radius:10px!important;border-color:#3d2b2f!important;background:linear-gradient(150deg,#0b0909,#050505)!important;overflow:hidden}
+body[data-guide-page="roma"] .editorial-pantheons .grid>article::before,body[data-guide-page="roma"] .editorial-pantheons .pantheon-grid>article::before{content:attr(data-pantheon-index);position:absolute;right:14px;top:10px;font:900 44px/.9 var(--serif);color:rgba(180,45,67,.08)}
+body[data-guide-page="roma"] .editorial-pantheons .grid>article::after,body[data-guide-page="roma"] .editorial-pantheons .pantheon-grid>article::after{content:"MUNDVS";position:absolute;right:15px;bottom:12px;font-size:6px;font-weight:900;letter-spacing:.18em;color:#6e5d62}
+
+/* MAGIA · GRIMÓRIO TÉCNICO */
+body[data-guide-page="magia"] .content{position:relative;background-image:radial-gradient(circle at 84% 4%,rgba(110,75,139,.10),transparent 28rem),linear-gradient(90deg,rgba(124,90,148,.022) 1px,transparent 1px),linear-gradient(rgba(124,90,148,.018) 1px,transparent 1px);background-size:auto,56px 56px,56px 56px}
+body[data-guide-page="magia"] .content::before{content:"";position:absolute;right:4.5%;top:420px;width:260px;height:260px;border:1px solid rgba(124,90,148,.08);border-radius:50%;box-shadow:inset 0 0 0 42px rgba(124,90,148,.018),inset 0 0 0 88px rgba(203,176,111,.012);pointer-events:none}
+body[data-guide-page="magia"] .section{padding-left:18px}
+body[data-guide-page="magia"] .section::after{content:"✦";position:absolute;left:-3px;top:48px;color:color-mix(in srgb,var(--guide-accent) 72%,#bda7c8);font-size:11px;text-shadow:0 0 16px rgba(124,90,148,.46)}
+body[data-guide-page="magia"] .paper-card,body[data-guide-page="magia"] .feature,body[data-guide-page="magia"] .ability-card,body[data-guide-page="magia"] .choice-box{border-color:#382c3e!important;background:linear-gradient(145deg,#0c0910,#050506 74%)!important;box-shadow:0 16px 38px rgba(0,0,0,.18)!important}
+body[data-guide-page="magia"] .core-rule-note{border-left-color:var(--guide-accent)!important;background:linear-gradient(90deg,rgba(124,90,148,.10),rgba(124,90,148,.025))!important}
+
+/* Círculos como progressão arcana */
+body[data-guide-page="magia"] .circle-grid.progression-circles.magic-circle-cards{position:relative;gap:13px!important;margin:24px 0 28px!important}
+body[data-guide-page="magia"] .circle-grid.progression-circles.magic-circle-cards::after{content:"ARS · IX";position:absolute;right:8px;top:-27px;color:#766b79;font-size:7px;font-weight:900;letter-spacing:.19em}
+body[data-guide-page="magia"] .circle-grid.progression-circles.magic-circle-cards>article.magic-circle-card{position:relative;min-height:108px!important;padding:18px!important;border-color:#463650!important;background:radial-gradient(circle at 13% 50%,rgba(124,90,148,.14),transparent 34%),linear-gradient(145deg,#0c0910,#050506 76%)!important;overflow:hidden;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+body[data-guide-page="magia"] .circle-grid.progression-circles.magic-circle-cards>article.magic-circle-card:hover{transform:translateY(-2px);border-color:#715587!important;box-shadow:0 18px 38px rgba(0,0,0,.28),0 0 0 1px rgba(124,90,148,.08)}
+body[data-guide-page="magia"] .magic-circle-card::after{content:"";position:absolute;right:-26px;bottom:-34px;width:92px;height:92px;border:1px solid rgba(203,176,111,.06);border-radius:50%;box-shadow:inset 0 0 0 18px rgba(124,90,148,.018)}
+body[data-guide-page="magia"] .magic-circle-orb{width:58px!important;height:58px!important;border-color:#8a6ca0!important;background:radial-gradient(circle at 34% 30%,#32203c,#0a070c 68%)!important;box-shadow:inset 0 0 0 4px #080609,0 0 26px rgba(124,90,148,.13)!important}
+body[data-guide-page="magia"] .magic-circle-copy small{color:#a18eaa!important}
+body[data-guide-page="magia"] .magic-circle-copy em{color:var(--guide-metal)!important}
+
+/* Despertar como pequeno diagrama ritual */
+body[data-guide-page="magia"] .core-magic-sacrifice{position:relative;margin:26px 0 34px!important;padding:25px 26px 26px!important;border-color:#563c59!important;background:radial-gradient(circle at 88% 18%,rgba(124,90,148,.15),transparent 27%),linear-gradient(145deg,#100a12,#050506 74%)!important;box-shadow:0 24px 54px rgba(0,0,0,.24)!important;overflow:hidden}
+body[data-guide-page="magia"] .core-magic-sacrifice::after{content:"";position:absolute;right:-64px;top:-70px;width:230px;height:230px;border:1px solid rgba(203,176,111,.08);border-radius:50%;box-shadow:inset 0 0 0 34px rgba(124,90,148,.018),inset 0 0 0 72px rgba(203,176,111,.012);pointer-events:none}
+body[data-guide-page="magia"] .core-magic-sacrifice-head small{color:#aa78bf!important}
+body[data-guide-page="magia"] .core-magic-sacrifice-head h3{font-size:27px!important}
+body[data-guide-page="magia"] .core-magic-sacrifice-grid{position:relative;z-index:1;gap:11px!important;margin:18px 0!important}
+body[data-guide-page="magia"] .core-magic-sacrifice-grid>span{position:relative;min-height:76px;display:grid!important;grid-template-columns:1fr!important;place-content:center;text-align:center;border-color:#443148!important;border-radius:50%!important;background:radial-gradient(circle,#120d15,#070608 72%)!important;aspect-ratio:2.4/1}
+body[data-guide-page="magia"] .core-magic-sacrifice-grid strong{font-size:20px!important}
+body[data-guide-page="magia"] .core-magic-sacrifice-grid i{font-size:10px;letter-spacing:.08em}
+body[data-guide-page="magia"] .core-magic-sacrifice-grid b{font-size:10px!important;color:var(--guide-metal)!important}
+.ritual-seal{position:relative;z-index:1;display:flex;align-items:center;gap:11px;margin:10px 0 4px;color:#817488;font-size:8px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+.ritual-seal::before,.ritual-seal::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(124,90,148,.38))}
+.ritual-seal::after{background:linear-gradient(90deg,rgba(124,90,148,.38),transparent)}
+.ritual-seal i{width:36px;height:36px;display:grid;place-items:center;border:1px solid #6b4d78;border-radius:50%;font:700 14px/1 var(--serif);font-style:normal;color:#ceb572;background:#09070b;box-shadow:inset 0 0 0 4px #100b13}
+
+/* Light */
+html[data-theme="light"] .guide-page-hero::after{background:linear-gradient(90deg,rgba(35,27,29,.92) 0%,rgba(35,27,29,.73) 42%,rgba(35,27,29,.18) 78%,rgba(35,27,29,.04)),linear-gradient(180deg,transparent 50%,rgba(26,20,22,.45))}
+html[data-theme="light"] body[data-guide-page="roma"] .editorial-story,html[data-theme="light"] body[data-guide-page="roma"] .paper-card,html[data-theme="light"] body[data-guide-page="roma"] .editorial-pantheons .grid>article,html[data-theme="light"] body[data-guide-page="roma"] .editorial-pantheons .pantheon-grid>article{background:linear-gradient(145deg,#fffdf9,#f5ece5)!important;border-color:#d4b7b9!important;color:#45373b!important}
+html[data-theme="light"] body[data-guide-page="roma"] .editorial-story p{color:#5c4e52}
+html[data-theme="light"] body[data-guide-page="roma"] .editorial-story blockquote{background:#f7eee8!important;color:#493b3d!important}
+html[data-theme="light"] body[data-guide-page="magia"] .paper-card,html[data-theme="light"] body[data-guide-page="magia"] .feature,html[data-theme="light"] body[data-guide-page="magia"] .circle-grid.progression-circles.magic-circle-cards>article.magic-circle-card,html[data-theme="light"] body[data-guide-page="magia"] .core-magic-sacrifice{background:linear-gradient(145deg,#fffdfb,#f3edf5)!important;border-color:#cdbdd4!important;color:#45394a!important}
+html[data-theme="light"] body[data-guide-page="magia"] .core-magic-sacrifice-grid>span{background:radial-gradient(circle,#fffdfd,#f3edf5 74%)!important;border-color:#c9b6ce!important}
+html[data-theme="light"] body[data-guide-page="magia"] .ritual-seal i{background:#fbf6fc;color:#765c32;box-shadow:inset 0 0 0 4px #f2e8f5}
+
+@media(max-width:980px){
+  .guide-page-hero{min-height:250px}.guide-page-hero-copy{min-height:250px;width:88%;padding:28px}.guide-page-hero h2{font-size:50px!important}
+  body[data-guide-page="roma"] .section,body[data-guide-page="magia"] .section{padding-left:12px}
+  body[data-guide-page="roma"] .editorial-story{max-width:none!important}
+}
+@media(max-width:640px){
+  .guide-page-hero{min-height:230px;margin:0 0 28px;border-radius:13px}.guide-page-hero-copy{min-height:230px;width:100%;padding:22px 20px}.guide-page-hero h2{font-size:40px!important}.guide-page-hero p{font-size:12px}.guide-page-hero-index{display:none}
+  body[data-guide-page="roma"] .section,body[data-guide-page="magia"] .section{padding-left:0}
+  body[data-guide-page="roma"] .section::after,body[data-guide-page="magia"] .section::after{display:none}
+  body[data-guide-page="roma"] .editorial-story{padding:22px 20px!important}.editorial-story::before,.editorial-story::after{display:none!important}
+  body[data-guide-page="magia"] .core-magic-sacrifice{padding:20px 17px!important}
+  body[data-guide-page="magia"] .core-magic-sacrifice-grid>span{aspect-ratio:auto;border-radius:12px!important;min-height:70px}
+}
