@@ -1,0 +1,72 @@
+name: Visual smoke · Guia
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'app-v24.js'
+      - 'styles-v24.css'
+      - 'core-bridge-v24.js'
+      - 'lineage-core-v25.js'
+      - 'guide-stabilization-v251.js'
+      - 'guide-visual-v253.js'
+      - 'guide-visual-v253.css'
+      - '.github/workflows/visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python3 -m http.server 4174 >/tmp/duodecima-guide-http.log 2>&1 &
+          sleep 2
+      - name: Capture guide pages
+        run: |
+          mkdir -p visual-artifacts
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const errors=[];
+          const capture=async(viewport,label,mobile=false)=>{
+            const context=await browser.newContext({viewport,isMobile:mobile});
+            const page=await context.newPage();
+            page.on('pageerror',e=>errors.push(`${label}: ${e.message}`));
+            page.on('console',m=>{if(m.type()==='error')errors.push(`${label} console: ${m.text()}`)});
+            await page.goto('http://127.0.0.1:4174/',{waitUntil:'networkidle'});
+            for(const section of ['sistema','crafting','roma','magia','deuses']){
+              const nav=page.locator(`[data-page="${section}"]`).first();
+              if(await nav.count()){
+                await nav.click();
+                await page.waitForTimeout(180);
+                await page.screenshot({path:`visual-artifacts/${label}-${section}.png`,fullPage:true});
+              }
+            }
+            await context.close();
+          };
+          await capture({width:1440,height:1100},'desktop');
+          await capture({width:390,height:844},'mobile',true);
+          await browser.close();
+          if(errors.length){console.error(errors.join('\n'));process.exit(1)}
+          NODE
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: guia-visual-smoke
+          path: visual-artifacts
+          if-no-files-found: error
