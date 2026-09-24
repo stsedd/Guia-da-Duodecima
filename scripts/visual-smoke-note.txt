@@ -1,0 +1,1 @@
+Visual smoke automation is defined in .github/workflows/visual-smoke.yml.
