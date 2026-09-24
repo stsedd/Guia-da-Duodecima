@@ -15,92 +15,35 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-
-          def replace_once(text, old, new, label):
+          def ro(text,old,new,label):
               count=text.count(old)
-              if count!=1:
-                  raise SystemExit(f'{label}: expected 1 match, found {count}')
+              if count!=1: raise SystemExit(f'{label}: expected 1 match, found {count}')
               return text.replace(old,new,1)
-
-          p=Path('lineage-core-v25.js')
-          s=p.read_text()
-          s=replace_once(s,
-            "<article class=\"lineage-creation-card\"><small>${esc(compound.formula||'DEUS + LEGADO')}</small><h4>${esc(compound.label||'Legado Composto')}</h4>",
-            "<article class=\"lineage-creation-card\"><small>${esc(compound.formula||'LEGADO + LEGADO')}</small><h4>${esc(compound.label||'Legado Composto')}</h4>",
-            'compound fallback formula')
-          s=replace_once(s,
-            "<article class=\"lineage-creation-card\"><small>${esc(direct.formula||'LEGADO + LEGADO')}</small><h4>${esc(direct.label||'Legado Direto')}</h4>",
-            "<article class=\"lineage-creation-card\"><small>${esc(direct.formula||'DEUS + LEGADO')}</small><h4>${esc(direct.label||'Legado Direto')}</h4>",
-            'direct fallback formula')
-
+          p=Path('lineage-core-v25.js'); s=p.read_text()
+          s=ro(s,"<article class=\"lineage-creation-card\"><small>${esc(compound.formula||'DEUS + LEGADO')}</small><h4>${esc(compound.label||'Legado Composto')}</h4>","<article class=\"lineage-creation-card\"><small>${esc(compound.formula||'LEGADO + LEGADO')}</small><h4>${esc(compound.label||'Legado Composto')}</h4>",'compound fallback')
+          s=ro(s,"<article class=\"lineage-creation-card\"><small>${esc(direct.formula||'LEGADO + LEGADO')}</small><h4>${esc(direct.label||'Legado Direto')}</h4>","<article class=\"lineage-creation-card\"><small>${esc(direct.formula||'DEUS + LEGADO')}</small><h4>${esc(direct.label||'Legado Direto')}</h4>",'direct fallback')
           anchor="  async function patch(){\n"
-          helper="""  function definitionCardFor(node,sec){
-    let el=node;
-    while(el&&el!==sec){
-      const parent=el.parentElement;
-      if(parent?.matches?.('.grid.two,.legacy-grid,.lineage-grid,.legacy-columns,.lineage-columns'))return el;
-      el=parent;
-    }
-    return node?.closest?.('article,.paper-card,.feature')||null;
-  }
-
-  function patchDefinitionCards(sec){
-    const formulaNodes=[...sec.querySelectorAll('small,p,.eyebrow')];
-    const formula=node=>String(node.textContent||'').replace(/\\s+/g,' ').trim().toUpperCase();
-    const directNode=formulaNodes.find(node=>formula(node)==='DEUS + LEGADO');
-    const compoundNode=formulaNodes.find(node=>formula(node)==='LEGADO + LEGADO');
-    const directCard=definitionCardFor(directNode,sec);
-    const compoundCard=definitionCardFor(compoundNode,sec);
-    const rename=(card,label)=>{
-      if(!card)return;
-      const heading=[...card.querySelectorAll('h2,h3,h4')].find(h=>/Legado (Direto|Composto)/i.test(h.textContent||''));
-      if(heading)heading.textContent=label;
-    };
-    rename(directCard,'Legado Direto');
-    rename(compoundCard,'Legado Composto');
-    if(compoundCard){
-      compoundCard.querySelectorAll('p,li').forEach(el=>{
-        if(/Legados diretos não possuem habilidades 6\\+/i.test(el.textContent||''))el.innerHTML=el.innerHTML.replace(/Legados diretos/gi,'Legados compostos');
-      });
-    }
-    if(directCard&&compoundCard&&directCard.parentElement===compoundCard.parentElement){
-      directCard.parentElement.insertBefore(compoundCard,directCard);
-    }
-  }
-
-"""
+          helper="\n".join(["  function definitionCardFor(node,sec){","    let el=node;","    while(el&&el!==sec){","      const parent=el.parentElement;","      if(parent?.matches?.('.grid.two,.legacy-grid,.lineage-grid,.legacy-columns,.lineage-columns'))return el;","      el=parent;","    }","    return node?.closest?.('article,.paper-card,.feature')||null;","  }","","  function patchDefinitionCards(sec){","    const formulaNodes=[...sec.querySelectorAll('small,p,.eyebrow')];","    const formula=node=>String(node.textContent||'').replace(/\\s+/g,' ').trim().toUpperCase();","    const directNode=formulaNodes.find(node=>formula(node)==='DEUS + LEGADO');","    const compoundNode=formulaNodes.find(node=>formula(node)==='LEGADO + LEGADO');","    const directCard=definitionCardFor(directNode,sec);","    const compoundCard=definitionCardFor(compoundNode,sec);","    const rename=(card,label)=>{","      if(!card)return;","      const heading=[...card.querySelectorAll('h2,h3,h4')].find(h=>/Legado (Direto|Composto)/i.test(h.textContent||''));","      if(heading)heading.textContent=label;","    };","    rename(directCard,'Legado Direto');","    rename(compoundCard,'Legado Composto');","    if(compoundCard){","      compoundCard.querySelectorAll('p,li').forEach(el=>{","        if(/Legados diretos não possuem habilidades 6\\+/i.test(el.textContent||''))el.innerHTML=el.innerHTML.replace(/Legados diretos/gi,'Legados compostos');","      });","    }","    if(directCard&&compoundCard&&directCard.parentElement===compoundCard.parentElement){","      directCard.parentElement.insertBefore(compoundCard,directCard);","    }","  }",""])+"\n"
           if anchor not in s: raise SystemExit('patch anchor missing')
           s=s.replace(anchor,helper+anchor,1)
-          s=replace_once(s,
-            "      sec.classList.add('lineage-core-enhanced');\n      sec.querySelector('.lineage-creation-guide')?.remove();",
-            "      sec.classList.add('lineage-core-enhanced');\n      sec.querySelector('.lineage-creation-guide')?.remove();\n      patchDefinitionCards(sec);",
-            'definition patch call')
+          s=ro(s,"      sec.classList.add('lineage-core-enhanced');\n      sec.querySelector('.lineage-creation-guide')?.remove();","      sec.classList.add('lineage-core-enhanced');\n      sec.querySelector('.lineage-creation-guide')?.remove();\n      patchDefinitionCards(sec);",'definition patch call')
           p.write_text(s)
-
-          p=Path('index.html'); s=p.read_text();
+          p=Path('index.html'); s=p.read_text()
           if '2.5.4' not in s: raise SystemExit('guide version 2.5.4 not found')
-          s=s.replace('2.5.4','2.5.5'); p.write_text(s)
+          p.write_text(s.replace('2.5.4','2.5.5'))
           Path('VERSION.txt').write_text('2.5.5\n')
-
-          p=Path('RUNTIME-MANIFEST.md'); s=p.read_text();
-          note='- `v2.5.5`: corrige a semântica dos Legados no Guia. Composto = LEGADO + LEGADO e permanece na coluna esquerda; Direto = DEUS + LEGADO e permanece na coluna direita. Também corrige a frase de habilidades 6+ para se referir ao Legado Composto.\n'
-          if note not in s:s=s.replace('\n## Ordem de boot', '\n'+note+'\n## Ordem de boot')
+          p=Path('RUNTIME-MANIFEST.md'); s=p.read_text(); note='- `v2.5.5`: corrige a semântica dos Legados no Guia. Composto = LEGADO + LEGADO e permanece na coluna esquerda; Direto = DEUS + LEGADO e permanece na coluna direita. Também corrige a frase de habilidades 6+ para se referir ao Legado Composto.\n'
+          if note not in s: s=s.replace('\n## Ordem de boot','\n'+note+'\n## Ordem de boot')
           p.write_text(s)
           PY
       - name: Validate guide runtime
         run: |
           node --check lineage-core-v25.js
-          python - <<'PY'
-          from pathlib import Path
-          s=Path('lineage-core-v25.js').read_text()
-          assert "compound.formula||'LEGADO + LEGADO'" in s
-          assert "direct.formula||'DEUS + LEGADO'" in s
-          assert "rename(directCard,'Legado Direto')" in s
-          assert "rename(compoundCard,'Legado Composto')" in s
-          assert 'insertBefore(compoundCard,directCard)' in s
-          assert '2.5.5' in Path('index.html').read_text()
-          assert Path('VERSION.txt').read_text().strip()=='2.5.5'
-          PY
+          grep -F "compound.formula||'LEGADO + LEGADO'" lineage-core-v25.js
+          grep -F "direct.formula||'DEUS + LEGADO'" lineage-core-v25.js
+          grep -F "insertBefore(compoundCard,directCard)" lineage-core-v25.js
+          grep -F "2.5.5" index.html
+          test "$(cat VERSION.txt)" = "2.5.5"
           git diff --check
       - name: Commit guide fix
         run: |
