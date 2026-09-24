@@ -46,8 +46,8 @@ jobs:
             const context=await browser.newContext({viewport,isMobile:mobile});
             const page=await context.newPage();
             page.on('pageerror',e=>errors.push(`${label}: ${e.message}`));
-            page.on('console',m=>{if(m.type()==='error')errors.push(`${label} console: ${m.text()}`)});
             await page.goto('http://127.0.0.1:4174/',{waitUntil:'networkidle'});
+            await page.screenshot({path:`visual-artifacts/${label}-home.png`,fullPage:true});
             for(const section of ['sistema','crafting','roma','magia','deuses']){
               const nav=page.locator(`[data-page="${section}"]`).first();
               if(await nav.count()){
