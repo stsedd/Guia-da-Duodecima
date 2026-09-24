@@ -17,6 +17,8 @@ Este arquivo separa o runtime publicado do histórico preservado pelo Git.
 
 Cópias completas antigas deixaram de permanecer duplicadas no `main`: o histórico continua acessível pelos commits e versões do Git. Arquivos legados isolados que ainda existirem não fazem parte do runtime publicado e não devem receber correções novas.
 
+- `v2.5.5`: corrige a semântica dos Legados no Guia. Composto = LEGADO + LEGADO e permanece na coluna esquerda; Direto = DEUS + LEGADO e permanece na coluna direita. Também corrige a frase de habilidades 6+ para se referir ao Legado Composto.
+
 ## Ordem de boot
 
 1. conteúdo editorial local;

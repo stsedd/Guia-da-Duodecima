@@ -62,19 +62,53 @@
     return `<section class="lineage-creation-guide" aria-label="Regras de criação para Legados">
       <div class="lineage-creation-guide-head"><div><small>NA CRIAÇÃO DE PERSONAGEM</small><h3>Como os bônus iniciais funcionam</h3><p>Escolher um Legado muda a origem do kit, mas não soma automaticamente os benefícios mecânicos das duas divindades.</p></div></div>
       <div class="lineage-creation-grid">
-        <article class="lineage-creation-card"><small>${esc(compound.formula||'DEUS + LEGADO')}</small><h4>${esc(compound.label||'Legado Composto')}</h4>
+        <article class="lineage-creation-card"><small>${esc(compound.formula||'LEGADO + LEGADO')}</small><h4>${esc(compound.label||'Legado Composto')}</h4>
           ${ruleRow('HP inicial',cc.hp?.text||'Use o menor HP inicial entre as duas divindades envolvidas.')}
           ${ruleRow('Atributos',cc.attributeBonuses?.text||'Escolha um bônus de +2 e um bônus de +1 entre as duas origens.')}
           ${ruleRow('Perícia',cc.skill?.text||'Escolha a perícia inicial entre as duas origens.')}
           <p class="lineage-no-stack"><strong>Importante:</strong> os bônus das duas fichas não são somados.</p>
         </article>
-        <article class="lineage-creation-card"><small>${esc(direct.formula||'LEGADO + LEGADO')}</small><h4>${esc(direct.label||'Legado Direto')}</h4>
+        <article class="lineage-creation-card"><small>${esc(direct.formula||'DEUS + LEGADO')}</small><h4>${esc(direct.label||'Legado Direto')}</h4>
           ${ruleRow('HP inicial',dc.hp?.text||'Use o HP inicial do deus principal.')}
           ${ruleRow('Atributos',dc.attributeBonuses?.text||'Use os bônus de atributos do deus principal.')}
           ${ruleRow('Perícia',dc.skill?.text||'Use a perícia inicial concedida pelo deus principal.')}
         </article>
       </div>
     </section>`;
+  }
+
+  function definitionCardFor(node,sec){
+    let el=node;
+    while(el&&el!==sec){
+      const parent=el.parentElement;
+      if(parent?.matches?.('.grid.two,.legacy-grid,.lineage-grid,.legacy-columns,.lineage-columns'))return el;
+      el=parent;
+    }
+    return node?.closest?.('article,.paper-card,.feature')||null;
+  }
+
+  function patchDefinitionCards(sec){
+    const formulaNodes=[...sec.querySelectorAll('small,p,.eyebrow')];
+    const formula=node=>String(node.textContent||'').replace(/\s+/g,' ').trim().toUpperCase();
+    const directNode=formulaNodes.find(node=>formula(node)==='DEUS + LEGADO');
+    const compoundNode=formulaNodes.find(node=>formula(node)==='LEGADO + LEGADO');
+    const directCard=definitionCardFor(directNode,sec);
+    const compoundCard=definitionCardFor(compoundNode,sec);
+    const rename=(card,label)=>{
+      if(!card)return;
+      const heading=[...card.querySelectorAll('h2,h3,h4')].find(h=>/Legado (Direto|Composto)/i.test(h.textContent||''));
+      if(heading)heading.textContent=label;
+    };
+    rename(directCard,'Legado Direto');
+    rename(compoundCard,'Legado Composto');
+    if(compoundCard){
+      compoundCard.querySelectorAll('p,li').forEach(el=>{
+        if(/Legados diretos não possuem habilidades 6\+/i.test(el.textContent||''))el.innerHTML=el.innerHTML.replace(/Legados diretos/gi,'Legados compostos');
+      });
+    }
+    if(directCard&&compoundCard&&directCard.parentElement===compoundCard.parentElement){
+      directCard.parentElement.insertBefore(compoundCard,directCard);
+    }
   }
 
   async function patch(){
@@ -89,6 +123,7 @@
       if(!sec)return;
       sec.classList.add('lineage-core-enhanced');
       sec.querySelector('.lineage-creation-guide')?.remove();
+      patchDefinitionCards(sec);
       const intro=[...sec.children].find(el=>el.matches?.('.paper-card,.feature,.legacy,.notice'));
       const holder=document.createElement('div');holder.innerHTML=buildGuide(lineage);
       const guide=holder.firstElementChild;
