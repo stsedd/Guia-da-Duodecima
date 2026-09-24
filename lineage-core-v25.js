@@ -62,16 +62,16 @@
     return `<section class="lineage-creation-guide" aria-label="Regras de criação para Legados">
       <div class="lineage-creation-guide-head"><div><small>NA CRIAÇÃO DE PERSONAGEM</small><h3>Como os bônus iniciais funcionam</h3><p>Escolher um Legado muda a origem do kit, mas não soma automaticamente os benefícios mecânicos das duas divindades.</p></div></div>
       <div class="lineage-creation-grid">
-        <article class="lineage-creation-card"><small>${esc(direct.formula||'LEGADO + LEGADO')}</small><h4>${esc(direct.label||'Legado Direto')}</h4>
-          ${ruleRow('HP inicial',dc.hp?.text||'Use o HP inicial do deus principal.')}
-          ${ruleRow('Atributos',dc.attributeBonuses?.text||'Use os bônus de atributos do deus principal.')}
-          ${ruleRow('Perícia',dc.skill?.text||'Use a perícia inicial concedida pelo deus principal.')}
-        </article>
         <article class="lineage-creation-card"><small>${esc(compound.formula||'DEUS + LEGADO')}</small><h4>${esc(compound.label||'Legado Composto')}</h4>
           ${ruleRow('HP inicial',cc.hp?.text||'Use o menor HP inicial entre as duas divindades envolvidas.')}
           ${ruleRow('Atributos',cc.attributeBonuses?.text||'Escolha um bônus de +2 e um bônus de +1 entre as duas origens.')}
           ${ruleRow('Perícia',cc.skill?.text||'Escolha a perícia inicial entre as duas origens.')}
           <p class="lineage-no-stack"><strong>Importante:</strong> os bônus das duas fichas não são somados.</p>
+        </article>
+        <article class="lineage-creation-card"><small>${esc(direct.formula||'LEGADO + LEGADO')}</small><h4>${esc(direct.label||'Legado Direto')}</h4>
+          ${ruleRow('HP inicial',dc.hp?.text||'Use o HP inicial do deus principal.')}
+          ${ruleRow('Atributos',dc.attributeBonuses?.text||'Use os bônus de atributos do deus principal.')}
+          ${ruleRow('Perícia',dc.skill?.text||'Use a perícia inicial concedida pelo deus principal.')}
         </article>
       </div>
     </section>`;
