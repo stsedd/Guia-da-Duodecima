@@ -20,7 +20,7 @@ for(const test of cases){
   page.on('pageerror',error=>failures.push(`${test.name}: pageerror ${error.message}`));
   await page.goto(base,{waitUntil:'networkidle',timeout:60000});
   await page.waitForSelector('#content .section',{timeout:30000});
-  for(const route of ['sistema','crafting','roma','magia','deuses']){
+  for(const route of ['sistema','combate','crafting','magia','deuses','roma']){
     await page.goto(`${base}#page:${route}`,{waitUntil:'networkidle',timeout:60000});
     await page.waitForTimeout(350);
     const layout=await page.evaluate(()=>({
@@ -35,6 +35,27 @@ for(const test of cases){
     await page.screenshot({path:`ui-artifacts/${test.name}-${route}.png`,fullPage:true});
   }
 
+  await page.goto(`${base}#page:combate`,{waitUntil:'networkidle',timeout:60000});
+  await page.waitForTimeout(300);
+  const combatText=await page.locator('#content').innerText();
+  for(const expected of ['2 ações','10 metros','Percepção Passiva','Agarrar','Cobertura','10 + 2 × metros da queda']){
+    if(!includesNormalized(combatText,expected))failures.push(`${test.name}: regra de combate ausente: ${expected}`);
+  }
+
+  await page.goto(`${base}#page:sistema`,{waitUntil:'networkidle',timeout:60000});
+  await page.waitForTimeout(300);
+  const systemText=await page.locator('#content').innerText();
+  for(const expected of ['Rebentos de Roma','dois atributos diferentes','Sucessor de Rebento','+25 Energia','Honesta Missio','Boas Práticas']){
+    if(!includesNormalized(systemText,expected))failures.push(`${test.name}: regra de Sistema ausente: ${expected}`);
+  }
+
+  await page.goto(`${base}#page:roma`,{waitUntil:'networkidle',timeout:60000});
+  await page.waitForTimeout(300);
+  const romaText=await page.locator('#content').innerText();
+  for(const expected of ['Passagem do Tempo','3 meses OFF','Anos de serviço','Bolsa Décimus','250 DN','450 DN']){
+    if(!includesNormalized(romaText,expected))failures.push(`${test.name}: regra de Roma ausente: ${expected}`);
+  }
+
   await page.goto(`${base}#page:roma:estrangeiros`,{waitUntil:'networkidle',timeout:60000});
   await page.waitForTimeout(300);
   const foreignText=await page.locator('#content').innerText();
@@ -43,12 +64,24 @@ for(const test of cases){
   await page.goto(`${base}#page:crafting`,{waitUntil:'networkidle',timeout:60000});
   await page.waitForTimeout(300);
   const craftingText=await page.locator('#content').innerText();
-  if(includesNormalized(craftingText,'bronze celestial')&&!includesNormalized(craftingText,'não afeta criaturas mortais'))failures.push(`${test.name}: aviso de Bronze Celestial não apareceu`);
+  if(!includesNormalized(craftingText,'Bronze Celestial')||!includesNormalized(craftingText,'não causa dano algum a mortais'))failures.push(`${test.name}: regra mortal do Bronze Celestial não apareceu`);
+  if(!includesNormalized(craftingText,'Ouro Imperial')||!includesNormalized(craftingText,'8 ou menos'))failures.push(`${test.name}: risco atualizado do Ouro Imperial não apareceu`);
   if(includesNormalized(craftingText,'pó de monstro')&&!includesNormalized(craftingText,'tártaro'))failures.push(`${test.name}: procedência do Pó de Monstro não apareceu`);
+
+  const banners=await page.evaluate(async()=>{
+    const names=['banner-rebentos.webp','banner-boas-praticas.webp','banner-bolsa-decimus.webp','banner-tempo-duodecima.webp'];
+    const out={};
+    for(const name of names){
+      const img=[...document.images].find(x=>(x.getAttribute('src')||'').includes(name));
+      if(img){try{await img.decode()}catch(_){}out[name]={complete:img.complete,naturalWidth:img.naturalWidth}}
+    }
+    return out;
+  });
+  for(const [name,info] of Object.entries(banners))if(!info.complete||!info.naturalWidth)failures.push(`${test.name}: banner não carregou: ${name}`);
 
   await page.close();
 }
 
 await browser.close();
 if(failures.length){console.error('❌ Smoke do Guia falhou\n- '+failures.join('\n- '));process.exit(1)}
-console.log('✅ Smoke do Guia concluído em desktop e mobile, incluindo Roma e Magia.');
+console.log('✅ Smoke do Guia concluído em desktop e mobile, incluindo Combate, Rebentos, Roma e Crafting.');
