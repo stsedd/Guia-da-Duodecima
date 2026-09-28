@@ -10,8 +10,13 @@ on:
       - 'core-bridge-v24.js'
       - 'lineage-core-v25.js'
       - 'guide-stabilization-v251.js'
+      - 'guide-rules-v26.js'
+      - 'guide-layout-v261.css'
+      - 'guide-layout-v262.css'
+      - 'guide-combat-layout-v262.js'
       - 'guide-visual-v253.js'
       - 'guide-visual-v253.css'
+      - 'assets/visual/banner-combate*.avif'
       - '.github/workflows/visual-smoke.yml'
   workflow_dispatch:
 
@@ -48,11 +53,23 @@ jobs:
             page.on('pageerror',e=>errors.push(`${label}: ${e.message}`));
             await page.goto('http://127.0.0.1:4174/',{waitUntil:'networkidle'});
             await page.screenshot({path:`visual-artifacts/${label}-home.png`,fullPage:true});
-            for(const section of ['sistema','crafting','roma','magia','deuses']){
+            for(const section of ['sistema','combate','crafting','roma','magia','deuses']){
               const nav=page.locator(`[data-page="${section}"]`).first();
               if(await nav.count()){
-                await nav.click();
-                await page.waitForTimeout(180);
+                await nav.click({force:true});
+                await page.waitForTimeout(220);
+                if(section==='combate'){
+                  const stats=await page.evaluate(()=>({
+                    banners:document.querySelectorAll('.rules-page-banner,.rules-banner').length,
+                    main:!!document.querySelector('.rules-page-banner--main'),
+                    attackDefense:!!document.querySelector('.rules-attack-defense-grid'),
+                    overflow:document.documentElement.scrollWidth>window.innerWidth+2
+                  }));
+                  if(!stats.main)errors.push(`${label}: combate sem banner principal`);
+                  if(stats.banners<4)errors.push(`${label}: combate esperava ao menos 4 banners, encontrou ${stats.banners}`);
+                  if(!stats.attackDefense)errors.push(`${label}: bloco Ataque & Defesa não foi reorganizado`);
+                  if(stats.overflow)errors.push(`${label}: combate com overflow horizontal`);
+                }
                 await page.screenshot({path:`visual-artifacts/${label}-${section}.png`,fullPage:true});
               }
             }
