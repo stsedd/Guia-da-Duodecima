@@ -13,6 +13,9 @@ on:
       - 'guide-stabilization-v251.js'
       - 'guide-visual-v253.css'
       - 'guide-visual-v253.js'
+      - 'guide-rules-v26.js'
+      - 'guide-rules-v26.css'
+      - 'assets/visual/banner-*.webp'
       - 'scripts/ui-smoke.mjs'
       - '.github/workflows/ui-smoke.yml'
   pull_request:
@@ -42,6 +45,7 @@ jobs:
           node --check core-fetch-policy-v251.js
           node --check guide-stabilization-v251.js
           node --check guide-visual-v253.js
+          node --check guide-rules-v26.js
           node --check app-v24.js
 
       - name: Install Playwright
