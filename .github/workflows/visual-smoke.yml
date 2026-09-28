@@ -57,17 +57,27 @@ jobs:
               const nav=page.locator(`[data-page="${section}"]`).first();
               if(await nav.count()){
                 await nav.click({force:true});
-                await page.waitForTimeout(220);
+                await page.waitForTimeout(260);
                 if(section==='combate'){
                   const stats=await page.evaluate(()=>({
                     banners:document.querySelectorAll('.rules-page-banner,.rules-banner').length,
-                    main:!!document.querySelector('.rules-page-banner--main'),
-                    attackDefense:!!document.querySelector('.rules-attack-defense-grid'),
+                    main:document.querySelectorAll('.rules-page-banner--main').length,
+                    rolls:document.querySelectorAll('#rolagens > .rules-banner').length,
+                    turn:document.querySelectorAll('#turno > .rules-banner').length,
+                    attackDefense:document.querySelectorAll('#rolagens .rules-subfeature > .rules-banner').length,
+                    mainSrc:document.querySelector('.rules-page-banner--main img')?.getAttribute('src')||'',
+                    emptyCards:[...document.querySelectorAll('.rules-section .paper-card')].filter(card=>(card.textContent||'').trim().length<3).length,
+                    hugeCards:[...document.querySelectorAll('.rules-section .paper-card')].filter(card=>card.getBoundingClientRect().height>600).length,
                     overflow:document.documentElement.scrollWidth>window.innerWidth+2
                   }));
-                  if(!stats.main)errors.push(`${label}: combate sem banner principal`);
-                  if(stats.banners<4)errors.push(`${label}: combate esperava ao menos 4 banners, encontrou ${stats.banners}`);
-                  if(!stats.attackDefense)errors.push(`${label}: bloco Ataque & Defesa não foi reorganizado`);
+                  if(stats.main!==1)errors.push(`${label}: combate esperava 1 banner principal, encontrou ${stats.main}`);
+                  if(stats.rolls!==1)errors.push(`${label}: Tipos de Rolagens esperava 1 banner, encontrou ${stats.rolls}`);
+                  if(stats.turn!==1)errors.push(`${label}: Durante o Turno esperava 1 banner, encontrou ${stats.turn}`);
+                  if(stats.attackDefense!==1)errors.push(`${label}: Ataque & Defesa esperava 1 banner, encontrou ${stats.attackDefense}`);
+                  if(stats.banners!==4)errors.push(`${label}: combate esperava exatamente 4 banners, encontrou ${stats.banners}`);
+                  if(!stats.mainSrc.endsWith('assets/visual/banner-combate.webp'))errors.push(`${label}: banner principal não usa a arte original de Combate (${stats.mainSrc})`);
+                  if(stats.emptyCards)errors.push(`${label}: combate encontrou ${stats.emptyCards} cards vazios`);
+                  if(stats.hugeCards)errors.push(`${label}: combate encontrou ${stats.hugeCards} cards anormalmente altos`);
                   if(stats.overflow)errors.push(`${label}: combate com overflow horizontal`);
                 }
                 await page.screenshot({path:`visual-artifacts/${label}-${section}.png`,fullPage:true});
