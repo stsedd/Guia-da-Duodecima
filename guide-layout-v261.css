@@ -1,4 +1,4 @@
-/* Guia da Duodécima · v2.6.1
+/* Guia da Duodécima · v2.6.4
    Camada de diagramação geral.
    Objetivos: leitura mais confortável, grids menos apertados, bordas/paddings coerentes
    e títulos com hierarquia mais forte em desktop e mobile. */
@@ -77,9 +77,10 @@
 .grid,.attr-grid,.resource-grid,.training-grid,.combat-facts,.ability-grid,.money-grid,.job-grid,.job-grid-full,.honor-grid,.rank-grid,.pantheon-grid,.pantheon-children,.talent-grid-full,.close-grid,.familiar-rules,.death-flow,.skill-grid,.bp-list,.affinity-scale,.affinity-events,.fame-track{
   gap:var(--guide-grid-gap);
   grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
+  align-items:start;
 }
-.grid.two,.two,.material-split,.attack-split{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--guide-grid-gap)}
-.grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--guide-grid-gap)}
+.grid.two,.two,.material-split,.attack-split{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--guide-grid-gap);align-items:start}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--guide-grid-gap);align-items:start}
 
 /* CARDS E QUADRADOS */
 .paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box,.foreign-cta,.discord-disclaimer,.map-panel,.torn-card,.pantheon-banner,.deity-info,.condition-list details,.skill-grid>*{
@@ -88,6 +89,10 @@
 }
 .paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box,.foreign-cta,.discord-disclaimer,.map-panel,.torn-card{
   min-width:0;
+  width:auto;
+  height:auto!important;
+  min-height:0!important;
+  align-self:start;
   overflow-wrap:anywhere;
 }
 .paper-card>p:first-of-type,.feature>p:first-of-type,.resource>p:first-of-type,.ability-card>p:first-of-type,.rest-card>p:first-of-type,.warning-card>p:first-of-type,.money-card>p:first-of-type,.talent-card>p:first-of-type,.dt-card>p:first-of-type,.choice-box>p:first-of-type{margin-top:0}
@@ -139,14 +144,16 @@
   background:#090809;
   box-shadow:0 18px 44px rgba(0,0,0,.20);
 }
+.rules-banner picture,.rules-page-banner picture{display:block;line-height:0}
 .rules-banner img,.rules-page-banner img{
   display:block;
   width:100%;
-  height:auto;
+  height:auto!important;
   max-height:none!important;
   object-fit:contain!important;
   object-position:center;
 }
+.rules-banner:empty,.rules-page-banner:empty{display:none!important}
 .rules-page-banner{margin:4px 0 22px}
 .rules-page-banner--main{margin:4px 0 0}
 .rules-page-banner--main+ .rules-opening{padding-top:32px}
@@ -156,8 +163,8 @@
 .rules-subfeature .rules-banner{margin-bottom:14px}
 .rules-attack-defense-grid{margin-top:0!important}
 
-/* Evita caixas muito rasas ou textos espremidos. */
-.rules-section .paper-card{min-height:100%}
+/* Cards de regras precisam ocupar apenas o conteúdo. */
+.rules-section .paper-card{height:auto!important;min-height:0!important;align-self:start}
 .rules-section .paper-card p{color:#cec2c5}
 .rules-section .paper-card strong{color:#fff}
 .rules-section .guide-rule-list{margin-top:8px;padding-left:1.2rem}
