@@ -24,14 +24,14 @@ jobs:
           set -euo pipefail
           test -f .asset-staging/manifest-v261.txt || exit 0
           mkdir -p assets/visual
-          cat .asset-staging/combat-main.*.b64 | base64 -d > assets/visual/banner-combate-hires.webp
-          cat .asset-staging/combat-rolls.*.b64 | base64 -d > assets/visual/banner-combate-rolagens-hires.webp
-          cat .asset-staging/combat-turn.*.b64 | base64 -d > assets/visual/banner-combate-turno-hires.webp
-          cat .asset-staging/combat-attack-defense.*.b64 | base64 -d > assets/visual/banner-combate-ataque-defesa-hires.webp
-          file assets/visual/banner-combate-hires.webp
-          file assets/visual/banner-combate-rolagens-hires.webp
-          file assets/visual/banner-combate-turno-hires.webp
-          file assets/visual/banner-combate-ataque-defesa-hires.webp
+          cat .asset-staging/combat-main-avif.*.b64 | base64 -d > assets/visual/banner-combate-hires.avif
+          cat .asset-staging/combat-rolls-avif.*.b64 | base64 -d > assets/visual/banner-combate-rolagens-hires.avif
+          cat .asset-staging/combat-turn-avif.*.b64 | base64 -d > assets/visual/banner-combate-turno-hires.avif
+          cat .asset-staging/combat-attack-defense-avif.*.b64 | base64 -d > assets/visual/banner-combate-ataque-defesa-hires.avif
+          file assets/visual/banner-combate-hires.avif
+          file assets/visual/banner-combate-rolagens-hires.avif
+          file assets/visual/banner-combate-turno-hires.avif
+          file assets/visual/banner-combate-ataque-defesa-hires.avif
           rm -rf .asset-staging
 
       - name: Commit materialized assets
