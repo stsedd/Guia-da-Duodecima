@@ -1,2 +1,0 @@
-Materialize the original combat banners already staged for the Guia da Duodécima.
-Do not resize, crop, redraw or otherwise alter the images; only decode the staged AVIF payloads into assets/visual.
