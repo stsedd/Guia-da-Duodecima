@@ -1,0 +1,207 @@
+/* Guia da Duodécima · v2.6.2
+   Refinamento editorial geral para desktop e mobile.
+   Mantém a identidade visual existente, mas dá mais hierarquia, respiro e legibilidade
+   aos grids informacionais, cards, títulos e banners. */
+
+:root{
+  --guide-card-radius:18px;
+  --guide-card-pad-y:22px;
+  --guide-card-pad-x:24px;
+  --guide-grid-gap:18px;
+  --guide-copy-size:15.25px;
+  --guide-copy-leading:1.68;
+  --guide-title-max:22ch;
+}
+
+/* LEITURA E DIAGRAMAÇÃO GERAL */
+.content{max-width:1400px}
+.section{padding-top:42px;margin-bottom:32px}
+.section p,.section li,.paper-card p,.feature p,.resource p,.ability-card p,.rest-card p,.warning-card p,.money-card p,.talent-card p,.leader-card p,.pantheon-card p,.dt-card p,.choice-box p,.foreign-cta p,.discord-disclaimer p,.map-panel p,.torn-card p{
+  font-size:var(--guide-copy-size);
+  line-height:var(--guide-copy-leading);
+}
+.section p{max-width:76ch}
+.section ul,.section ol{padding-left:1.38rem}
+.section li{margin:.52rem 0}
+.section-lead{
+  max-width:72ch!important;
+  margin:0 0 22px!important;
+  font-size:16px!important;
+  line-height:1.72!important;
+}
+
+/* MAIS FOCO NOS TÍTULOS */
+.section-head{
+  align-items:flex-end;
+  gap:28px;
+  margin-bottom:24px;
+  padding-bottom:17px;
+}
+.section-head::after{width:112px;height:3px}
+.section h2{
+  max-width:var(--guide-title-max);
+  margin:6px 0 0;
+  font-size:clamp(36px,4.15vw,54px);
+  line-height:.95;
+  letter-spacing:-.035em;
+  text-wrap:balance;
+}
+.section h3,.paper-card h3,.feature h3,.resource h3,.ability-card h3,.rest-card h3,.warning-card h3,.money-card h3,.talent-card h3,.leader-card h3,.pantheon-card h3,.dt-card h3,.choice-box h3,.torn-card h3{
+  margin:0 0 12px;
+  font:700 20px/1.15 var(--serif);
+  letter-spacing:-.014em;
+  text-wrap:balance;
+}
+.section-head>span{
+  min-height:32px;
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:8px;
+  letter-spacing:.14em;
+}
+
+/* GRIDS INFORMATIVOS: menos caixas espremidas, ritmos mais previsíveis */
+.grid,.attr-grid,.resource-grid,.training-grid,.combat-facts,.ability-grid,.money-grid,.job-grid,.job-grid-full,.honor-grid,.rank-grid,.pantheon-grid,.pantheon-children,.talent-grid-full,.close-grid,.familiar-rules,.death-flow,.skill-grid,.bp-list,.affinity-scale,.affinity-events,.fame-track{
+  gap:var(--guide-grid-gap);
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  align-items:stretch;
+}
+.grid.two,.two,.material-split,.attack-split{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--guide-grid-gap)}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--guide-grid-gap)}
+.rules-section>.grid,.rules-section>.grid.two{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.rules-section>.grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+
+/* CARDS: borda arredondada consistente e mais respiro entre borda e conteúdo */
+.paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box,.foreign-cta,.discord-disclaimer,.map-panel,.torn-card,.pantheon-banner,.deity-info,.condition-list details,.skill-grid>*{
+  padding:var(--guide-card-pad-y) var(--guide-card-pad-x);
+  border-radius:var(--guide-card-radius);
+}
+.paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box,.foreign-cta,.discord-disclaimer,.map-panel,.torn-card{
+  min-width:0;
+  overflow-wrap:break-word;
+}
+.paper-card p,.feature p,.resource p,.ability-card p,.rest-card p,.warning-card p,.money-card p,.talent-card p,.leader-card p,.pantheon-card p,.dt-card p,.choice-box p{margin-top:.7em;margin-bottom:.7em}
+.paper-card>p:first-of-type,.feature>p:first-of-type,.resource>p:first-of-type,.ability-card>p:first-of-type,.rest-card>p:first-of-type,.warning-card>p:first-of-type,.money-card>p:first-of-type,.talent-card>p:first-of-type,.dt-card>p:first-of-type,.choice-box>p:first-of-type{margin-top:0}
+.paper-card>p:last-child,.feature>p:last-child,.resource>p:last-child,.ability-card>p:last-child,.rest-card>p:last-child,.warning-card>p:last-child,.money-card>p:last-child,.talent-card>p:last-child,.dt-card>p:last-child,.choice-box>p:last-child{margin-bottom:0}
+
+.formula,.big-formula,.micro,.label,.job-meta,.rule-line,.event-lines{
+  padding:12px 14px;
+  margin:12px 0;
+  border-radius:12px;
+  line-height:1.55;
+  overflow-wrap:break-word;
+}
+.big-formula{font-size:21px;line-height:1.25}
+.table-wrap{border-radius:16px;overflow:hidden}
+.jump-grid a,.journey-strip>*{padding:14px 16px;border-radius:14px}
+
+/* COMBATE E OUTRAS PÁGINAS DE REGRAS */
+.rules-opening{
+  padding:36px 0 34px;
+  margin-bottom:38px;
+}
+.rules-opening::after{width:min(190px,32vw);height:3px;margin-top:26px}
+.rules-opening small{font-size:9px;letter-spacing:.18em}
+.rules-opening h1{
+  max-width:900px;
+  margin:5px 0 18px;
+  font-size:clamp(64px,8vw,104px);
+  line-height:.84;
+  letter-spacing:-.06em;
+  text-wrap:balance;
+}
+.rules-opening p{max-width:70ch;font-size:16.5px;line-height:1.72}
+.rules-section{scroll-margin-top:104px}
+.rules-section>.grid,.rules-section>.grid.two,.rules-section>.grid.three{margin-top:18px}
+.rules-section .paper-card{min-height:100%}
+.rules-section .paper-card p{color:#d3c8cb}
+.rules-section .paper-card strong{color:#fff}
+.rules-section .guide-rule-list{margin:8px 0 0;padding-left:1.28rem}
+.rules-section .guide-rule-list li{font-size:15px;line-height:1.66;margin:.56rem 0}
+
+/* BANNERS: sempre exibidos no arquivo original, sem crop, blur, zoom ou filtro. */
+.rules-banner,.rules-page-banner{
+  margin:0 0 30px;
+  overflow:hidden;
+  border:1px solid #4a3138;
+  border-radius:18px;
+  background:#090809;
+  box-shadow:0 20px 50px rgba(0,0,0,.22);
+}
+.rules-banner picture,.rules-page-banner picture{display:block;width:100%}
+.rules-banner img,.rules-page-banner img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center;
+  image-rendering:auto;
+  filter:none!important;
+  transform:none!important;
+}
+.rules-page-banner{margin:8px 0 26px}
+.rules-page-banner--main{margin:8px 0 0}
+.rules-page-banner--main+.rules-opening{padding-top:30px}
+.rules-subfeature{margin:30px 0 6px;padding-top:4px}
+.rules-subfeature .rules-banner{margin-bottom:18px}
+.rules-attack-defense-grid{margin-top:0!important}
+
+/* O bloco de Ataque & Defesa deve funcionar como um segundo capítulo visual, não como cards perdidos no grid. */
+.rules-subfeature-title{
+  margin:0 0 16px;
+  color:#cdbfc3;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+html[data-theme="light"] .rules-banner,html[data-theme="light"] .rules-page-banner{border-color:#cdbfbc;background:#fff;box-shadow:0 16px 38px rgba(59,39,43,.11)}
+
+@media(max-width:1120px){
+  :root{--guide-card-pad-y:20px;--guide-card-pad-x:21px;--guide-grid-gap:16px;--guide-copy-size:15px}
+  .grid.three,.rules-section>.grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:900px){
+  :root{--guide-card-radius:16px;--guide-grid-gap:14px;--guide-copy-size:14.75px}
+  .grid.two,.two,.material-split,.attack-split,.grid.three,.rules-section>.grid,.rules-section>.grid.two,.rules-section>.grid.three{grid-template-columns:1fr}
+  .section{padding-top:34px;margin-bottom:24px}
+  .section-head{align-items:flex-start;gap:14px;margin-bottom:20px;padding-bottom:14px}
+  .section h2{font-size:clamp(32px,7vw,43px)}
+  .rules-opening h1{font-size:clamp(54px,11vw,78px)}
+  .rules-opening p{font-size:15.5px}
+}
+
+@media(max-width:780px){
+  :root{--guide-card-pad-y:18px;--guide-card-pad-x:18px;--guide-card-radius:15px;--guide-grid-gap:13px}
+  .content{padding:24px 16px 68px}
+  .section{padding-top:30px}
+  .section-head{display:grid;grid-template-columns:minmax(0,1fr) auto}
+  .section-head>span{min-height:28px;padding:6px 10px;font-size:7px}
+  .section h2{font-size:clamp(30px,9vw,39px);line-height:.99}
+  .section h3,.paper-card h3,.feature h3,.resource h3,.ability-card h3,.rest-card h3,.warning-card h3,.money-card h3,.talent-card h3,.leader-card h3,.pantheon-card h3,.dt-card h3,.choice-box h3,.torn-card h3{font-size:19px}
+  .rules-opening{padding:28px 0 27px;margin-bottom:28px}
+  .rules-opening h1{font-size:clamp(48px,15vw,66px);line-height:.88;letter-spacing:-.052em}
+  .rules-opening p{font-size:15px;line-height:1.66}
+  .rules-banner,.rules-page-banner{border-radius:14px;margin-bottom:21px}
+  .rules-page-banner--main{margin-top:0}
+  .rules-page-banner--main+.rules-opening{padding-top:24px}
+  .rules-subfeature{margin-top:24px}
+  .formula,.big-formula,.micro,.label,.job-meta,.rule-line,.event-lines{border-radius:11px;padding:10px 12px}
+  .big-formula{font-size:19px}
+  .section-lead{font-size:15px!important}
+}
+
+@media(max-width:520px){
+  :root{--guide-card-pad-y:17px;--guide-card-pad-x:16px;--guide-card-radius:14px;--guide-copy-size:14.5px;--guide-copy-leading:1.65}
+  .content{padding-left:13px;padding-right:13px}
+  .section-head{grid-template-columns:1fr}
+  .section-head>span{justify-self:start}
+  .section h2{font-size:clamp(29px,10vw,36px)}
+  .paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box,.foreign-cta,.discord-disclaimer,.map-panel,.torn-card,.pantheon-banner,.deity-info,.condition-list details,.skill-grid>*{padding:17px 16px}
+  .rules-section .guide-rule-list li{font-size:14.25px;line-height:1.64}
+  .rules-opening h1{font-size:clamp(45px,17vw,60px)}
+  .rules-banner,.rules-page-banner{border-radius:12px}
+}
