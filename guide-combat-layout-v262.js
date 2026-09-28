@@ -1,7 +1,10 @@
 (()=>{
   'use strict';
 
-  const banner=(hires,fallback,alt,cls='rules-banner')=>`<figure class="${cls}"><picture><source srcset="${hires}" type="image/avif"><img src="${fallback}" alt="${alt}" loading="eager" decoding="async"></picture></figure>`;
+  const banner=(hires,fallback,alt,cls='rules-banner')=>{
+    const source=hires?`<source srcset="${hires}" type="image/avif">`:'';
+    return `<figure class="${cls}" data-combat-banner="${alt}"><picture>${source}<img src="${fallback}" alt="${alt}" loading="eager" decoding="async"></picture></figure>`;
+  };
 
   function patchCombat(){
     const page=window.GUIA_CONTENT?.combate;
@@ -12,7 +15,7 @@
     const opening=root.querySelector('.rules-opening');
     if(opening&&!root.querySelector('.rules-page-banner--main')){
       opening.insertAdjacentHTML('beforebegin',banner(
-        'assets/visual/banner-combate-hires.avif',
+        '',
         'assets/visual/banner-combate.webp',
         'Combate em Roma e além',
         'rules-page-banner rules-page-banner--main'
