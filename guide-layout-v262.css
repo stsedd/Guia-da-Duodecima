@@ -1,4 +1,4 @@
-/* Guia da Duodécima · v2.6.2
+/* Guia da Duodécima · v2.6.3
    Refinamento editorial geral para desktop e mobile.
    Mantém a identidade visual existente, mas dá mais hierarquia, respiro e legibilidade
    aos grids informacionais, cards, títulos e banners. */
@@ -64,7 +64,7 @@
 .grid,.attr-grid,.resource-grid,.training-grid,.combat-facts,.ability-grid,.money-grid,.job-grid,.job-grid-full,.honor-grid,.rank-grid,.pantheon-grid,.pantheon-children,.talent-grid-full,.close-grid,.familiar-rules,.death-flow,.skill-grid,.bp-list,.affinity-scale,.affinity-events,.fame-track{
   gap:var(--guide-grid-gap);
   grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
-  align-items:stretch;
+  align-items:start;
 }
 .grid.two,.two,.material-split,.attack-split{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--guide-grid-gap)}
 .grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--guide-grid-gap)}
@@ -78,6 +78,8 @@
 }
 .paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box,.foreign-cta,.discord-disclaimer,.map-panel,.torn-card{
   min-width:0;
+  height:auto;
+  min-height:0;
   overflow-wrap:break-word;
 }
 .paper-card p,.feature p,.resource p,.ability-card p,.rest-card p,.warning-card p,.money-card p,.talent-card p,.leader-card p,.pantheon-card p,.dt-card p,.choice-box p{margin-top:.7em;margin-bottom:.7em}
@@ -113,7 +115,7 @@
 .rules-opening p{max-width:70ch;font-size:16.5px;line-height:1.72}
 .rules-section{scroll-margin-top:104px}
 .rules-section>.grid,.rules-section>.grid.two,.rules-section>.grid.three{margin-top:18px}
-.rules-section .paper-card{min-height:100%}
+.rules-section .paper-card{height:auto!important;min-height:0!important;align-self:start}
 .rules-section .paper-card p{color:#d3c8cb}
 .rules-section .paper-card strong{color:#fff}
 .rules-section .guide-rule-list{margin:8px 0 0;padding-left:1.28rem}
@@ -140,6 +142,7 @@
   filter:none!important;
   transform:none!important;
 }
+.rules-banner:empty,.rules-page-banner:empty{display:none!important}
 .rules-page-banner{margin:8px 0 26px}
 .rules-page-banner--main{margin:8px 0 0}
 .rules-page-banner--main+.rules-opening{padding-top:30px}
