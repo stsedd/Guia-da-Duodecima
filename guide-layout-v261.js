@@ -5,10 +5,10 @@
   if(!content)return;
 
   const ASSETS={
-    main:'assets/visual/banner-combate-hires.webp',
-    rolls:'assets/visual/banner-combate-rolagens-hires.webp',
-    turn:'assets/visual/banner-combate-turno-hires.webp',
-    attackDefense:'assets/visual/banner-combate-ataque-defesa-hires.webp'
+    main:'assets/visual/banner-combate-hires.avif',
+    rolls:'assets/visual/banner-combate-rolagens-hires.avif',
+    turn:'assets/visual/banner-combate-turno-hires.avif',
+    attackDefense:'assets/visual/banner-combate-ataque-defesa-hires.avif'
   };
   const FALLBACK_MAIN='assets/visual/banner-combate.webp';
   const norm=(v='')=>String(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
