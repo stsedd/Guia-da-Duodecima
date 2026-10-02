@@ -41,18 +41,28 @@ for(const test of cases){
   const context=await browser.newContext({viewport:test.viewport});
   const page=await context.newPage();
   page.setDefaultTimeout(8000);
-  page.on('pageerror',error=>failures.push(`${test.name}: pageerror ${error.message}`));
-  page.on('console',message=>{
-    if(message.type()==='error')diagnostics.push(`${test.name}: console.error ${message.text()}`);
-  });
+  page.on('pageerror',error=>{console.log(`[browser:${test.name}:pageerror] ${error.message}`);failures.push(`${test.name}: pageerror ${error.message}`)});
+  page.on('console',message=>console.log(`[browser:${test.name}:${message.type()}] ${message.text()}`));
+  page.on('requestfailed',request=>console.log(`[browser:${test.name}:requestfailed] ${request.url()} :: ${request.failure()?.errorText||'unknown'}`));
 
   const started=Date.now();
-  await page.goto(base,{waitUntil:'domcontentloaded',timeout:15000});
-  diagnostics.push(`${test.name}: DOMContentLoaded em ${Date.now()-started}ms`);
+  await page.goto(base,{waitUntil:'commit',timeout:15000});
+  console.log(`[runner:${test.name}] navigation committed em ${Date.now()-started}ms`);
+
+  // Se o parser ou a main thread entrarem em loop, os marcadores do index mostram o último script concluído.
+  try{
+    await page.waitForLoadState('domcontentloaded',{timeout:10000});
+    diagnostics.push(`${test.name}: DOMContentLoaded em ${Date.now()-started}ms`);
+  }catch(error){
+    console.log(`[runner:${test.name}] DOMContentLoaded NÃO ocorreu em 10s: ${error.message}`);
+    failures.push(`${test.name}: DOMContentLoaded travou`);
+    await context.close();
+    continue;
+  }
+
   await page.waitForSelector('#content .section',{timeout:8000});
   await assertResponsive(page,`${test.name}/boot`);
 
-  // Navegação real pelos botões do menu. Isto reproduz o fluxo que estava congelando em produção.
   for(const route of ['combate','crafting','magia','deuses','roma','sistema']){
     const button=page.locator(`[data-page="${route}"]`).first();
     const clickStarted=Date.now();
@@ -96,7 +106,6 @@ for(const test of cases){
   if(combatLayout.blankCards)failures.push(`${test.name}: Combate tem ${combatLayout.blankCards} cards vazios`);
   if(combatLayout.veryTallCards)failures.push(`${test.name}: Combate tem ${combatLayout.veryTallCards} cards anormalmente altos`);
 
-  // Deep links continuam sendo testados, mas sem depender de networkidle: o Guia é uma SPA e deve continuar usável mesmo com requests remotas pendentes.
   for(const [route,expected] of [
     ['sistema',['Rebentos de Roma','dois atributos diferentes','Sucessor de Rebento','+25 Energia','Honesta Missio','Boas Práticas']],
     ['roma',['Passagem do Tempo','3 meses OFF','Anos de serviço','Bolsa Décimus','250 DN','450 DN']],
