@@ -76,29 +76,37 @@
 <button class="to-top" id="toTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
 <div class="scrim" id="scrim"></div>
 
-<!-- O Guia nasce primeiro do conteúdo local. Nenhuma requisição ao Core pode impedir a interface de abrir. -->
+<script>console.log('[guide-boot] before content');</script>
 <script src="content-v24.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after content / before app');</script>
 <script src="app-v24.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after app / before visual');</script>
 <script src="guide-visual-v253.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after visual / before core policy');</script>
 
-<!-- O Core e as camadas de regra enriquecem a cópia local em segundo plano. -->
 <script src="core-fetch-policy-v251.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after core policy / before core bridge');</script>
 <script src="core-bridge-v24.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after core bridge / before lineage');</script>
 <script src="lineage-core-v25.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after lineage / before label fix');</script>
 <script src="lineage-label-fix-v265.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after label fix / before stabilization');</script>
 <script src="guide-stabilization-v251.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after stabilization / before rules');</script>
 <script src="guide-rules-v26.js?v=2.6.8"></script>
+<script>console.log('[guide-boot] after rules');</script>
 <script>
 (function(){
   let decorated=false;
   const finishEnhancement=()=>{
     if(decorated)return;
     decorated=true;
+    console.log('[guide-boot] loading combat layout');
     const combatLayout=document.createElement('script');
     combatLayout.src='guide-layout-v261.js?v=2.6.8';
     combatLayout.onload=()=>{
-      // Reaplica a rota atual depois que o Core e as regras terminarem de enriquecer GUIA_CONTENT.
-      // app-v24 já está funcionando desde o primeiro paint, então isto nunca bloqueia o site.
+      console.log('[guide-boot] combat layout loaded');
       window.dispatchEvent(new PopStateEvent('popstate',{state:history.state}));
     };
     document.body.appendChild(combatLayout);
@@ -112,9 +120,9 @@
     window.DUODECIMA_GUIDE_RULES_READY
   ]).finally(finishEnhancement);
 
-  // Se qualquer integração remota se comportar mal, a camada visual ainda entra sem travar a interface.
   setTimeout(finishEnhancement,6000);
 })();
 </script>
+<script>console.log('[guide-boot] end of body');</script>
 </body>
 </html>
