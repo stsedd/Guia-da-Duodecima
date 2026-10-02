@@ -29,12 +29,25 @@ async function assertResponsive(page,label){
 }
 
 async function waitForPage(page,route,label){
-  await page.waitForFunction(expected=>{
-    const current=(document.querySelector('#pageTitle')?.textContent||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-    return current.includes(expected);
-  },route==='roma'?'roma':route,{timeout:8000});
-  await page.waitForSelector('#content .section',{timeout:8000});
-  await assertResponsive(page,label);
+  const expected=route==='roma'?'roma':route;
+  try{
+    await page.waitForFunction(value=>{
+      const current=(document.querySelector('#pageTitle')?.textContent||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+      return current.includes(value);
+    },expected,{timeout:3000});
+    await page.waitForSelector('#content .section',{timeout:3000});
+    await assertResponsive(page,label);
+    return true;
+  }catch(error){
+    const url=page.url();
+    let title='<renderer sem resposta>';
+    let textLength=-1;
+    try{title=await page.locator('#pageTitle').textContent({timeout:1000})||'';}catch{}
+    try{textLength=(await page.locator('#content').innerText({timeout:1000})).trim().length;}catch{}
+    console.log(`[route-fail:${label}] expected=${expected} url=${url} title=${JSON.stringify(title)} contentLength=${textLength} error=${error.message}`);
+    failures.push(`${label}: navegação não concluiu (hash=${url.split('#')[1]||''}, título=${title})`);
+    return false;
+  }
 }
 
 for(const test of cases){
@@ -49,7 +62,6 @@ for(const test of cases){
   await page.goto(base,{waitUntil:'commit',timeout:15000});
   console.log(`[runner:${test.name}] navigation committed em ${Date.now()-started}ms`);
 
-  // Se o parser ou a main thread entrarem em loop, os marcadores do index mostram o último script concluído.
   try{
     await page.waitForLoadState('domcontentloaded',{timeout:10000});
     diagnostics.push(`${test.name}: DOMContentLoaded em ${Date.now()-started}ms`);
@@ -63,11 +75,14 @@ for(const test of cases){
   await page.waitForSelector('#content .section',{timeout:8000});
   await assertResponsive(page,`${test.name}/boot`);
 
+  let navigationHealthy=true;
   for(const route of ['combate','crafting','magia','deuses','roma','sistema']){
     const button=page.locator(`[data-page="${route}"]`).first();
     const clickStarted=Date.now();
     await button.click({timeout:8000});
-    await waitForPage(page,route,`${test.name}/${route}`);
+    console.log(`[route-click:${test.name}/${route}] url-imediata=${page.url()}`);
+    const ok=await waitForPage(page,route,`${test.name}/${route}`);
+    if(!ok){navigationHealthy=false;break;}
     diagnostics.push(`${test.name}/${route}: navegação por clique em ${Date.now()-clickStarted}ms`);
 
     const layout=await page.evaluate(()=>({
@@ -85,26 +100,28 @@ for(const test of cases){
     await page.screenshot({path:`ui-artifacts/${test.name}-${route}.png`,fullPage:true});
   }
 
-  await page.locator('[data-page="combate"]').first().click();
-  await waitForPage(page,'combate',`${test.name}/combate-regras`);
-  await page.waitForTimeout(300);
-  const combatText=await page.locator('#content').innerText({timeout:8000});
-  for(const expected of ['2 ações','10 metros','Percepção Passiva','Agarrar','Cobertura','10 + 2 × metros da queda']){
-    if(!includesNormalized(combatText,expected))failures.push(`${test.name}: regra de combate ausente: ${expected}`);
+  if(navigationHealthy){
+    await page.locator('[data-page="combate"]').first().click();
+    await waitForPage(page,'combate',`${test.name}/combate-regras`);
+    await page.waitForTimeout(300);
+    const combatText=await page.locator('#content').innerText({timeout:8000});
+    for(const expected of ['2 ações','10 metros','Percepção Passiva','Agarrar','Cobertura','10 + 2 × metros da queda']){
+      if(!includesNormalized(combatText,expected))failures.push(`${test.name}: regra de combate ausente: ${expected}`);
+    }
+    const combatLayout=await page.evaluate(()=>({
+      banners:document.querySelectorAll('#content .rules-page-banner,#content .rules-banner').length,
+      main:document.querySelectorAll('#content > .rules-page-banner--main').length,
+      rolls:[...document.querySelectorAll('#rolagens > .rules-banner')].length,
+      turn:[...document.querySelectorAll('#turno > .rules-banner')].length,
+      attackDefense:[...document.querySelectorAll('#rolagens > .rules-subfeature.rules-attack-defense > .rules-banner')].length,
+      blankCards:[...document.querySelectorAll('#content .paper-card')].filter(card=>(card.innerText||'').trim().length<3).length,
+      veryTallCards:[...document.querySelectorAll('#content .paper-card')].filter(card=>card.getBoundingClientRect().height>650).length
+    }));
+    if(combatLayout.banners!==4)failures.push(`${test.name}: Combate deveria ter exatamente 4 banners, encontrou ${combatLayout.banners}`);
+    if(combatLayout.main!==1||combatLayout.rolls!==1||combatLayout.turn!==1||combatLayout.attackDefense!==1)failures.push(`${test.name}: banners de Combate não estão distribuídos 1/1/1/1`);
+    if(combatLayout.blankCards)failures.push(`${test.name}: Combate tem ${combatLayout.blankCards} cards vazios`);
+    if(combatLayout.veryTallCards)failures.push(`${test.name}: Combate tem ${combatLayout.veryTallCards} cards anormalmente altos`);
   }
-  const combatLayout=await page.evaluate(()=>({
-    banners:document.querySelectorAll('#content .rules-page-banner,#content .rules-banner').length,
-    main:document.querySelectorAll('#content > .rules-page-banner--main').length,
-    rolls:[...document.querySelectorAll('#rolagens > .rules-banner')].length,
-    turn:[...document.querySelectorAll('#turno > .rules-banner')].length,
-    attackDefense:[...document.querySelectorAll('#rolagens > .rules-subfeature.rules-attack-defense > .rules-banner')].length,
-    blankCards:[...document.querySelectorAll('#content .paper-card')].filter(card=>(card.innerText||'').trim().length<3).length,
-    veryTallCards:[...document.querySelectorAll('#content .paper-card')].filter(card=>card.getBoundingClientRect().height>650).length
-  }));
-  if(combatLayout.banners!==4)failures.push(`${test.name}: Combate deveria ter exatamente 4 banners, encontrou ${combatLayout.banners}`);
-  if(combatLayout.main!==1||combatLayout.rolls!==1||combatLayout.turn!==1||combatLayout.attackDefense!==1)failures.push(`${test.name}: banners de Combate não estão distribuídos 1/1/1/1`);
-  if(combatLayout.blankCards)failures.push(`${test.name}: Combate tem ${combatLayout.blankCards} cards vazios`);
-  if(combatLayout.veryTallCards)failures.push(`${test.name}: Combate tem ${combatLayout.veryTallCards} cards anormalmente altos`);
 
   for(const [route,expected] of [
     ['sistema',['Rebentos de Roma','dois atributos diferentes','Sucessor de Rebento','+25 Energia','Honesta Missio','Boas Práticas']],
