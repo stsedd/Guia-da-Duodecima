@@ -15,7 +15,11 @@ on:
       - 'guide-visual-v253.js'
       - 'guide-rules-v26.js'
       - 'guide-rules-v26.css'
+      - 'guide-layout-v261.js'
+      - 'guide-layout-v261.css'
+      - 'lineage-label-fix-v265.js'
       - 'assets/visual/banner-*.webp'
+      - 'assets/visual/banner-*.avif'
       - 'scripts/ui-smoke.mjs'
       - '.github/workflows/ui-smoke.yml'
   pull_request:
@@ -42,10 +46,12 @@ jobs:
         run: |
           node --check core-bridge-v24.js
           node --check lineage-core-v25.js
+          node --check lineage-label-fix-v265.js
           node --check core-fetch-policy-v251.js
           node --check guide-stabilization-v251.js
           node --check guide-visual-v253.js
           node --check guide-rules-v26.js
+          node --check guide-layout-v261.js
           node --check app-v24.js
 
       - name: Install Playwright
