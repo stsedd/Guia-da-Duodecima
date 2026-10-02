@@ -19,7 +19,8 @@
   }
 
   function fixSection(section){
-    if(!section)return;
+    if(!section)return false;
+    let changed=false;
     const candidates=[...section.querySelectorAll('small,p,.eyebrow,span')];
     const directNode=candidates.find(el=>normalized(el.textContent)==='DEUS + LEGADO');
     const compoundNode=candidates.find(el=>normalized(el.textContent)==='LEGADO + LEGADO');
@@ -29,7 +30,7 @@
     const setHeading=(card,label)=>{
       if(!card)return;
       const heading=[...card.querySelectorAll('h2,h3,h4')].find(h=>/Legado (Direto|Composto)/i.test(h.textContent||''));
-      if(heading)heading.textContent=label;
+      if(heading&&heading.textContent!==label){heading.textContent=label;changed=true;}
     };
 
     setHeading(directCard,'Legado Direto');
@@ -38,10 +39,12 @@
     if(compoundCard){
       compoundCard.querySelectorAll('p,li').forEach(el=>{
         if(/Legados diretos não possuem habilidades 6\+/i.test(el.textContent||'')){
-          el.innerHTML=el.innerHTML.replace(/Legados diretos/gi,'Legados compostos');
+          const next=el.innerHTML.replace(/Legados diretos/gi,'Legados compostos');
+          if(next!==el.innerHTML){el.innerHTML=next;changed=true;}
         }
       });
     }
+    return changed;
   }
 
   function patchSource(){
@@ -49,18 +52,26 @@
     if(!source)return;
     const box=document.createElement('div');
     box.innerHTML=source;
-    fixSection(box.querySelector('#legados'));
-    window.GUIA_CONTENT.sistema.html=box.innerHTML;
+    const changed=fixSection(box.querySelector('#legados'));
+    if(changed)window.GUIA_CONTENT.sistema.html=box.innerHTML;
   }
 
   function patchRendered(){
     fixSection(document.querySelector('#legados'));
   }
 
+  // Corrige a fonte uma vez antes da primeira renderização.
   patchSource();
+
+  // Reaplica somente em eventos de navegação. O antigo MutationObserver em todo o body
+  // reagia às próprias alterações de textContent e criava um ciclo infinito na main thread.
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',patchRendered,{once:true});
   else patchRendered();
-  new MutationObserver(patchRendered).observe(document.body,{childList:true,subtree:true});
+  window.addEventListener('popstate',()=>setTimeout(patchRendered,0));
+  window.addEventListener('hashchange',()=>setTimeout(patchRendered,0));
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('[data-page],a[href^="#page:"]'))setTimeout(patchRendered,0);
+  });
 
   window.DUODECIMA_LINEAGE_LABEL_FIX_READY=Promise.resolve();
 })();
