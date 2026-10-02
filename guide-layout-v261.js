@@ -21,7 +21,7 @@
   function makeBanner(src,alt,cls='rules-banner'){
     const figure=document.createElement('figure');
     figure.className=cls;
-    figure.dataset.guideBanner='v264';
+    figure.dataset.guideBanner='v266';
     const img=document.createElement('img');
     img.src=src;
     img.alt=alt;
@@ -32,7 +32,7 @@
         img.dataset.fallback='1';
         img.src=FALLBACK_MAIN;
       }
-    },{once:false});
+    });
     figure.appendChild(img);
     return figure;
   }
@@ -45,16 +45,18 @@
     return first;
   }
 
-  function normalizeExistingDecorations(){
-    if(!isCombatPage())return;
+  function setBannerImage(banner,src,alt){
+    if(!banner)return;
+    banner.dataset.guideBanner='v266';
+    const img=banner.querySelector('img');
+    if(!img)return;
+    if(img.getAttribute('src')!==src)img.src=src;
+    if(img.alt!==alt)img.alt=alt;
+  }
 
-    const mains=content.querySelectorAll(':scope > .rules-page-banner--main');
-    const main=keepSingle(mains);
-    if(main){
-      main.dataset.guideBanner='v264';
-      const img=main.querySelector('img');
-      if(img){img.src=ASSETS.main;img.alt='Combate em Roma e Além';}
-    }
+  function normalizeExistingDecorations(){
+    const main=keepSingle(content.querySelectorAll(':scope > .rules-page-banner--main'));
+    setBannerImage(main,ASSETS.main,'Combate em Roma e Além');
 
     for(const [id,src,alt] of [
       ['rolagens',ASSETS.rolls,'Tipos de Rolagens'],
@@ -63,34 +65,26 @@
       const section=content.querySelector(`#${id}`);
       if(!section)continue;
       const direct=[...section.children].filter(el=>el.classList?.contains('rules-banner'));
-      const existing=keepSingle(direct);
-      if(existing){
-        existing.dataset.guideBanner='v264';
-        const img=existing.querySelector('img');
-        if(img){img.src=src;img.alt=alt;}
-      }
+      setBannerImage(keepSingle(direct),src,alt);
     }
 
     const rolls=content.querySelector('#rolagens');
-    if(rolls){
-      const features=[...rolls.querySelectorAll(':scope > .rules-subfeature')];
-      if(features.length>1){
-        const keeper=features[0];
-        for(const extra of features.slice(1)){
-          extra.querySelectorAll('.paper-card').forEach(card=>keeper.querySelector('.rules-attack-defense-grid')?.append(card));
-          extra.remove();
-        }
+    if(!rolls)return;
+    const features=[...rolls.querySelectorAll(':scope > .rules-subfeature.rules-attack-defense')];
+    if(features.length>1){
+      const keeper=features[0];
+      const target=keeper.querySelector('.rules-attack-defense-grid');
+      for(const extra of features.slice(1)){
+        extra.querySelectorAll('.paper-card').forEach(card=>{
+          if(target&&card.parentElement!==target)target.appendChild(card);
+        });
+        extra.remove();
       }
-      const feature=rolls.querySelector(':scope > .rules-subfeature');
-      if(feature){
-        const banners=[...feature.children].filter(el=>el.classList?.contains('rules-banner'));
-        const existing=keepSingle(banners);
-        if(existing){
-          existing.dataset.guideBanner='v264';
-          const img=existing.querySelector('img');
-          if(img){img.src=ASSETS.attackDefense;img.alt='Ataque & Defesa';}
-        }
-      }
+    }
+    const feature=rolls.querySelector(':scope > .rules-subfeature.rules-attack-defense');
+    if(feature){
+      const banners=[...feature.children].filter(el=>el.classList?.contains('rules-banner'));
+      setBannerImage(keepSingle(banners),ASSETS.attackDefense,'Ataque & Defesa');
     }
   }
 
@@ -101,7 +95,7 @@
     if(!banner){
       banner=makeBanner(ASSETS.main,'Combate em Roma e Além','rules-page-banner rules-page-banner--main');
       opening.before(banner);
-    }
+    }else setBannerImage(banner,ASSETS.main,'Combate em Roma e Além');
   }
 
   function ensureSectionBanner(id,src,alt){
@@ -111,11 +105,7 @@
     if(!banner){
       banner=makeBanner(src,alt);
       section.prepend(banner);
-    }else{
-      banner.dataset.guideBanner='v264';
-      const img=banner.querySelector('img');
-      if(img){img.src=src;img.alt=alt;}
-    }
+    }else setBannerImage(banner,src,alt);
     return section;
   }
 
@@ -135,15 +125,21 @@
       const sourceGrid=attack.closest('.grid');
       sourceGrid?.after(feature);
     }
-    if(!feature.querySelector(':scope > .rules-banner')){
-      feature.prepend(makeBanner(ASSETS.attackDefense,'Ataque & Defesa'));
-    }
+    if(!feature.querySelector(':scope > .rules-banner'))feature.prepend(makeBanner(ASSETS.attackDefense,'Ataque & Defesa'));
+
     const target=feature.querySelector('.rules-attack-defense-grid');
-    if(target){target.append(attack,defense)}
+    if(!target)return;
+    // Idempotente: não reanexa cards que já estão no lugar. A versão anterior fazia append
+    // em toda passagem do MutationObserver e criava um ciclo infinito de renderização.
+    if(attack.parentElement!==target)target.appendChild(attack);
+    if(defense.parentElement!==target)target.appendChild(defense);
   }
 
   function decorateCombat(){
-    if(!isCombatPage())return;
+    if(!isCombatPage()){
+      if(document.body.dataset.guidePage==='combate')delete document.body.dataset.guidePage;
+      return;
+    }
     document.body.dataset.guidePage='combate';
     normalizeExistingDecorations();
     ensureMainBanner();
@@ -159,7 +155,9 @@
     requestAnimationFrame(()=>{queued=false;decorateCombat()});
   }
 
-  new MutationObserver(queue).observe(content,{childList:true,subtree:true});
+  // Só observa substituições da página no #content. Alterações internas feitas por este
+  // próprio decorador não devem acordar o observer novamente.
+  new MutationObserver(queue).observe(content,{childList:true});
   window.addEventListener('hashchange',()=>setTimeout(queue,0));
   document.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>setTimeout(queue,0)));
   queue();
