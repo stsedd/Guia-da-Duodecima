@@ -4,6 +4,7 @@
   const nativeFetch=window.fetch.bind(window);
   const coreOrigin='https://stsedd.github.io';
   const corePrefix='/duodecima-core/';
+  const REMOTE_TIMEOUT_MS=1800;
   let coreVersion='';
   let snapshotPromise=null;
 
@@ -27,6 +28,16 @@
     }catch(_){return null}
   }
 
+  async function remoteFetch(url,init={}){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(new DOMException('Core remoto demorou demais.','TimeoutError')),REMOTE_TIMEOUT_MS);
+    try{
+      return await nativeFetch(url,{...init,signal:controller.signal});
+    }finally{
+      clearTimeout(timer);
+    }
+  }
+
   async function snapshotResponse(relative){
     const snap=await snapshot();
     let body=null;
@@ -45,22 +56,28 @@
     const info=coreRequestInfo(input);
     if(!info)return nativeFetch(input,init);
     const {url,relative}=info;
+
     if(relative==='manifest.json'){
       try{
-        const response=await nativeFetch(url.toString(),{...init,cache:'no-cache'});
+        const response=await remoteFetch(url.toString(),{...init,cache:'no-cache'});
         if(!response.ok)return snapshotResponse(relative);
         try{
           const data=await response.clone().json();
           coreVersion=data.contentVersion||data.updatedAt||coreVersion;
         }catch(_){ }
         return response;
-      }catch(_){return snapshotResponse(relative)}
+      }catch(_){
+        return snapshotResponse(relative);
+      }
     }
+
     if(coreVersion)url.searchParams.set('v',coreVersion);
     try{
-      const response=await nativeFetch(url.toString(),{...init,cache:'default'});
+      const response=await remoteFetch(url.toString(),{...init,cache:'default'});
       if(!response.ok)return snapshotResponse(relative);
       return response;
-    }catch(_){return snapshotResponse(relative)}
+    }catch(_){
+      return snapshotResponse(relative);
+    }
   };
 })();
