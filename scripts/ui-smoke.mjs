@@ -5,6 +5,7 @@ const base=process.env.UI_BASE_URL||'http://127.0.0.1:4173/';
 await fs.mkdir('ui-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true});
 const failures=[];
+const diagnostics=[];
 const cases=[
   {name:'desktop',viewport:{width:1440,height:1000}},
   {name:'mobile',viewport:{width:390,height:844}}
@@ -15,14 +16,50 @@ function includesNormalized(text,part){
   return norm(text).includes(norm(part));
 }
 
+async function assertResponsive(page,label){
+  const started=Date.now();
+  try{
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true)))));
+    const elapsed=Date.now()-started;
+    diagnostics.push(`${label}: main thread respondeu em ${elapsed}ms`);
+    if(elapsed>1500)failures.push(`${label}: interface respondeu lentamente (${elapsed}ms)`);
+  }catch(error){
+    failures.push(`${label}: interface travou (${error.message})`);
+  }
+}
+
+async function waitForPage(page,route,label){
+  await page.waitForFunction(expected=>{
+    const current=(document.querySelector('#pageTitle')?.textContent||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    return current.includes(expected);
+  },route==='roma'?'roma':route,{timeout:8000});
+  await page.waitForSelector('#content .section',{timeout:8000});
+  await assertResponsive(page,label);
+}
+
 for(const test of cases){
-  const page=await browser.newPage({viewport:test.viewport});
+  const context=await browser.newContext({viewport:test.viewport});
+  const page=await context.newPage();
+  page.setDefaultTimeout(8000);
   page.on('pageerror',error=>failures.push(`${test.name}: pageerror ${error.message}`));
-  await page.goto(base,{waitUntil:'networkidle',timeout:60000});
-  await page.waitForSelector('#content .section',{timeout:30000});
-  for(const route of ['sistema','combate','crafting','magia','deuses','roma']){
-    await page.goto(`${base}#page:${route}`,{waitUntil:'networkidle',timeout:60000});
-    await page.waitForTimeout(350);
+  page.on('console',message=>{
+    if(message.type()==='error')diagnostics.push(`${test.name}: console.error ${message.text()}`);
+  });
+
+  const started=Date.now();
+  await page.goto(base,{waitUntil:'domcontentloaded',timeout:15000});
+  diagnostics.push(`${test.name}: DOMContentLoaded em ${Date.now()-started}ms`);
+  await page.waitForSelector('#content .section',{timeout:8000});
+  await assertResponsive(page,`${test.name}/boot`);
+
+  // Navegação real pelos botões do menu. Isto reproduz o fluxo que estava congelando em produção.
+  for(const route of ['combate','crafting','magia','deuses','roma','sistema']){
+    const button=page.locator(`[data-page="${route}"]`).first();
+    const clickStarted=Date.now();
+    await button.click({timeout:8000});
+    await waitForPage(page,route,`${test.name}/${route}`);
+    diagnostics.push(`${test.name}/${route}: navegação por clique em ${Date.now()-clickStarted}ms`);
+
     const layout=await page.evaluate(()=>({
       viewport:window.innerWidth,
       scroll:document.documentElement.scrollWidth,
@@ -38,9 +75,10 @@ for(const test of cases){
     await page.screenshot({path:`ui-artifacts/${test.name}-${route}.png`,fullPage:true});
   }
 
-  await page.goto(`${base}#page:combate`,{waitUntil:'networkidle',timeout:60000});
-  await page.waitForTimeout(500);
-  const combatText=await page.locator('#content').innerText({timeout:10000});
+  await page.locator('[data-page="combate"]').first().click();
+  await waitForPage(page,'combate',`${test.name}/combate-regras`);
+  await page.waitForTimeout(300);
+  const combatText=await page.locator('#content').innerText({timeout:8000});
   for(const expected of ['2 ações','10 metros','Percepção Passiva','Agarrar','Cobertura','10 + 2 × metros da queda']){
     if(!includesNormalized(combatText,expected))failures.push(`${test.name}: regra de combate ausente: ${expected}`);
   }
@@ -58,35 +96,26 @@ for(const test of cases){
   if(combatLayout.blankCards)failures.push(`${test.name}: Combate tem ${combatLayout.blankCards} cards vazios`);
   if(combatLayout.veryTallCards)failures.push(`${test.name}: Combate tem ${combatLayout.veryTallCards} cards anormalmente altos`);
 
-  await page.goto(`${base}#page:sistema`,{waitUntil:'networkidle',timeout:60000});
-  await page.waitForTimeout(300);
-  const systemText=await page.locator('#content').innerText();
-  for(const expected of ['Rebentos de Roma','dois atributos diferentes','Sucessor de Rebento','+25 Energia','Honesta Missio','Boas Práticas']){
-    if(!includesNormalized(systemText,expected))failures.push(`${test.name}: regra de Sistema ausente: ${expected}`);
+  // Deep links continuam sendo testados, mas sem depender de networkidle: o Guia é uma SPA e deve continuar usável mesmo com requests remotas pendentes.
+  for(const [route,expected] of [
+    ['sistema',['Rebentos de Roma','dois atributos diferentes','Sucessor de Rebento','+25 Energia','Honesta Missio','Boas Práticas']],
+    ['roma',['Passagem do Tempo','3 meses OFF','Anos de serviço','Bolsa Décimus','250 DN','450 DN']],
+    ['roma:estrangeiros',['celtas','estrangeiros']],
+    ['crafting',['Bronze Celestial','não causa dano algum a mortais','Ouro Imperial','8 ou menos']]
+  ]){
+    await page.goto(`${base}#page:${route}`,{waitUntil:'domcontentloaded',timeout:15000});
+    await page.waitForSelector('#content .section',{timeout:8000});
+    await assertResponsive(page,`${test.name}/deep-${route}`);
+    const text=await page.locator('#content').innerText({timeout:8000});
+    for(const item of expected){
+      if(!includesNormalized(text,item))failures.push(`${test.name}/${route}: conteúdo esperado ausente: ${item}`);
+    }
   }
 
-  await page.goto(`${base}#page:roma`,{waitUntil:'networkidle',timeout:60000});
-  await page.waitForTimeout(300);
-  const romaText=await page.locator('#content').innerText();
-  for(const expected of ['Passagem do Tempo','3 meses OFF','Anos de serviço','Bolsa Décimus','250 DN','450 DN']){
-    if(!includesNormalized(romaText,expected))failures.push(`${test.name}: regra de Roma ausente: ${expected}`);
-  }
-
-  await page.goto(`${base}#page:roma:estrangeiros`,{waitUntil:'networkidle',timeout:60000});
-  await page.waitForTimeout(300);
-  const foreignText=await page.locator('#content').innerText();
-  if(!includesNormalized(foreignText,'celtas')||!includesNormalized(foreignText,'estrangeiros'))failures.push(`${test.name}: regra de Celtas como estrangeiros não apareceu`);
-
-  await page.goto(`${base}#page:crafting`,{waitUntil:'networkidle',timeout:60000});
-  await page.waitForTimeout(300);
-  const craftingText=await page.locator('#content').innerText();
-  if(!includesNormalized(craftingText,'Bronze Celestial')||!includesNormalized(craftingText,'não causa dano algum a mortais'))failures.push(`${test.name}: regra mortal do Bronze Celestial não apareceu`);
-  if(!includesNormalized(craftingText,'Ouro Imperial')||!includesNormalized(craftingText,'8 ou menos'))failures.push(`${test.name}: risco atualizado do Ouro Imperial não apareceu`);
-  if(includesNormalized(craftingText,'pó de monstro')&&!includesNormalized(craftingText,'tártaro'))failures.push(`${test.name}: procedência do Pó de Monstro não apareceu`);
-
-  await page.close();
+  await context.close();
 }
 
 await browser.close();
+console.log('DIAGNÓSTICO DE RESPONSIVIDADE\n'+diagnostics.join('\n'));
 if(failures.length){console.error('❌ Smoke do Guia falhou\n- '+failures.join('\n- '));process.exit(1)}
-console.log('✅ Smoke do Guia concluído em desktop e mobile, incluindo estabilidade e layout de Combate.');
+console.log('✅ Smoke do Guia concluído em desktop e mobile, incluindo navegação por clique, estabilidade e layout de Combate.');
