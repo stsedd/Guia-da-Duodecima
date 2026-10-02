@@ -18,10 +18,10 @@
     }catch(_){document.documentElement.dataset.theme='dark';}
   })();
 </script>
-<link rel="stylesheet" href="styles-v24.css?v=2.6.9">
-<link rel="stylesheet" href="guide-rules-v26.css?v=2.6.9">
-<link rel="stylesheet" href="guide-layout-v261.css?v=2.6.9">
-<link rel="stylesheet" href="guide-visual-v253.css?v=2.6.9">
+<link rel="stylesheet" href="styles-v24.css?v=2.6.10">
+<link rel="stylesheet" href="guide-rules-v26.css?v=2.6.10">
+<link rel="stylesheet" href="guide-layout-v261.css?v=2.6.10">
+<link rel="stylesheet" href="guide-visual-v253.css?v=2.6.10">
 </head>
 <body>
 <a class="skip-link" href="#content">Pular para o conteúdo</a>
@@ -48,7 +48,7 @@
     <div class="sidebar-divider"></div>
     <div class="section-nav-title">Nesta página</div>
     <nav class="section-nav" id="sectionNav"></nav>
-    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · v2.6.9 · 2026</span><div class="core-status" id="coreStatus"><i></i><span>CORE · CARREGANDO</span></div></div>
+    <div class="sidebar-note">LEG · XII · FULMINATA<br><span>Base consolidada · v2.6.10 · 2026</span><div class="core-status" id="coreStatus"><i></i><span>CORE · CARREGANDO</span></div></div>
   </aside>
 
   <main class="workspace">
@@ -70,43 +70,33 @@
     </div>
     <div class="core-fallback-notice" id="coreFallbackNotice" hidden role="status"><strong>Conteúdo local em uso.</strong><span>Algumas atualizações recentes podem não estar disponíveis enquanto o Core estiver indisponível.</span></div>
     <div class="content" id="content" tabindex="-1"></div>
-    <footer class="site-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Sistema consolidado para GitHub Pages · v2.6.9</small></footer>
+    <footer class="site-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Sistema consolidado para GitHub Pages · v2.6.10</small></footer>
   </main>
 </div>
 <button class="to-top" id="toTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
 <div class="scrim" id="scrim"></div>
 
-<script>console.log('[guide-boot] before content');</script>
-<script src="content-v24.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after content / before app');</script>
-<script src="app-v24.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after app / before visual');</script>
-<script src="guide-visual-v253.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after visual / before core policy');</script>
+<!-- O conteúdo local e a navegação sobem primeiro; integrações remotas nunca bloqueiam a interface. -->
+<script src="content-v24.js?v=2.6.10"></script>
+<script src="app-v24.js?v=2.6.10"></script>
+<script src="guide-visual-v253.js?v=2.6.10"></script>
 
-<script src="core-fetch-policy-v251.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after core policy / before core bridge');</script>
-<script src="core-bridge-v24.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after core bridge / before lineage');</script>
-<script src="lineage-core-v25.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after lineage / before label fix');</script>
-<script src="lineage-label-fix-v265.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after label fix / before stabilization');</script>
-<script src="guide-stabilization-v251.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after stabilization / before rules');</script>
-<script src="guide-rules-v26.js?v=2.6.9"></script>
-<script>console.log('[guide-boot] after rules');</script>
+<!-- O Core e as camadas editoriais enriquecem a cópia local em segundo plano. -->
+<script src="core-fetch-policy-v251.js?v=2.6.10"></script>
+<script src="core-bridge-v24.js?v=2.6.10"></script>
+<script src="lineage-core-v25.js?v=2.6.10"></script>
+<script src="lineage-label-fix-v265.js?v=2.6.10"></script>
+<script src="guide-stabilization-v251.js?v=2.6.10"></script>
+<script src="guide-rules-v26.js?v=2.6.10"></script>
 <script>
 (function(){
   let decorated=false;
   const finishEnhancement=()=>{
     if(decorated)return;
     decorated=true;
-    console.log('[guide-boot] loading combat layout');
     const combatLayout=document.createElement('script');
-    combatLayout.src='guide-layout-v261.js?v=2.6.9';
+    combatLayout.src='guide-layout-v261.js?v=2.6.10';
     combatLayout.onload=()=>{
-      console.log('[guide-boot] combat layout loaded');
       window.dispatchEvent(new PopStateEvent('popstate',{state:history.state}));
     };
     document.body.appendChild(combatLayout);
@@ -123,6 +113,5 @@
   setTimeout(finishEnhancement,6000);
 })();
 </script>
-<script>console.log('[guide-boot] end of body');</script>
 </body>
 </html>
