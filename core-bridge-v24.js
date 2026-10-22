@@ -19,7 +19,12 @@
   async function loadCore(){
     const manifest=await getJSON(`${CORE_BASE}/manifest.json`);
     const pairs=await Promise.all(Object.entries(manifest.files).map(async([key,path])=>[key,await getJSON(`${CORE_BASE}/${path}`)]));
-    return {manifest,...Object.fromEntries(pairs)};
+    const bundle={manifest,...Object.fromEntries(pairs)};
+    if(bundle.godsSupplement?.deities?.length){
+      const ids=new Set(bundle.gods.deities.map(d=>d.id));
+      bundle.gods.deities.push(...bundle.godsSupplement.deities.filter(d=>!ids.has(d.id)));
+    }
+    return bundle;
   }
   function rootFor(page){const box=document.createElement('div');box.innerHTML=window.GUIA_CONTENT[page].html;return box;}
   function saveRoot(page,box){window.GUIA_CONTENT[page].html=box.innerHTML;}
