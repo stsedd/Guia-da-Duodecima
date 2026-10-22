@@ -46,6 +46,11 @@
       const entry=Object.entries(snap.manifest?.files||{}).find(([,path])=>path===relative);
       if(entry)body=snap[entry[0]];
     }
+    if(body==null && relative==='data/proles-2026-10.json'){
+      const local=await nativeFetch('./proles-2026-10.json?v=2026.10.21.2',{cache:'no-store'});
+      if(!local.ok)throw new Error(`Proles locais ${local.status}`);
+      return local;
+    }
     if(body==null)throw new Error(`Arquivo ${relative} ausente no snapshot.`);
     window.DUODECIMA_CORE_SERVED_FROM_SNAPSHOT=true;
     coreVersion=snap.manifest?.contentVersion||snap.manifest?.updatedAt||coreVersion;
