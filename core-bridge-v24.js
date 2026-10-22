@@ -20,9 +20,18 @@
     const manifest=await getJSON(`${CORE_BASE}/manifest.json`);
     const pairs=await Promise.all(Object.entries(manifest.files).map(async([key,path])=>[key,await getJSON(`${CORE_BASE}/${path}`)]));
     const bundle={manifest,...Object.fromEntries(pairs)};
-    if(bundle.godsSupplement?.deities?.length){
+    // A lista local é o fallback oficial para as proles de outubro.
+    // O snapshot do Guia pode estar atrasado, mesmo quando o Core está online.
+    let supplement=bundle.godsSupplement;
+    if(!supplement?.deities?.length){
+      try{
+        const response=await fetch('./proles-2026-10.json?v=2026.10.21.2',{cache:'no-store'});
+        if(response.ok)supplement=await response.json();
+      }catch(err){console.warn('[Guia] Proles locais indisponíveis.',err);}
+    }
+    if(supplement?.deities?.length){
       const ids=new Set(bundle.gods.deities.map(d=>d.id));
-      bundle.gods.deities.push(...bundle.godsSupplement.deities.filter(d=>!ids.has(d.id)));
+      bundle.gods.deities.push(...supplement.deities.filter(d=>!ids.has(d.id)));
     }
     return bundle;
   }
