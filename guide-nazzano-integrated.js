@@ -1,37 +1,55 @@
 (()=>{'use strict';
-const key='oct26';
-const profiles=[
-{name:'Cyrus Torres Aurelius',title:'PRAETOR · II COORTE',alias:'O Silêncio · A Fúria da Noite',image:'',desc:'Natural do Chile e filho de Summanus. Antigo líder da II Coorte, especialista em infiltração e operações silenciosas. Recuperou as áquilas de Vênus e Justitia, participou com Cassius da recuperação da cabeça da estátua de Summanus, infiltrou-se entre vampiros e enfrentou o Régulo de Nazzano. Atualmente integra o triunvirato de Roma.'},
-{name:'Alessia Beatrice Czartoryski Sapieha Wojciechowski',title:'PONTIFEX · RELIGIO',alias:'A Impronunciável · Alessia, a Evidência · Beatrice, a Sentença · Alexy, a Executora',image:'',desc:'Filha de Janus com uma descendente de Justitia. Alessia personifica o passado e o rigor; Beatrice, o futuro e a misericórdia; Alexy reúne ambas as faces no presente. Ligada à III Coorte, à Religio, aos tribunais e à preservação dos cultos dos deuses menores. Aprecia chá e aves.'},
-{name:'Cenric Vallence Pavan',title:'ANTIGO ÁUGURE · V COORTE · IN MEMORIAM',alias:'O Fogo Gentil · Scintilla Pristina Vestae',image:'',desc:'Abençoado por Vesta e ligado à V Coorte, recuperou as áquilas de Vênus e Arcus, e ajudou a reerguer a honra de sua coorte. Morto em uma missão à pedido de Iuppiter.',dead:true}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const honorees=[
+['Cerise “Cherry” Mae Augustus','FILHA DE VÊNUS · EX-CENTURIÃ DA II COORTE · SENADORA','Cerise, filha de Vênus e Milo Bow, tornou-se a primeira centuriã do Acampamento Júpiter desde a Guerra dos Oceanus. Diplomata presente em grande parte dos tratados de sua geração, participou da recuperação das áquilas de Vênus e Arcus, da expedição à Forja de Prometheus e do enfrentamento do Régulo. Por muitos anos, foi a principal boticária da Legião, e suas receitas permanecem no laboratório. Sua raposa Wren tornou-se uma presença querida de Roma. Após deixar a carreira militar, assumiu uma cadeira no Senado e casou-se com Cassius Caesar Augustus.'],
+['Cassius Caesar Augustus','FILHO DE PHOBETOR · EX-CENTURIÃO DA II COORTE · CAMPEÃO DE ANGERONA','Descendente da família patrícia Augustus, Cassius fez da forja uma das bases da defesa de Roma. Por anos, produziu grande parte das armas e armaduras da Legião; na Forja de Prometheus, trabalhou o ouro imperial recuperado em expedição. Resgatou sozinho a áquila de Angerona, recuperou com Cyrus a cabeça da estátua de Summanus e participou do enfrentamento do Régulo de Nazzano. Investigou o atentado ao Senado que matou seu avô. Aposentado da atividade militar, permanece entre os grandes nomes da história romana.'],
+['Celeste Cavalcanti','FILHA DE BELLONA · EX-CENTURIÃ DA V COORTE · EXPLORATIO','Celeste assumiu uma V Coorte desacreditada e ajudou a devolvê-la à posição de honra na Legião. Foi combatente de linha de frente nas expedições das áquilas de Vênus e Fortuna, na Forja de Prometheus e no confronto com o Régulo. Durante o serviço na Exploratio, recebeu de Bellona a profecia de que Nova Roma deveria retornar à Itália. Seu legado é a coragem demonstrada em batalha e a confiança restaurada na coorte que comandou.'],
+['Caelus Severus','FILHO DE JÚPITER · LIDERANÇA DA V COORTE','Anteriormente conhecido como Takeshi Sakai, Caelus desobedeceu uma determinação de Júpiter durante a recuperação da áquila de Justitia e iniciou uma jornada de penitência e devoção. Participou da recuperação da áquila de Fortuna e da expedição à Forja de Prometheus. Em uma provação divina, enfrentou Diocleciano e matou Aquele que Devorou o Céu, libertando a tempestade aprisionada de Júpiter. Também enfrentou o Régulo antes da instalação da Legião em Nazzano.'],
+['Cyrus Torres Aurelius','PRAETOR · FILHO DE SUMMANUS · EX-CENTURIÃO DA II COORTE','Natural do Chile, Cyrus chegou com Cerise e Cenric e tornou-se referência da II Coorte em discrição e infiltração. Recuperou as áquilas de Vênus e Justitia, sendo reclamado por Summanus durante a segunda expedição. Ao lado de Cassius, recuperou a cabeça perdida da estátua de seu pai. Infiltrou-se entre vampiros para auxiliar negociações diplomáticas, participou da expedição à Forja de Prometheus e enfrentou o Régulo de Nazzano. É atualmente um dos três pretores de Roma.']
 ];
-const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function update(){
- const root=document.getElementById('content');if(!root)return;
- if(!location.hash.includes('roma'))return;
- const texts=[...root.querySelectorAll('h1,h2,h3,h4,h5,p,span,strong')];
- for(const el of texts){if(el.children.length)continue; const v=el.textContent.trim();
- if(/quem conduz roma agora/i.test(v)){el.textContent='Figuras Importantes';}
- if(/figuras atuais/i.test(v)){el.textContent='PERSONAGENS E LIDERANÇAS';}
- }
- const head=[...root.querySelectorAll('h1,h2,h3,h4')].find(e=>/Figuras Importantes/i.test(e.textContent)); if(head){
- const sec=head.closest('section')||head.parentElement.parentElement;
- if(sec&&!sec.querySelector('[data-oct26=profiles]')){
-  const wrap=document.createElement('div');wrap.dataset.oct26='profiles';wrap.className='oct26-profiles';
-  wrap.innerHTML=profiles.map(p=>'<article class="oct26-person '+(p.dead?'oct26-memorial':'')+'"><div class="oct26-avatar" aria-hidden="true">'+(p.dead?'✝':'XII')+'</div><div><small>'+escapeHTML(p.title)+'</small><h3>'+escapeHTML(p.name)+'</h3><em>'+escapeHTML(p.alias)+'</em><p>'+escapeHTML(p.desc)+'</p></div></article>').join('');
-  sec.appendChild(wrap);
- }
- }
- // Títulos institucionais: preserva Casa do Lobo e a história, mas não apresenta Califórnia como sede atual.
- [...root.querySelectorAll('p')].forEach(el=>{if(el.children.length||el.dataset.oct26Reviewed)return;let s=el.textContent;
- if(/(acampamento júpiter|nova roma|legião)/i.test(s)&&/(localizad[oa]|situad[oa]|fica|sediad[oa]|estabelecid[oa])/i.test(s)&&/(calif[oó]rnia|s[aã]o francisco)/i.test(s)){
- el.dataset.oct26Reviewed='1';el.textContent='A sede atual da Legião e de Nova Roma fica na Reserva de Nazzano, na Itália. A presença romana na Califórnia continua como posto avançado, e não como o acampamento principal.';
- }});
- const z=[...root.querySelectorAll('h1,h2,h3,h4')].find(e=>/nova roma/i.test(e.textContent));if(z&&!root.querySelector('[data-oct26=note]')){
- const n=document.createElement('div');n.dataset.oct26='note';n.className='oct26-note';n.innerHTML='<strong>ROMA, FINALMENTE · NAZZANO</strong><p>A cidade foi transferida para a Itália por um ritual de Blume Becker, com apoio de Jasmine e catalisadores reunidos pelos legionários. O acampamento militar foi reconstruído no novo território, após a derrota do Régulo e a pacificação da reserva. As cavernas estão sob o acampamento, acessíveis pelo Bosque dos Faunos e dos Elfos. O problema do bronze frágil foi resolvido; o cristal do Aqueronte ainda não possui mecânica definida.</p>';z.parentElement.appendChild(n);
- }
+const credits=[
+['Derrota do Régulo','Cassius Caesar Augustus · Cerise “Cherry” Mae Augustus · Cyrus Torres Aurelius · Celeste Cavalcanti · Caelus Severus'],
+['Negociações com os féericos e elfos','Isaac Friðrik · Kang Williams · Marcus J. Ashford · Evan Whitaker · Jane Zinnerman · Ringo Rhiannon · Noel Mena · Micaela Rolon · Xiàn Jí · Elena Moretti · @ _maxx.xxaw_'],
+['Negociações com os faunos','Marcus J. Ashford · Iulietta A. Caesari · Noel Mena · Micaela Rolon · Oz da Uvinha · Isaac Friðrik · Morgan da Corvinho'],
+['Purificação dos iguotos','Bellini · Maddie De Laurentiis · Nero'],
+['Itens mágicos oferecidos ao teleporte','Alexandria Adelson · Nakht Saqqar · Haldir · Ema (Holly Carter) · Skye R. Victrix · Boris Morozov · Ringo Rhiannon · Remus Pio Aurum · Daiki Chizome · Antonio Sforza · Dara L. Rivera · Kenneth Carandini · Artie M. Jaikieow · Miwa Ruriko'],
+['Infraestrutura, bondinho, energia e fotovoltaica','Cassiopéia Brutus · Bellini · Merlia Scaevola · Kaiami Okafor · Skye R. Victrix · Kenneth Carandini · Boris Morozov · Hassan · Artória Sandrini · Marcus J. Ashford · Esme Agape'],
+['Combate aos monstros remanescentes','Gabriela Keeler · Antonio Sforza · Daiki Chizome · Ignus F. Ferrarius · Kenneth Carandini · Skye R. Victrix · Boris Morozov · Hassan · Giovanni D’angelo · Lya Silendor · Artie M. Jaikieow · Tristan D. Laurent · Aksel S. Østergaard · Felix Vitalis · Miverna'],
+['Demais participantes','Percival Gallagher · Teresa E. de Borja · Jane Zinnerman · Marsaili Nicleòid · demais participantes das missões e mesas'],
+['Eliminação da corrupção em Nazzano','Rhea Cornelius · Skye R. Victrix · Miwa Ruriko']
+];
+const figures=[
+['Cyrus Torres Aurelius','PRAETOR · FILHO DE SUMMANUS','O Silêncio · A Fúria da Noite','Integrante do triunvirato. Antigo líder da II Coorte, participou das expedições das áquilas de Vênus e Justitia, da recuperação da estátua de Summanus, de operações de infiltração e da batalha contra o Régulo.'],
+['Alessia Beatrice Czartoryski Sapieha Wojciechowski','PONTIFEX · RELIGIO','A Impronunciável · A Evidência · A Sentença · A Executora','Filha de Janus com uma descendente de Justitia. Alessia representa o passado e o rigor; Beatrice, o futuro e a misericórdia; Alexy reúne as duas faces no presente. Atua na Religio, na justiça e na proteção dos cultos de divindades menores. Gosta de chá e aves.'],
+['Cenric Vallence Pavan','ANTIGO ÁUGURE · V COORTE · IN MEMORIAM','O Fogo Gentil · Scintilla Pristina Vestae','Abençoado pela centelha sagrada de Vesta. Ajudou a recuperar as áquilas de Vênus e Arcus e a reconstruir o prestígio da V Coorte. Morto em uma missão à pedido de Iuppiter.']
+];
+const find=(root,re)=>[...root.querySelectorAll('h1,h2,h3,h4')].find(x=>re.test(x.textContent));
+function sectionId(root,re){const h=find(root,re);return h?.closest('section')||h?.closest('.section')||null}
+function article(name,title,alias,desc,memorial=false){return '<article class="oct26-person '+(memorial?'oct26-memorial':'')+'"><div class="oct26-avatar" aria-hidden="true">'+(memorial?'✝':'XII')+'</div><div><small>'+esc(title)+'</small><h3>'+esc(name)+'</h3>'+(alias?'<em>'+esc(alias)+'</em>':'')+'<p>'+esc(desc)+'</p></div></article>'}
+function patch(root){
+if(!root||!root.classList.contains('page-roma'))return;
+root.querySelectorAll('h1,h2,h3,h4,span,small').forEach(el=>{if(el.children.length)return;const x=el.textContent.trim();if(/quem conduz roma agora/i.test(x))el.textContent='Figuras Importantes';if(/^figuras atuais$/i.test(x))el.textContent='FIGURAS HISTÓRICAS E ATUAIS'});
+// Conserva a estrutura original e os perfis de Blume e Jasmine.
+const people=sectionId(root,/figuras importantes|quem conduz roma agora/i);
+if(people&&!people.querySelector('.oct26-profiles')){
+const wrap=document.createElement('div');wrap.className='oct26-profiles';wrap.innerHTML=figures.map(x=>article(x[0],x[1],x[2],x[3],x[0].startsWith('Cenric'))).join('');people.append(wrap)}
+const arrival=sectionId(root,/chegando a roma/i);if(arrival&&!arrival.dataset.oct26Arrival){
+ arrival.dataset.oct26Arrival='1';
+ const cards=[...arrival.querySelectorAll('.card,article')].filter(x=>/Túnel Caldecott|Pequeno Tibre|Território Romano/i.test(x.textContent));
+ const old=cards.find(x=>/Túnel Caldecott/i.test(x.textContent));
+ if(old){const title=[...old.querySelectorAll('h3,h4,strong,b')].find(x=>/Túnel Caldecott/i.test(x.textContent));if(title)title.textContent='Estação Abandonada de Nazzano'; const p=old.querySelector('p');if(p)p.textContent='A chegada ao território romano começa pela antiga estação de Nazzano. A guarda identifica os recém-chegados, verifica a entrada e acompanha a passagem para o Pequeno Tibre.';}
+ arrival.querySelectorAll('*').forEach(x=>{if(x.children.length===0&&/Túnel Caldecott/i.test(x.textContent))x.textContent=x.textContent.replace(/Túnel Caldecott/gi,'Estação Abandonada de Nazzano')});
 }
-let scheduled=false;const schedule=()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;update()})};
-new MutationObserver(schedule).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});
-window.addEventListener('hashchange',schedule);schedule();
+const map=sectionId(root,/mapa do acampamento/i);
+if(map&&!map.querySelector('.oct26-map-note')){const note=document.createElement('p');note.className='oct26-map-note';note.textContent='Mapa antigo em processo de substituição: a sede atual fica em Nazzano, e a planta anterior não representa a disposição vigente. Consulte as descrições novas dos espaços.';map.prepend(note);map.querySelectorAll('img').forEach(im=>{if(/mapa-acampamento/i.test(im.src))im.classList.add('oct26-outdated-map')})}
+const castra=sectionId(root,/morte certa.*principia/i);if(castra&&!castra.querySelector('.oct26-castra-note')){const n=document.createElement('p');n.className='oct26-castra-note';n.textContent='A organização interna foi alterada com a reconstrução em Nazzano. As descrições da antiga disposição não devem ser usadas como referência atual até a publicação dos novos espaços.';castra.prepend(n);}
+const rootHolder=sectionId(root,/nova roma/i)||root;
+if(!root.querySelector('#domus-memoriae')){const s=document.createElement('section');s.className='section oct26-hall searchable';s.id='domus-memoriae';s.dataset.title='Domus Memoriae — Honrarias da Legião';s.innerHTML='<div class="section-head"><div><small>MEMÓRIA · ROMA</small><h2>Domus Memoriae</h2></div></div><p class="section-lead">O Hall da Fama preserva a trajetória dos legionários cuja dedicação deixou marcas na história de Roma. Os cinco homenageados aqui também participaram da vitória contra o Régulo de Nazzano, fundamental para o retorno da cidade à Itália.</p><div class="oct26-profiles">'+honorees.map(x=>article(x[0],x[1],'',x[2])).join('')+'</div>';rootHolder.after?.(s);if(!s.isConnected)root.append(s)}
+if(!root.querySelector('#memorial-retorno')){const s=document.createElement('section');s.id='memorial-retorno';s.className='section oct26-hall searchable';s.dataset.title='Aqueles que trouxeram Roma para casa';s.innerHTML='<div class="section-head"><div><small>MEMÓRIA · RETORNO</small><h2>Aqueles que trouxeram Roma para casa</h2></div></div><p class="section-lead">A transferência exigiu negociação, combate, purificação, doações de itens mágicos e a reconstrução de estruturas essenciais. Cada participação faz parte da história coletiva do retorno à Itália.</p><div class="oct26-credits">'+credits.map(x=>'<article><h3>'+esc(x[0])+'</h3><p>'+esc(x[1])+'</p></article>').join('')+'</div>';root.append(s)}
+if(!root.querySelector('#nazzano-atualizacao')){const s=document.createElement('section');s.id='nazzano-atualizacao';s.className='section oct26-hall searchable';s.dataset.title='Roma em Nazzano';s.innerHTML='<div class="section-head"><div><small>ROMA · PRESENTE</small><h2>O retorno à Itália</h2></div></div><p>Blume Becker realizou a transferência de Nova Roma com catalisadores recolhidos pelos legionários e com o apoio de Jasmine. A cidade e os equipamentos essenciais atravessaram o oceano; os edifícios militares reconstruíveis foram erguidos no novo território. A sede atual da Legião fica na Reserva de Nazzano, Itália. A Califórnia funciona como posto avançado.</p><p>As cavernas ficam sob o acampamento, com acesso pelo Bosque dos Faunos e dos Elfos. Os campos militares recebem o nome de <strong>Campos de Marte &amp; Bellona</strong>. A crise do bronze frágil terminou. O cristal do Aqueronte existe, mas ainda não possui mecânica definida.</p><p>Na trama celta, Morcan Glass, o Rei Submerso, está aparentemente morto. Não há confirmação definitiva de sua morte.</p>';root.append(s)}
+// Alterações pontuais, sem apagar narrativa histórica legítima.
+root.querySelectorAll('p,li,h2,h3,h4,figcaption').forEach(el=>{if(el.closest('.oct26-hall')||el.closest('.oct26-profiles'))return;for(const n of [...el.childNodes])if(n.nodeType===3&&n.nodeValue.includes('Campos de Marte')&&!n.nodeValue.includes('Campos de Marte & Bellona'))n.nodeValue=n.nodeValue.replaceAll('Campos de Marte','Campos de Marte & Bellona')});
+}
+let scheduled=false,locked=false;function schedule(){if(locked||scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;locked=true;try{patch(document.querySelector('#content'))}finally{locked=false}})}
+new MutationObserver(schedule).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule);schedule();
 })();
