@@ -113,7 +113,7 @@
     root.insertAdjacentHTML('beforeend',section('boas-praticas','SISTEMA · MESA','Boas Práticas & Regras','MISSÕES',`
       ${card('Responsabilidade com a mesa','<p>Se você solicitar uma mestragem de madrugada, assuma a responsabilidade de conseguir participar. Se perceber que está cansado demais ou não conseguirá continuar, avise e remarque antes. Imprevistos reais acontecem; o objetivo é evitar situações previsíveis que interrompam a mesa.</p>')}
       ${card('Respeitem a mestragem','<p>Evite cortar o Mestre, spammar pings enquanto ele escreve e mantenha controle da própria ficha, habilidades, recursos e informações básicas do personagem.</p>')}
-      ${card('Guarda em mesas de chegada','<p>Personagens acima do nível <strong>60</strong> não ficam mais no túnel. O papel da Guarda é tankar e auxiliar quem está chegando, não farmar fama. A pessoa principal da mesa é o novo personagem: dê espaço para ela conhecer sua relação com Roma e descobrir quem é.</p>')}
+      ${card('Guarda em mesas de chegada','<p>Personagens acima do nível <strong>60</strong> não permanecem no ponto inicial de chegada da estação abandonada de Nazzano. O papel da Guarda é tankar e auxiliar quem está chegando, não farmar fama. A pessoa principal da mesa é o novo personagem: dê espaço para ela conhecer sua relação com Roma e descobrir quem é.</p>')}
     `,'assets/visual/banner-boas-praticas.webp'));
     saveRoot('sistema',root);
   }
