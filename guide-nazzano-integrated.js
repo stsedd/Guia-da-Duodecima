@@ -59,5 +59,5 @@ if(!root.querySelector('#devocao-divina')){const s=document.createElement('secti
 root.querySelectorAll('p,li,h2,h3,h4,figcaption').forEach(el=>{if(el.closest('.oct26-hall')||el.closest('.oct26-profiles'))return;for(const n of [...el.childNodes])if(n.nodeType===3&&n.nodeValue.includes('Campos de Marte')&&!n.nodeValue.includes('Campos de Marte & Bellona'))n.nodeValue=n.nodeValue.replaceAll('Campos de Marte','Campos de Marte & Bellona')});
 }
 let scheduled=false,locked=false;function schedule(){if(locked||scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;locked=true;try{patch(document.querySelector('#content'))}finally{locked=false}})}
-new MutationObserver(schedule).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule);schedule();
+new MutationObserver(schedule).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule);document.addEventListener('error',e=>{const img=e.target;if(img?.tagName==='IMG'&&img.src.includes('/assets/nazzano/')){img.hidden=true;img.closest('figure')?.classList.add('oct26-awaiting-art');}},true);schedule();
 })();
