@@ -1,0 +1,353 @@
+/* ==========================================================================
+   DUODÉCIMA · PASSAGEM VISUAL v2.7.1
+   Uma única camada final para ritmo, alinhamento, medidas e tipografia.
+   Nenhuma regra de jogo, informação ou imagem é modificada aqui.
+   ========================================================================== */
+:root {
+  --layout-max: 1400px;
+  --layout-gutter: clamp(17px, 2.8vw, 42px);
+  --layout-card-pad: clamp(16px, 1.65vw, 23px);
+  --layout-gap: clamp(13px, 1.5vw, 20px);
+  --layout-radius: 14px;
+  --layout-copy: 15px;
+  --layout-leading: 1.67;
+  --guide-copy-size: var(--layout-copy);
+  --guide-copy-leading: var(--layout-leading);
+  --guide-card-radius: var(--layout-radius);
+  --guide-card-pad-y: var(--layout-card-pad);
+  --guide-card-pad-x: var(--layout-card-pad);
+  --guide-grid-gap: var(--layout-gap);
+}
+html { scroll-padding-top: 92px; }
+body { font-family: var(--sans); font-size: var(--layout-copy); line-height: var(--layout-leading); }
+.app-shell, .workspace, .content, .section { min-width: 0; }
+.workspace > .content {
+  max-width: var(--layout-max) !important;
+  padding: 30px var(--layout-gutter) 76px !important;
+  margin-inline: auto !important;
+}
+.workspace > .site-footer {
+  max-width: var(--layout-max);
+  padding-inline: var(--layout-gutter) !important;
+}
+.topbar { padding-inline: clamp(14px, 2vw, 30px); }
+.topbar .page-title { min-width: 0; }
+.topbar .page-title h1 { font-family: var(--serif); line-height: 1.15; }
+
+/* SEÇÕES: mesmo alinhamento horizontal em Sistema, Roma e Magia */
+.content .section,
+body[data-guide-page="roma"] .content .section,
+body[data-guide-page="magia"] .content .section {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: clamp(32px, 3.1vw, 46px) 0 8px !important;
+  margin: 0 0 clamp(18px, 2.4vw, 28px) !important;
+}
+body[data-guide-page="roma"] .section::after,
+body[data-guide-page="magia"] .section::after { display: none !important; }
+.section + .section::before { left: 0; right: 0; }
+
+/* TÍTULOS: serifada para nomes/títulos, sans para leitura/legendas */
+.content .section-head {
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) auto !important;
+  align-items: end !important;
+  gap: 10px var(--layout-gap) !important;
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 21px !important;
+  padding: 0 0 16px !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+.content .section-head > div { grid-column: 1 !important; min-width: 0; }
+.content .section-head > .section-rule { display: none !important; }
+.content .section-head > span:not(.section-rule) {
+  grid-column: 2 !important;
+  align-self: end !important;
+  justify-self: end;
+  max-width: min(225px, 30vw);
+  min-height: 28px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.25 !important;
+  text-align: center;
+  padding: 6px 10px !important;
+  font-family: var(--sans) !important;
+  font-size: 9px !important;
+  letter-spacing: .09em !important;
+}
+.content .section-head :is(small, .eyebrow),
+.content .section > .eyebrow,
+.content .plot-thread-label {
+  display: inline-block;
+  font: 800 10px/1.35 var(--sans) !important;
+  letter-spacing: .13em !important;
+}
+.content .section-head h2,
+.content .section-head h3 {
+  max-width: 100%;
+  margin: 5px 0 0 !important;
+  font-family: var(--serif) !important;
+  font-size: clamp(28px, 3.2vw, 43px) !important;
+  font-weight: 700 !important;
+  line-height: 1.11 !important;
+  letter-spacing: -.022em !important;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.content :is(.section, .rules-section) h3,
+.content :is(.paper-card, .feature, .resource, .ability-card, .rest-card,
+             .warning-card, .money-card, .talent-card, .pantheon-card,
+             .dt-card, .choice-box, .torn-card) h3 {
+  font-family: var(--serif);
+  line-height: 1.22;
+  overflow-wrap: break-word;
+}
+.content .section > p,
+.content .section > .section-lead,
+.content .section .section-lead {
+  max-width: 78ch !important;
+  font-family: var(--sans) !important;
+  font-size: clamp(14.5px, 1.1vw, 16px) !important;
+  line-height: 1.72 !important;
+  overflow-wrap: break-word;
+}
+.content .section p, .content .section li {
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+.content a, .content code, .content strong { overflow-wrap: break-word; }
+.content :is(h1,h2,h3,h4) { text-wrap: balance; }
+
+/* GRID: nenhum cartão poderá impor larguras mínimas inesperadas. */
+.content :is(.grid, .attr-grid, .resource-grid, .training-grid,
+ .combat-facts, .ability-grid, .money-grid, .job-grid, .job-grid-full,
+ .honor-grid, .rank-grid, .pantheon-grid, .pantheon-children,
+ .talent-grid-full, .close-grid, .familiar-rules, .death-flow,
+ .skill-grid, .bp-list, .affinity-scale, .affinity-events,
+ .fame-track, .plot-panorama, .oct26-profiles, .oct26-credits) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  gap: var(--layout-gap) !important;
+}
+.content :is(.grid, .attr-grid, .resource-grid, .training-grid,
+ .combat-facts, .ability-grid, .money-grid, .job-grid-full,
+ .honor-grid, .pantheon-grid, .pantheon-children, .talent-grid-full,
+ .familiar-rules, .death-flow, .skill-grid, .bp-list) > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.content .grid:not(.two):not(.three) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px),1fr));
+}
+.content .grid.two, .content .two, .content .material-split,
+.content .attack-split {
+  grid-template-columns: repeat(2,minmax(0,1fr));
+}
+.content .grid.three { grid-template-columns: repeat(3,minmax(0,1fr)); }
+
+/* COMPONENTES: espaçamento e cantos coerentes, sem apagar identidades. */
+.content :is(.paper-card, .feature, .resource, .ability-card, .rest-card,
+ .warning-card, .money-card, .talent-card, .leader-card, .pantheon-card,
+ .dt-card, .choice-box, .foreign-cta, .discord-disclaimer, .torn-card,
+ .map-panel, .oct26-person, .oct26-credits article) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: var(--layout-radius) !important;
+  padding: var(--layout-card-pad) !important;
+  overflow-wrap: break-word;
+}
+.content :is(.paper-card, .feature, .resource, .ability-card, .rest-card,
+ .warning-card, .money-card, .talent-card, .leader-card, .pantheon-card,
+ .dt-card, .choice-box, .foreign-cta, .discord-disclaimer, .torn-card) > :first-child {
+  margin-top: 0;
+}
+.content :is(.paper-card, .feature, .resource, .ability-card, .rest-card,
+ .warning-card, .money-card, .talent-card, .leader-card, .pantheon-card,
+ .dt-card, .choice-box, .foreign-cta, .discord-disclaimer, .torn-card) > :last-child {
+  margin-bottom: 0;
+}
+.content :is(.paper-card, .feature, .resource, .ability-card, .rest-card,
+ .warning-card, .money-card, .talent-card, .leader-card, .pantheon-card,
+ .dt-card, .choice-box) p {
+  line-height: 1.63;
+}
+.content :is(.formula, .big-formula, .micro, .label, .job-meta, .rule-line, .event-lines) {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.content :is(.jump-grid, .journey-strip) {
+  max-width: 100%; min-width: 0; gap: 12px !important;
+}
+
+/* ROMA: bloco editorial e cartões de trama na mesma linha de leitura */
+body[data-guide-page="roma"] .content .editorial-story {
+  width: 100%;
+  max-width: 1080px !important;
+  margin: 20px 0 30px !important;
+  padding: clamp(18px, 2.3vw, 30px) !important;
+  border-radius: 12px !important;
+}
+body[data-guide-page="roma"] .content .editorial-story h3 {
+  font-family: var(--serif) !important;
+  font-size: clamp(23px, 2.4vw, 31px) !important;
+  line-height: 1.18 !important;
+  overflow-wrap: break-word;
+}
+body[data-guide-page="roma"] .content .editorial-story p {
+  max-width: 76ch !important;
+  font-family: var(--sans) !important;
+  font-size: 15px !important;
+  line-height: 1.7 !important;
+}
+body[data-guide-page="roma"] .content .plot-panorama {
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  align-items: start;
+  margin: 19px 0 25px !important;
+}
+body[data-guide-page="roma"] .content .plot-thread {
+  min-width: 0;
+  padding: var(--layout-card-pad) !important;
+  border-radius: 13px !important;
+}
+body[data-guide-page="roma"] .content .plot-thread h3 {
+  font-family: var(--serif) !important;
+  font-size: clamp(21px, 2vw, 26px) !important;
+  line-height: 1.17 !important;
+}
+body[data-guide-page="roma"] .content .plot-thread p {
+  font-family: var(--sans);
+  font-size: 15px !important;
+  line-height: 1.66 !important;
+}
+body[data-guide-page="roma"] .content .plot-pieces { gap: 10px 18px !important; }
+body[data-guide-page="roma"] .content .oct26-hall {
+  border-color: var(--line) !important;
+  padding-top: 25px;
+}
+body[data-guide-page="roma"] .oct26-person,
+body[data-guide-page="roma"] .oct26-credits article {
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+body[data-guide-page="roma"] .oct26-person h3,
+body[data-guide-page="roma"] .oct26-credits article h3 { color: var(--ink) !important; }
+body[data-guide-page="roma"] .oct26-person p,
+body[data-guide-page="roma"] .oct26-credits article p { color: var(--ink) !important; opacity: .9; }
+body[data-guide-page="roma"] .oct26-person { grid-template-columns: 110px minmax(0,1fr); gap:20px; }
+body[data-guide-page="roma"] .oct26-person:has(.oct26-person-img) {grid-template-columns:150px minmax(0,1fr);}
+body[data-guide-page="roma"] .oct26-person-img { max-width: 100%; height:auto; }
+body[data-guide-page="roma"] .oct26-map-embed,
+body[data-guide-page="roma"] .oct26-map-embed iframe,
+body[data-guide-page="roma"] .map-panel img { max-width:100%; }
+body[data-guide-page="roma"] .oct26-gateway p { font-size:15px; }
+
+/* MAGIA: evitar que enfeites absolutos pareçam conteúdo cortado.
+   A informação, não a decoração, determina a largura das colunas. */
+body[data-guide-page="magia"] .content :is(.core-magic-sacrifice,.magic-circle-card) {
+  min-width:0;
+  max-width:100%;
+}
+body[data-guide-page="magia"] .magic-circle-copy { min-width:0; }
+body[data-guide-page="magia"] .magic-circle-copy :is(p,small,h3,h4) {
+  max-width:100%;overflow-wrap:break-word;
+}
+
+/* TABELAS: scroll horizontal apenas dentro da tabela, nunca da página. */
+.content .table-wrap,
+.content .magic-cost-wrap {
+  display:block;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow-x:auto !important;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  border-radius:12px;
+}
+.content .table-wrap>table,
+.content .magic-cost-wrap>table { max-width:none; }
+.content :is(img,picture,video,canvas,svg) { max-width:100%; }
+.content picture img {height:auto;}
+.content iframe {max-width:100%;}
+.content :is(.rules-opening,.guide-page-hero-copy,.deity-title,.deity-tools) {
+  min-width:0;
+  max-width:100%;
+}
+.content .rules-opening h1 {overflow-wrap:break-word;}
+.content .guide-page-hero-copy { width:min(720px,100%); }
+.content .guide-page-hero h2 {overflow-wrap:break-word;}
+
+/* Tablets e laptops estreitos: as colunas não disputam espaço. */
+@media(max-width:1100px) {
+  .content .grid.three {grid-template-columns:repeat(2,minmax(0,1fr));}
+  body[data-guide-page="roma"] .content .plot-panorama {grid-template-columns:1fr;}
+}
+@media(max-width:980px) {
+  .content .grid.two, .content .two, .content .material-split,
+  .content .attack-split {grid-template-columns:minmax(0,1fr);}
+  .content .rank-grid, .content .talent-grid-full,
+  .content .core-tier-grid,.content .core-option-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .content .section-head {grid-template-columns:minmax(0,1fr) auto!important;}
+}
+@media(max-width:780px) {
+  :root {--layout-gutter:16px;--layout-card-pad:16px;--layout-gap:13px;}
+  .workspace > .content {padding:20px var(--layout-gutter) 62px!important;}
+  .workspace > .site-footer {padding-inline:var(--layout-gutter)!important;}
+  .content .section,
+  body[data-guide-page="roma"] .content .section,
+  body[data-guide-page="magia"] .content .section {
+    padding-top:29px!important;margin-bottom:17px!important;
+  }
+  .content .section-head {grid-template-columns:minmax(0,1fr)!important;margin-bottom:16px!important;}
+  .content .section-head > div {grid-column:1!important;}
+  .content .section-head > span:not(.section-rule) {
+    grid-column:1!important;justify-self:start!important;
+    max-width:100%;margin-top:3px;
+  }
+  .content .section-head h2 {font-size:clamp(27px,7.3vw,36px)!important;line-height:1.14!important;}
+  .content .section > p,.content .section .section-lead {font-size:14.5px!important;}
+  .content .grid.three {grid-template-columns:minmax(0,1fr);}
+  .content .attr-grid,.content .resource-grid,.content .training-grid,
+  .content .combat-facts,.content .death-flow,.content .fame-track,
+  .content .rank-grid,.content .talent-grid-full {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .content .deity-info-grid,.content .core-tier-grid,.content .core-option-grid {
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  body[data-guide-page="roma"] .oct26-person,
+  body[data-guide-page="roma"] .oct26-person:has(.oct26-person-img) {
+    grid-template-columns:minmax(0,1fr);
+  }
+  body[data-guide-page="roma"] .oct26-person-img {width:150px;max-width:100%;}
+  .content .guide-page-hero-copy{padding:22px 20px;}
+  .content .guide-page-hero h2{font-size:clamp(30px,8vw,46px)!important;line-height:1.12!important;}
+}
+@media(max-width:540px) {
+  :root {--layout-gutter:14px;--layout-card-pad:15px;--layout-gap:12px;}
+  .content .attr-grid,.content .resource-grid,.content .training-grid,
+  .content .combat-facts,.content .death-flow,.content .fame-track,
+  .content .rank-grid,.content .talent-grid-full,
+  .content .circle-grid.progression-circles,
+  .content .plot-panorama {
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  .content .section-head h2 {font-size:clamp(27px,7.6vw,33px)!important;}
+  .content .section-head > span:not(.section-rule){font-size:9px!important;}
+  .content .plot-thread h3 {font-size:22px!important;}
+  .content .plot-pieces {grid-template-columns:minmax(0,1fr)!important;}
+  .content .oct26-figure-grid {grid-template-columns:minmax(0,1fr)!important;}
+  .content .guide-page-hero-copy {width:100%;}
+  .content .guide-page-hero h2{font-size:clamp(30px,9vw,41px)!important;}
+  .content .deity-detail,.content .deity-title{min-width:0;max-width:100%;}
+}
+@media(prefers-reduced-motion:reduce){
+  .content *{scroll-behavior:auto!important;}
+}
