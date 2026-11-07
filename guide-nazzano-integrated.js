@@ -50,6 +50,10 @@ if(!isRoma){
  replaceText(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\\./gi,'Personagens celtas estão liberados como estrangeiros, conforme as regras de origem.');
  replaceText(/Berkeley Hills, Oakland Hills, Jardim de Bacchus/gi,'áreas autorizadas de Nazzano, bosques e instalações adequadas ao material procurado');
  replaceText(/aprovação das Pretoras/gi,'aprovação da Praetoria');
+ const foreignNotice=root.querySelector('.foreign-cta small');
+ if(foreignNotice&&/indispon[ií]veis para criação/i.test(foreignNotice.textContent)){
+   foreignNotice.textContent=foreignNotice.textContent.replace(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\./gi,'Os celtas estão liberados como estrangeiros.');
+ }
  return;
 }
 root.querySelectorAll('h1,h2,h3,h4,span,small').forEach(el=>{if(el.children.length)return;const x=el.textContent.trim();if(/quem conduz roma agora/i.test(x))el.textContent='Figuras Importantes';if(/^figuras atuais$/i.test(x))el.textContent='FIGURAS HISTÓRICAS E ATUAIS'});
@@ -108,7 +112,11 @@ root.querySelectorAll('*').forEach(el=>{if(el.children.length===0 && el.textCont
 // As referências territoriais antigas não são instruções válidas para o cenário italiano.
 replaceText(/Túnel Caldecott/gi,'Estação Abandonada de Nazzano');
 replaceText(/Caldecott/gi,'Estação de Nazzano');
-replaceText(/Uma viagem curta de fim de semana para São Francisco custa 15 denários\\./gi,'Viagens para fora do território romano dependem de autorização da Praetoria; trajetos e custos são definidos conforme o destino.');
+const exitRule=[...root.querySelectorAll('.camp-rule-grid article')].find(el=>/Sair do Acampamento/i.test(el.textContent));
+if(exitRule&&/São Francisco/i.test(exitRule.textContent)){
+ const p=exitRule.querySelector('p');
+ if(p)p.textContent='Saídas do território romano exigem autorização da Praetoria. Viagens e custos dependem do destino, e não de uma rota fixa para São Francisco.';
+}
 replaceText(/o bronze está enfraquecendo/gi,'o bronze apresentou fragilidade durante uma crise já encerrada');
 replaceText(/bronze da legião aparentemente enfraquecido/gi,'crise de fragilidade do bronze da Legião (encerrada)');
 if(!root.querySelector('#nazzano-atualizacao')){const s=document.createElement('section');s.id='nazzano-atualizacao';s.className='section oct26-hall searchable';s.dataset.title='Roma em Nazzano';s.innerHTML='<div class="section-head"><div><small>ROMA · PRESENTE</small><h2>O retorno à Itália</h2></div></div><p>Blume Becker realizou a transferência de Nova Roma com catalisadores recolhidos pelos legionários e com o apoio de Jasmine. A cidade e os equipamentos essenciais atravessaram o oceano; os edifícios militares reconstruíveis foram erguidos no novo território. A sede atual da Legião fica na Reserva de Nazzano, Itália. A Califórnia funciona como posto avançado.</p><p>As cavernas ficam sob o acampamento, com acesso pelo Bosque dos Faunos e dos Elfos. Os campos militares recebem o nome de <strong>Campos de Marte &amp; Bellona</strong>. A crise do bronze frágil terminou. O cristal do Aqueronte existe, mas ainda não possui mecânica definida.</p><p>Na trama celta, Morcan Glass, o Rei Submerso, está aparentemente morto. Não há confirmação definitiva de sua morte.</p>';root.append(s)}
