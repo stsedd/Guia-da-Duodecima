@@ -1,0 +1,33 @@
+name: Guia · auditoria visual v2.7.2
+on:
+  push:
+    branches: [fix/guia-visual-grid-272]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check scripts/visual-grid-v272.mjs
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Serve site
+        run: |
+          python3 -m http.server 4173 >/tmp/guia-v272.log 2>&1 &
+          sleep 2
+      - name: Verify 6 pages, 4 widths, 2 themes
+        run: node scripts/visual-grid-v272.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: guia-v272-visual
+          path: visual-audit-artifacts
+          if-no-files-found: ignore
