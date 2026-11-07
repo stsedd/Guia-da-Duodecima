@@ -36,6 +36,7 @@ return '<article class="oct26-person '+(memorial?'oct26-memorial':'')+'">'+(img?
 function patch(root){
 if(!root)return;
 const isRoma=root.classList.contains('page-roma');
+if(!isRoma&&!root.classList.contains('page-sistema'))return;
 function replaceText(from,to,selector='p,li,span,small,b,strong,h2,h3,h4'){
  root.querySelectorAll(selector).forEach(el=>{
    for(const n of [...el.childNodes]){
