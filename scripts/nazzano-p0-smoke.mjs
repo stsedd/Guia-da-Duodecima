@@ -7,12 +7,12 @@ for(const [name,viewport] of [['desktop',{width:1440,height:960}],['mobile',{wid
  const page=await context.newPage();page.setDefaultTimeout(12000);
  page.on('pageerror',e=>failures.push(name+' JS: '+e.message));
  await page.goto(base+'#page:roma',{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>document.querySelector('.oct26-gateway')&&document.querySelector('.oct26-real-map')&&document.querySelector('.oct26-current-leadership'),null,{timeout:20000});
+ await page.waitForFunction(()=>document.querySelector('.oct26-gateway')&&document.querySelector('.oct26-real-map')&&document.querySelector('.oct26-current-leadership')&&document.querySelector('#sectionNav a[href="#nazzano-atualizacao"]'),null,{timeout:20000});
  const report=await page.evaluate(()=>{
    const el=(sel)=>document.querySelector(sel);
    const sects=[...document.querySelectorAll('#content > .section')].map(e=>e.id);
    const all=el('#content')?.textContent||'';
-   const trio=[...document.querySelectorAll('.oct26-current-leadership:first-of-type .leader-card h3')].map(n=>n.textContent);
+   const trio=[...document.querySelector('.oct26-current-leadership')?.querySelectorAll('.leader-card h3')||[]].map(n=>n.textContent);
    return {viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,
      hasEmbed:!!el('#mapa-acampamento iframe[src*="google.com/maps"]'),
      mapSrc:el('#mapa-acampamento .camp-map-panel img')?.getAttribute('src'),
@@ -37,7 +37,7 @@ for(const [name,viewport] of [['desktop',{width:1440,height:960}],['mobile',{wid
  await page.waitForFunction(()=>document.querySelector('#hierarquia')?.textContent?.includes('triunvirato'),null,{timeout:20000});
  const txt=await page.locator('#content').innerText();
  if(txt.includes('duunvirato'))failures.push(name+': sistema ainda diz duunvirato');
- if(txt.includes('indisponíveis para criação'))failures.push(name+': celtas ainda estão bloqueados');
+ if(txt.includes('indisponíveis para criação'))failures.push(name+': celtas ainda estão bloqueados: '+txt.slice(Math.max(0,txt.indexOf('indisponíveis para criação')-130),txt.indexOf('indisponíveis para criação')+80));
  if(txt.includes('Oakland Hills'))failures.push(name+': trabalho de coleta menciona Oakland Hills');
  await context.close();
 }
