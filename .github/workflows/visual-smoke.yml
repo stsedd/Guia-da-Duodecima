@@ -56,7 +56,7 @@ jobs:
             for(const section of ['sistema','combate','crafting','roma','magia','deuses']){
               const nav=page.locator(`[data-page="${section}"]`).first();
               if(await nav.count()){
-                await nav.click({force:true});
+                await nav.evaluate(el=>el.click()); // screenshot navigation does not depend on mobile sidebar visibility
                 await page.waitForTimeout(260);
                 if(section==='combate'){
                   const stats=await page.evaluate(()=>({
