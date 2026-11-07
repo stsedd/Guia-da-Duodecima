@@ -1,4 +1,4 @@
-# Acervo visual de Nazzano — publicação pendente
+# Acervo visual de Nazzano — imagens pendentes
 
 Os binários foram entregues em chat, convertidos sem alterações artísticas e preparados para `assets/nazzano/`:
 
@@ -6,7 +6,7 @@ Os binários foram entregues em chat, convertidos sem alterações artísticas e
 - `cassius.webp` — imagem "nightmare" de Cassius Caesar Augustus (1080×1080)
 - `cyrus.webp` — imagem "silent" de Cyrus Torres Aurelius (1080×1080)
 
-O Guia já usa esses caminhos em `guide-nazzano-integrated.js`. **Não mescle esta prévia ao main antes do upload dos três arquivos.** Enquanto não existem, o código utiliza avisos ou placeholders em vez de exibir o mapa antigo.
+O Guia já usa esses caminhos em `guide-nazzano-integrated.js`. **O código já foi publicado no site oficial em 7 de novembro de 2026, por autorização da administração.** Os três arquivos binários continuam pendentes de publicação. Enquanto não forem enviados, o Guia apresenta avisos ou espaços reservados. A conclusão visual desta etapa depende do upload.
 
 Retratos ainda não fornecidos para publicação:
 - `beatrice.webp` — Pontifex Alessia Beatrice (a referência está no Guia, sem arquivo no repositório)
