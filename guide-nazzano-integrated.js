@@ -47,7 +47,7 @@ function replaceText(from,to,selector='p,li,span,small,b,strong,h2,h3,h4'){
 replaceText(/Campos de Marte(?!\\s*&\\s*Bellona)/gi,'Campos de Marte & Bellona');
 if(!isRoma){
  replaceText(/duunvirato/gi,'triunvirato');
- replaceText(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\\./gi,'Personagens celtas estão liberados como estrangeiros, conforme as regras de origem.');
+ replaceText(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\./gi,'Personagens celtas estão liberados como estrangeiros, conforme as regras de origem.');
  replaceText(/Berkeley Hills, Oakland Hills, Jardim de Bacchus/gi,'áreas autorizadas de Nazzano, bosques e instalações adequadas ao material procurado');
  replaceText(/aprovação das Pretoras/gi,'aprovação da Praetoria');
  const foreignNotice=root.querySelector('.foreign-cta small');
@@ -136,6 +136,7 @@ function patchStored(){
      const detached=document.createElement('div');detached.className='page-'+key;detached.innerHTML=page.html;
      patch(detached);
      page.html=detached.innerHTML;
+     if(key==='sistema')page.html=page.html.replace(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\./gi,'Os celtas estão liberados como estrangeiros, conforme as regras de origem.');
    }
  }finally{storedPatchRunning=false}
 }
