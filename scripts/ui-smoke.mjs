@@ -30,8 +30,9 @@ async function waitReady(page,label){
 
 async function openRoute(page,test,route){
   if(test.mobile){
-    await page.locator('#menuBtn').click({timeout:5000});
-    await page.waitForFunction(()=>document.querySelector('#sidebar')?.classList.contains('open'),null,{timeout:3000});
+    const alreadyOpen=await page.locator('#sidebar').evaluate(el=>el.classList.contains('open'));
+    if(!alreadyOpen)await page.locator('#menuBtn').click({timeout:5000});
+    await page.waitForFunction(()=>document.querySelector('#sidebar')?.classList.contains('open'),null,{timeout:5000});
   }
   await page.locator(`[data-page="${route}"]`).first().click({timeout:5000});
   await page.waitForFunction(expected=>location.hash===`#page:${expected}`,route,{timeout:3000});
