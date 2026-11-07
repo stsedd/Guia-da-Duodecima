@@ -79,3 +79,10 @@
  .page-roma .oct26-gateway{padding:17px}
  .page-roma .oct26-gateway p{font-size:14px;line-height:1.7}
 }
+
+.page-roma .oct26-map-missing:not([hidden]){
+  display:block!important;margin:0!important;padding:24px!important;
+  color:var(--ink)!important;background:var(--panel2)!important;
+  border:1px dashed var(--line)!important;border-radius:12px!important;
+  text-align:center!important;font-size:14px!important;
+}
