@@ -44,7 +44,7 @@ function replaceText(from,to,selector='p,li,span,small,b,strong,h2,h3,h4'){
    }
  });
 }
-replaceText(/Campos de Marte(?!\\s*&\\s*Bellona)/gi,'Campos de Marte & Bellona');
+replaceText(/Campos de Marte(?!\s*&\s*Bellona)/gi,'Campos de Marte & Bellona');
 if(!isRoma){
  replaceText(/duunvirato/gi,'triunvirato');
  replaceText(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\./gi,'Personagens celtas estão liberados como estrangeiros, conforme as regras de origem.');
