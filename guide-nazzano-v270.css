@@ -1,0 +1,81 @@
+/* Nazzano e Instituições · v2.7.0 · acompanha os tokens de tema do Guia. */
+.page-roma .oct26-gateway{
+  margin:18px 0 24px;padding:clamp(20px,3vw,30px);
+  background:color-mix(in srgb,var(--panel) 85%,var(--red) 15%);
+  border:1px solid var(--line);border-left:3px solid var(--red);
+  border-radius:16px;min-width:0
+}
+.page-roma .oct26-gateway>small,.oct26-map-head>small{
+  color:var(--red);font-size:10px;font-weight:800;letter-spacing:.13em
+}
+.page-roma .oct26-gateway>h3{font:700 clamp(25px,3.1vw,35px)/1.12 var(--serif);color:var(--ink);margin:8px 0 16px}
+.page-roma .oct26-gateway p{font-size:15px;line-height:1.74;max-width:79ch;color:var(--ink);opacity:.9}
+.page-roma .oct26-gateway strong{color:var(--ink);opacity:1}
+.oct26-real-map{margin:17px 0 24px;min-width:0}
+.oct26-map-head{margin:22px 0 14px}
+.oct26-map-head h3{font:700 clamp(24px,3vw,31px)/1.18 var(--serif);margin:5px 0 8px;overflow-wrap:anywhere}
+.oct26-map-head p{max-width:72ch;font-size:14px;line-height:1.65}
+.oct26-map-embed{width:100%;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--panel);aspect-ratio:16/9;min-height:280px}
+.oct26-map-embed iframe{display:block;border:0;width:100%;height:100%;min-height:280px}
+.oct26-map-link{display:inline-flex;align-items:center;margin:11px 2px 18px;text-decoration:underline;text-underline-offset:3px;font-weight:650;font-size:13px}
+.oct26-map-head--fantasy{border-top:1px solid var(--line);padding-top:20px;margin-top:7px}
+.page-roma .camp-map-panel{max-width:1050px;margin-inline:auto;padding:0;border:0;background:transparent}
+.page-roma .camp-map-panel img{display:block;width:100%;height:auto;max-height:none;border:1px solid var(--line);border-radius:14px;object-fit:contain;background:var(--panel)}
+.page-roma .camp-map-panel img[hidden]{display:none!important}
+.page-roma .oct26-current-leadership{margin:20px 0 28px;min-width:0}
+.page-roma .oct26-group-title{
+  border-bottom:1px solid var(--line);padding-bottom:11px;margin:0 0 14px;
+  font:700 clamp(22px,2.2vw,29px)/1.2 var(--serif);color:var(--ink)
+}
+.page-roma .oct26-figure-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:14px;min-width:0
+}
+.page-roma .oct26-figure-grid .leader-card{
+  display:flex;flex-direction:column;gap:10px;min-width:0;padding:12px;
+  background:var(--panel);border-color:var(--line);border-radius:14px
+}
+.page-roma .oct26-figure-grid .leader-card>img,
+.page-roma .oct26-figure-grid .oct26-leader-photo{
+  display:block;position:relative;width:100%;max-width:100%;height:auto;
+  aspect-ratio:4/3;border-radius:9px;overflow:hidden;border:1px solid var(--line);
+  background:var(--panel2)
+}
+.page-roma .oct26-figure-grid .leader-card>img{object-fit:cover}
+.page-roma .oct26-figure-grid .oct26-leader-photo>img{
+  display:block;width:100%;height:100%;object-fit:cover;border:0;border-radius:0
+}
+.page-roma .oct26-figure-grid .oct26-leader-photo>img[hidden]{display:none!important}
+.page-roma .oct26-image-placeholder{
+  display:none;position:absolute;inset:0;place-items:center;padding:16px;
+  color:var(--muted);font-size:12px;text-align:center;background:var(--panel2)
+}
+.page-roma .oct26-leader-photo>img[hidden]~.oct26-image-placeholder{display:grid}
+.page-roma .oct26-figure-grid .leader-copy{padding:3px 3px 5px}
+.page-roma .oct26-figure-grid .leader-copy>span{
+  display:block;font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--red);line-height:1.45
+}
+.page-roma .oct26-figure-grid .leader-copy h3{
+  color:var(--ink);font:700 clamp(21px,2vw,26px)/1.2 var(--serif);overflow-wrap:anywhere;margin:8px 0
+}
+.page-roma .oct26-figure-grid .leader-copy em{display:block;color:var(--gold);font-size:12px;line-height:1.45;margin-bottom:9px}
+.page-roma .oct26-figure-grid .leader-copy p{
+  font-size:13px;line-height:1.62;overflow-wrap:anywhere;color:var(--ink);opacity:.88;margin:8px 0
+}
+.page-roma .oct26-other-figures{margin-top:33px}
+.page-roma .oct26-castra-note{
+  background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--gold);
+  color:var(--ink);border-radius:11px;padding:14px 17px;line-height:1.65;font-size:13px;margin-bottom:20px
+}
+@media(max-width:1150px){
+ .page-roma .oct26-figure-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .page-roma .oct26-figure-grid{grid-template-columns:minmax(0,1fr)}
+ .page-roma .oct26-figure-grid .leader-card{max-width:100%}
+ .page-roma .oct26-figure-grid .leader-card>img,
+ .page-roma .oct26-figure-grid .oct26-leader-photo{aspect-ratio:16/9}
+ .page-roma .oct26-map-embed{aspect-ratio:5/4;min-height:260px}
+ .page-roma .oct26-map-embed iframe{min-height:260px}
+ .page-roma .oct26-gateway{padding:17px}
+ .page-roma .oct26-gateway p{font-size:14px;line-height:1.7}
+}
