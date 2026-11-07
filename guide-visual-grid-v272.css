@@ -1,0 +1,86 @@
+/* Guia da Duodécima — refinamento de grid v2.7.2.
+   Exclusivamente apresentação. Respeita imagens, conteúdo, dados e identidade. */
+:root {
+  --guide-v272-space-xs: 6px;
+  --guide-v272-space-sm: 10px;
+  --guide-v272-space-md: 16px;
+  --guide-v272-space-lg: 24px;
+  --guide-v272-card-gap: clamp(13px, 1.35vw, 19px);
+  --guide-v272-control-height: 42px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+.workspace, .workspace .content, .content .section, .content .rules-section { min-width: 0; }
+.content :is(.section-head, .paper-card, .feature, .resource, .ability-card, .talent-card, .money-card, .rank-grid > *, .pantheon-grid > *, .plot-thread) { min-width: 0; }
+.content :is(.section-head, .rules-opening) > * { min-width: 0; }
+.content :is(h1,h2,h3,h4) { font-family:var(--serif); text-wrap:balance; }
+.content :is(p,ul,ol,li,dl,dt,dd,blockquote,figcaption,small,.label,.eyebrow) { font-family:var(--sans); }
+.content :is(.section-head h2,.section-head h3) { line-height:1.14!important; }
+.content :is(.section-head .eyebrow,.section-head small) { margin-bottom:3px; }
+.content :is(.paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box) {
+  min-width:0;
+  max-width:100%;
+}
+.content :is(.paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box) :is(h3,h4) {
+  margin-top:0;
+  line-height:1.22;
+}
+.content :is(.paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box) :is(p,li) { line-height:1.62; }
+.content :is(.grid,.attr-grid,.resource-grid,.training-grid,.combat-facts,.ability-grid,.money-grid,.job-grid,.job-grid-full,.honor-grid,.rank-grid,.pantheon-grid,.pantheon-children,.talent-grid-full,.close-grid,.familiar-rules,.death-flow,.skill-grid,.bp-list,.plot-panorama,.oct26-profiles,.oct26-credits) { column-gap:var(--guide-v272-card-gap)!important;row-gap:var(--guide-v272-card-gap)!important;min-width:0; }
+.content :is(.grid,.attr-grid,.resource-grid,.training-grid,.combat-facts,.ability-grid,.money-grid,.job-grid,.job-grid-full,.honor-grid,.rank-grid,.pantheon-grid,.pantheon-children,.talent-grid-full,.close-grid,.familiar-rules,.death-flow,.skill-grid,.bp-list,.plot-panorama) > * { min-width:0;max-width:100%; }
+.content :is(.table-wrap,.magic-cost-wrap) { max-width:100%;overflow-x:auto; }
+.content :is(.table-wrap table,.magic-cost-wrap table) { width:max-content;min-width:100%; }
+.content :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea,button) { font-family:var(--sans); }
+.content :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) { min-width:0;max-width:100%;line-height:1.4; }
+.content :is(label,.label) { line-height:1.3; }
+.content :is(img,svg,video,iframe,canvas) { max-width:100%; }
+.content :is(.section-head,.rules-opening) { overflow-wrap:break-word; }
+.content .section-head > span:not(.section-rule) { align-self:end; }
+.content .section-head h2 { margin-block:5px 0!important; }
+.content .section > :first-child { margin-top:0; }
+.content .section > :last-child { margin-bottom:0; }
+
+/* Topbar and reading column share stable alignment and avoid text
+   colliding with search and theme actions. */
+.workspace > .topbar { min-width:0;column-gap:clamp(12px,1.5vw,22px); }
+.topbar .page-title { min-width:0;flex:1 1 auto; }
+.topbar .page-title h1 { max-width:100%;overflow-wrap:break-word; }
+.topbar .topbar-actions { min-width:0;column-gap:10px; }
+.topbar .search-wrap { min-width:0; }
+.topbar .search-wrap input { min-width:0;max-width:100%; }
+.sidebar .brand { min-width:0; }
+.sidebar .brand span { min-width:0; }
+.sidebar .brand strong { overflow-wrap:break-word; }
+
+/* Roma and magic have specialized editorial layouts.
+   Only stabilize their interior widths without flattening the design. */
+body[data-guide-page="roma"] .content :is(.plot-panorama,.plot-thread,.oct26-person,.oct26-credits,.editorial-story) { min-width:0;max-width:100%; }
+body[data-guide-page="roma"] .content :is(.plot-thread,.oct26-person) :is(h2,h3,p,small) { overflow-wrap:break-word; }
+body[data-guide-page="magia"] .content :is(.magic-circle-card,.magic-circle-copy,.core-magic-sacrifice) { min-width:0;max-width:100%; }
+
+/* Ranges where three equal columns become narrower than the content. */
+@media(max-width:1180px) {
+  .content .grid.three { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:980px) {
+  .topbar .topbar-actions { flex:0 1 auto; }
+  .content .grid.two, .content .two, .content .material-split, .content .attack-split { grid-template-columns:minmax(0,1fr); }
+}
+@media(max-width:780px) {
+  .workspace > .content { padding-top:22px!important; }
+  .content .section-head { gap:8px 12px!important; }
+  .content .section-head > span:not(.section-rule) { max-width:100%; }
+  .content .grid.three { grid-template-columns:minmax(0,1fr); }
+  .content :is(.paper-card,.feature,.resource,.ability-card,.rest-card,.warning-card,.money-card,.talent-card,.leader-card,.pantheon-card,.dt-card,.choice-box) { padding:clamp(14px,3.8vw,18px)!important; }
+}
+@media(max-width:540px) {
+  .workspace > .content { padding-inline:14px!important; }
+  .workspace > .site-footer { padding-inline:14px!important; }
+  .content .section-head { grid-template-columns:minmax(0,1fr)!important; }
+  .content .section-head > span:not(.section-rule) { grid-column:1!important;justify-self:start!important; }
+  .content :is(.grid.two,.grid.three,.attr-grid,.resource-grid,.training-grid,.combat-facts,.rank-grid,.talent-grid-full,.death-flow) { grid-template-columns:minmax(0,1fr)!important; }
+  .content .section > p, .content .section .section-lead { line-height:1.65!important; }
+  .content :is(.table-wrap,.magic-cost-wrap) { border-radius:10px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  html,body,.content * { scroll-behavior:auto!important; }
+}
