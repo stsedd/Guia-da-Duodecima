@@ -1,0 +1,30 @@
+name: Auditoria visual · Grid e tipografia
+on:
+  push:
+    branches: [audit/visual-grid-v271]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  layout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check scripts/visual-audit-v271.mjs
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Serve pages
+        run: |
+          python3 -m http.server 4173 >/tmp/visual-audit.log 2>&1 &
+          sleep 2
+      - run: node scripts/visual-audit-v271.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audit-v271-screenshots
+          path: visual-audit-artifacts
+          if-no-files-found: ignore

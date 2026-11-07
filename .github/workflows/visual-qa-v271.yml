@@ -1,0 +1,30 @@
+name: Revisão visual · QA rigoroso
+on:
+  push:
+    branches: [audit/visual-grid-v271]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check scripts/visual-qa-v271.mjs
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Serve
+        run: |
+          python3 -m http.server 4173 >/tmp/guia-visual-qa.log 2>&1 &
+          sleep 2
+      - run: node scripts/visual-qa-v271.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-qa-v271
+          path: visual-qa-artifacts
+          if-no-files-found: ignore
