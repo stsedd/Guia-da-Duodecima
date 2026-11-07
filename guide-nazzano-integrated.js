@@ -18,11 +18,16 @@ const credits=[
 ['Demais participantes','Percival Gallagher · Teresa E. de Borja · Jane Zinnerman · Marsaili Nicleòid · demais participantes das missões e mesas'],
 ['Eliminação da corrupção em Nazzano','Rhea Cornelius · Skye R. Victrix · Miwa Ruriko']
 ];
-const figures=[
-['Cyrus Torres Aurelius','PRAETOR · FILHO DE SUMMANUS','O Silêncio · A Fúria da Noite','Integrante do triunvirato. Antigo líder da II Coorte, participou das expedições das áquilas de Vênus e Justitia, da recuperação da estátua de Summanus, de operações de infiltração e da batalha contra o Régulo.'],
-['Alessia Beatrice Czartoryski Sapieha Wojciechowski','PONTIFEX · RELIGIO','A Impronunciável · A Evidência · A Sentença · A Executora','Filha de Janus com uma descendente de Justitia. Alessia representa o passado e o rigor; Beatrice, o futuro e a misericórdia; Alexy reúne as duas faces no presente. Atua na Religio, na justiça e na proteção dos cultos de divindades menores. Gosta de chá e aves.'],
-['Cenric Vallence Pavan','ANTIGO ÁUGURE · V COORTE · IN MEMORIAM','O Fogo Gentil · Scintilla Pristina Vestae','Abençoado pela centelha sagrada de Vesta. Ajudou a recuperar as áquilas de Vênus e Arcus e a reconstruir o prestígio da V Coorte. Morto em uma missão à pedido de Iuppiter.']
-];
+const important={
+  cyrus:{name:'Cyrus Torres Aurelius',role:'PRAETOR · FILHO DE SUMMANUS',img:'assets/nazzano/cyrus.webp',title:'O Silêncio · A Fúria da Noite',description:'Integrante da Praetoria. Antigo líder da II Coorte, participou das expedições das áquilas de Vênus e Justitia, da recuperação da estátua de Summanus e da batalha contra o Régulo.'},
+  cassius:{name:'Cassius Caesar Augustus',role:'PRAETOR · FILHO DE PHOBETOR',img:'assets/nazzano/cassius.webp',title:'',description:'Descrição oficial em preparação.'},
+  beatrice:{name:'Alessia Beatrice Czartoryski Sapieha Wojciechowski',role:'PONTIFEX · RELIGIO',img:'assets/nazzano/beatrice.webp',title:'A Impronunciável · A Evidência · A Sentença · A Executora',description:'Representante da Religio, ligada à justiça romana e à proteção dos cultos de divindades menores.'}
+};
+function officialPerson(person){
+const src=esc(person.img),name=esc(person.name);
+return '<article class="leader-card oct26-official-person"><div class="oct26-leader-photo"><img src="'+src+'" alt="Retrato de '+name+'" loading="lazy"><div class="oct26-image-placeholder">Retrato em atualização</div></div><div class="leader-copy"><span>'+esc(person.role)+'</span><h3>'+name+'</h3>'+(person.title?'<em>'+esc(person.title)+'</em>':'')+'<p>'+esc(person.description)+'</p></div></article>';
+}
+function sectionSource(root,re){const h=find(root,re);return h?.closest('section')||h?.closest('.section')||null;}
 const find=(root,re)=>[...root.querySelectorAll('h1,h2,h3,h4')].find(x=>re.test(x.textContent));
 function sectionId(root,re){const h=find(root,re);return h?.closest('section')||h?.closest('.section')||null}
 function article(name,title,alias,desc,memorial=false){
@@ -31,13 +36,48 @@ return '<article class="oct26-person '+(memorial?'oct26-memorial':'')+'">'+(img?
 function patch(root){
 if(!root)return;
 const isRoma=root.classList.contains('page-roma');
-if(!isRoma){root.querySelectorAll('*').forEach(el=>{if(el.children.length===0&&el.textContent&&/Campos de Marte(?!\\s*&\\s*Bellona)/i.test(el.textContent))el.textContent=el.textContent.replace(/Campos de Marte(?!\\s*&\\s*Bellona)/gi,'Campos de Marte & Bellona')});return;}
+if(!isRoma&&!root.classList.contains('page-sistema'))return;
+function replaceText(from,to,selector='p,li,span,small,b,strong,h2,h3,h4'){
+ root.querySelectorAll(selector).forEach(el=>{
+   for(const n of [...el.childNodes]){
+     if(n.nodeType===3&&from.test(n.nodeValue||''))n.nodeValue=n.nodeValue.replace(from,to);
+   }
+ });
+}
+replaceText(/Campos de Marte(?!\s*&\s*Bellona)/gi,'Campos de Marte & Bellona');
+if(!isRoma){
+ replaceText(/duunvirato/gi,'triunvirato');
+ replaceText(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\./gi,'Personagens celtas estão liberados como estrangeiros, conforme as regras de origem.');
+ replaceText(/Berkeley Hills, Oakland Hills, Jardim de Bacchus/gi,'áreas autorizadas de Nazzano, bosques e instalações adequadas ao material procurado');
+ replaceText(/aprovação das Pretoras/gi,'aprovação da Praetoria');
+ const foreignNotice=root.querySelector('.foreign-cta small');
+ if(foreignNotice&&/indispon[ií]veis para criação/i.test(foreignNotice.textContent)){
+   foreignNotice.textContent=foreignNotice.textContent.replace(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\./gi,'Os celtas estão liberados como estrangeiros.');
+ }
+ return;
+}
 root.querySelectorAll('h1,h2,h3,h4,span,small').forEach(el=>{if(el.children.length)return;const x=el.textContent.trim();if(/quem conduz roma agora/i.test(x))el.textContent='Figuras Importantes';if(/^figuras atuais$/i.test(x))el.textContent='FIGURAS HISTÓRICAS E ATUAIS'});
-// Conserva a estrutura original e os perfis de Blume e Jasmine.
+// A liderança atual é um triunvirato. Preservamos a biografia das figuras anteriores.
 const people=sectionId(root,/figuras importantes|quem conduz roma agora/i);
-if(people&&!people.querySelector('.oct26-profiles')){
-const wrap=document.createElement('div');wrap.className='oct26-profiles';wrap.innerHTML=figures.map(x=>article(x[0],x[1],x[2],x[3],x[0].startsWith('Cenric'))).join('');people.append(wrap)}
+if(people&&!people.querySelector('.oct26-current-leadership')){
+  const old=[...people.querySelectorAll('.leader-card')];
+  const cardOf=re=>old.find(a=>re.test(a.querySelector('h3')?.textContent||''));
+  const jasmine=cardOf(/Jasmine Imperione/i),blume=cardOf(/Blume Becker/i),emma=cardOf(/Emma Parker/i);
+  if(jasmine){const caption=jasmine.querySelector('.leader-copy>span');if(caption)caption.textContent='PRAETORA · FILHA DE AQUILON';}
+  if(blume){const caption=blume.querySelector('.leader-copy>span');if(caption)caption.textContent='EX-PRAETORA · FILHA DE VÊNUS';}
+  const current=document.createElement('div');current.className='oct26-current-leadership';
+  current.innerHTML='<h3 class="oct26-group-title">Praetoria · Triunvirato atual</h3><div class="oct26-figure-grid">'+(jasmine?jasmine.outerHTML:'')+officialPerson(important.cyrus)+officialPerson(important.cassius)+'</div>';
+  const other=document.createElement('div');other.className='oct26-current-leadership oct26-other-figures';
+  other.innerHTML='<h3 class="oct26-group-title">Religio e antigas lideranças</h3><div class="oct26-figure-grid">'+(emma?emma.outerHTML:'')+officialPerson(important.beatrice)+(blume?blume.outerHTML:'')+'</div>';
+  const oldGrid=people.querySelector('.leader-grid');if(oldGrid)oldGrid.replaceWith(current,other);else people.append(current,other);
+  people.querySelectorAll('.oct26-profiles').forEach(el=>el.remove());
+  const header=people.querySelector('.section-head>div>small');if(header)header.textContent='ROMA · INSTITUIÇÕES';
+  const tagline=people.querySelector('.section-head>span');if(tagline)tagline.textContent='PERSONAE';
+}
 const arrival=sectionId(root,/chegando a roma/i);if(arrival&&!arrival.dataset.oct26Arrival){
+  const gateway=document.createElement('article');gateway.className='oct26-gateway';
+  gateway.innerHTML='<small>NAZZANO · PORTA DE ROMA</small><h3>A ponte que revela o Acampamento Júpiter</h3><p>Para um mortal comum, a <em>Riserva Naturale Regionale Nazzano, Tevere-Farfa</em> é apenas uma reserva natural italiana: trilhas, árvores e as águas do Tibre. Mesmo ao passar pelos arredores da antiga estação de Nazzano, nada parece diferente do mundo conhecido.</p><p>Ali, porém, dois legionários permanecem de guarda junto à ponte do Antigo Tibre. É a travessia que faz a diferença. Quando alguém cruza a ponte, o Acampamento Júpiter finalmente se revela, com suas coortes, templos, torres e muralhas. Sem atravessá-la, a pessoa continua andando pela reserva comum, incapaz de ver ou alcançar o território romano.</p><p>O acampamento existe, portanto, dentro de um <strong>bolsão mágico</strong>, uma espécie de dimensão de bolso ligada ao mundo mortal por uma única passagem reconhecida: <strong>a ponte do Tibre</strong>. Não basta estar perto ou caminhar na direção certa; é necessário cruzar o limiar.</p>';
+  const sectionHead=arrival.querySelector('.section-head');if(sectionHead)sectionHead.after(gateway);else arrival.prepend(gateway);
  arrival.dataset.oct26Arrival='1';
  const cards=[...arrival.querySelectorAll('.card,article')].filter(x=>/Túnel Caldecott|Pequeno Tibre|Território Romano/i.test(x.textContent));
  const old=cards.find(x=>/Túnel Caldecott/i.test(x.textContent));
@@ -45,19 +85,66 @@ const arrival=sectionId(root,/chegando a roma/i);if(arrival&&!arrival.dataset.oc
  arrival.querySelectorAll('*').forEach(x=>{if(x.children.length===0&&/Túnel Caldecott/i.test(x.textContent))x.textContent=x.textContent.replace(/Túnel Caldecott/gi,'Estação Abandonada de Nazzano')});
 }
 const map=sectionId(root,/mapa do acampamento/i);
-if(map){map.querySelectorAll('img').forEach(im=>{if(/mapa-acampamento/i.test(im.src)){im.src='assets/nazzano/mapa-nazzano.webp';im.alt='Mapa do Acampamento Júpiter na Reserva de Nazzano, Itália';im.style.filter='none';im.style.opacity='1'}})}
-const castra=sectionId(root,/morte certa.*principia/i);if(castra&&!castra.querySelector('.oct26-castra-note')){const n=document.createElement('p');n.className='oct26-castra-note';n.textContent='A organização interna foi alterada com a reconstrução em Nazzano. As descrições da antiga disposição não representam a planta vigente; novos espaços serão documentados com base nos canais oficiais.';castra.prepend(n);}
+if(map){
+  const panel=map.querySelector('.camp-map-panel,.map-panel');
+  if(panel){
+    const im=panel.querySelector('img');
+    if(im){im.src='assets/nazzano/mapa-nazzano.webp';im.alt='Mapa narrativo do Acampamento Júpiter em Nazzano, com a distribuição das coortes e instalações';im.style.filter='none';im.style.opacity='1';}
+    if(!panel.querySelector('.oct26-map-missing')){const msg=document.createElement('p');msg.className='oct26-map-missing';msg.hidden=true;msg.textContent='O mapa oficial de Nazzano está preparado, mas seu arquivo de imagem ainda não foi publicado nesta versão.';panel.append(msg);}
+  }
+  const mapNote=map.querySelector('.map-note');if(mapNote)mapNote.textContent='Mapa interno do bolsão mágico romano. As instalações aqui representadas não são visíveis no mapa geográfico do mundo mortal.';
+  if(!map.querySelector('.oct26-real-map')){
+    const intro=document.createElement('div');intro.className='oct26-real-map';
+    intro.innerHTML='<div class="oct26-map-head"><small>GEOGRAFIA REAL</small><h3>Onde fica Nazzano?</h3><p>A Riserva Naturale Regionale Nazzano, Tevere-Farfa é uma área natural do Lácio, ao norte da cidade de Roma. Explore sua localização real e, abaixo, compare com o mapa narrativo do Acampamento Júpiter.</p></div><div class="oct26-map-embed"><iframe title="Google Maps da Riserva Naturale Regionale Nazzano, Tevere-Farfa, no Lácio" src="https://www.google.com/maps?q=Riserva%20Naturale%20Regionale%20Nazzano%20Tevere-Farfa%2C%20Lazio%2C%20Italia&z=9&output=embed" referrerpolicy="no-referrer-when-downgrade" loading="lazy" allowfullscreen></iframe></div><a href="https://www.google.com/maps/search/?api=1&query=Riserva+Naturale+Regionale+Nazzano+Tevere-Farfa" target="_blank" rel="noopener noreferrer" class="oct26-map-link">Abrir a reserva no Google Maps ↗</a><div class="oct26-map-head oct26-map-head--fantasy"><small>MAPA NARRATIVO</small><h3>O acampamento além do Tibre</h3><p>Este mapa representa apenas a dimensão protegida da Legião, não as trilhas comuns da reserva.</p></div>';
+    if(panel)map.insertBefore(intro,panel);else map.append(intro);
+  }
+}
+const castra=sectionId(root,/morte certa.*principia/i);
+if(castra&&!castra.querySelector('.oct26-castra-note')){
+ const n=document.createElement('div');n.className='oct26-castra-note';
+ n.innerHTML='<strong>Organização atual em Nazzano.</strong> O mapa oficial mostra as coortes I a V, a Principia, a Academia, a Biblioteca, o Armamentarium, a Forja, a Enfermaria, o Pavilhão, o Laboratório, os Estábulos, o Depósito, a Domus Memoriae, os Campos de Marte &amp; Bellona e as torres de vigia. Descrições antigas de distâncias e posições devem ser lidas como registros históricos, não como planta vigente.';
+ castra.prepend(n);
+}
 const rootHolder=sectionId(root,/nova roma/i)||root;
 if(!root.querySelector('#domus-memoriae')){const s=document.createElement('section');s.className='section oct26-hall searchable';s.id='domus-memoriae';s.dataset.title='Domus Memoriae — Honrarias da Legião';s.innerHTML='<div class="section-head"><div><small>MEMÓRIA · ROMA</small><h2>Domus Memoriae</h2></div></div><p class="section-lead">O Hall da Fama preserva a trajetória dos legionários cuja dedicação deixou marcas na história de Roma. Os cinco homenageados aqui também participaram da vitória contra o Régulo de Nazzano, fundamental para o retorno da cidade à Itália.</p><div class="oct26-profiles">'+honorees.map(x=>article(x[0],x[1],'',x[2])).join('')+'</div>';if(rootHolder===root)root.append(s);else rootHolder.after(s)}
 if(!root.querySelector('#memorial-retorno')){const s=document.createElement('section');s.id='memorial-retorno';s.className='section oct26-hall searchable';s.dataset.title='Aqueles que trouxeram Roma para casa';s.innerHTML='<div class="section-head"><div><small>MEMÓRIA · RETORNO</small><h2>Aqueles que trouxeram Roma para casa</h2></div></div><p class="section-lead">A transferência exigiu negociação, combate, purificação, doações de itens mágicos e a reconstrução de estruturas essenciais. Cada participação faz parte da história coletiva do retorno à Itália.</p><div class="oct26-credits">'+credits.map(x=>'<article><h3>'+esc(x[0])+'</h3><p>'+esc(x[1])+'</p></article>').join('')+'</div>';root.append(s)}
 // Prioriza a designação oficial em toda a página sem duplicações.
 root.querySelectorAll('*').forEach(el=>{if(el.children.length===0 && el.textContent && /Campos de Marte(?!\s*&\s*Bellona)/i.test(el.textContent))el.textContent=el.textContent.replace(/Campos de Marte(?!\s*&\s*Bellona)/gi,'Campos de Marte & Bellona')});
+// As referências territoriais antigas não são instruções válidas para o cenário italiano.
+replaceText(/Túnel Caldecott/gi,'Estação Abandonada de Nazzano');
+replaceText(/Caldecott/gi,'Estação de Nazzano');
+const exitRule=[...root.querySelectorAll('.camp-rule-grid article')].find(el=>/Sair do Acampamento/i.test(el.textContent));
+if(exitRule&&/São Francisco/i.test(exitRule.textContent)){
+ const p=exitRule.querySelector('p');
+ if(p)p.textContent='Saídas do território romano exigem autorização da Praetoria. Viagens e custos dependem do destino, e não de uma rota fixa para São Francisco.';
+}
+replaceText(/o bronze está enfraquecendo/gi,'o bronze apresentou fragilidade durante uma crise já encerrada');
+replaceText(/bronze da legião aparentemente enfraquecido/gi,'crise de fragilidade do bronze da Legião (encerrada)');
 if(!root.querySelector('#nazzano-atualizacao')){const s=document.createElement('section');s.id='nazzano-atualizacao';s.className='section oct26-hall searchable';s.dataset.title='Roma em Nazzano';s.innerHTML='<div class="section-head"><div><small>ROMA · PRESENTE</small><h2>O retorno à Itália</h2></div></div><p>Blume Becker realizou a transferência de Nova Roma com catalisadores recolhidos pelos legionários e com o apoio de Jasmine. A cidade e os equipamentos essenciais atravessaram o oceano; os edifícios militares reconstruíveis foram erguidos no novo território. A sede atual da Legião fica na Reserva de Nazzano, Itália. A Califórnia funciona como posto avançado.</p><p>As cavernas ficam sob o acampamento, com acesso pelo Bosque dos Faunos e dos Elfos. Os campos militares recebem o nome de <strong>Campos de Marte &amp; Bellona</strong>. A crise do bronze frágil terminou. O cristal do Aqueronte existe, mas ainda não possui mecânica definida.</p><p>Na trama celta, Morcan Glass, o Rei Submerso, está aparentemente morto. Não há confirmação definitiva de sua morte.</p>';root.append(s)}
 if(!root.querySelector('#juramentos-orcus')){const s=document.createElement('section');s.id='juramentos-orcus';s.className='section oct26-hall searchable';s.dataset.title='Juramentos a Orcus';s.innerHTML='<div class="section-head"><div><small>RELIGIO · JURAMENTOS</small><h2>Juramentos a Orcus</h2></div></div><p>Os romanos juram em nome de Orcus, não do Estige. Orcus é testemunha e guardião de promessas solenes. Quem quebra um juramento feito em seu nome recebe a visita do deus, que o mata, sem negociação ou segunda oportunidade. Não realize esse juramento sem plena certeza de que poderá cumpri-lo.</p>';root.append(s)}
 if(!root.querySelector('#devocao-divina')){const s=document.createElement('section');s.id='devocao-divina';s.className='section oct26-hall searchable';s.dataset.title='Devoção Divina';s.innerHTML='<div class="section-head"><div><small>RELIGIO · PIETAS</small><h2>Devoção Divina</h2></div></div><p>Um personagem pode consagrar-se a uma divindade diferente de seu progenitor. O caminho é narrativo: conhecer o deus, honrar seus princípios, celebrar a consagração e demonstrar compromisso nas próprias ações e missões. Não há contagem de oferendas, pontos de devoção ou prazo mínimo. O reconhecimento e o novo kit dependem da vontade divina e de validação da equipe.</p><p>O novo patrono substitui o kit original. Podem ser preservadas até duas passivas da ascendência de nascimento, mediante aprovação. Excepcionalmente, uma ativa antiga pode substituir uma ativa nova, nunca somar espaço extra. O HP máximo é recalculado pelo kit do patrono; bônus de atributos e perícia inicial da origem permanecem, mas recursos e atributo de conjuração seguem o patrono. Somente um patrono concede kit por vez.</p><p>Se perder definitivamente o reconhecimento, o personagem perde os poderes do patrono e os poderes preservados da origem; não recupera automaticamente o kit de nascimento. Sua origem semidivina continua perceptível aos monstros.</p>';root.append(s)}
 // Alterações pontuais, sem apagar narrativa histórica legítima.
 root.querySelectorAll('p,li,h2,h3,h4,figcaption').forEach(el=>{if(el.closest('.oct26-hall')||el.closest('.oct26-profiles'))return;for(const n of [...el.childNodes])if(n.nodeType===3&&n.nodeValue.includes('Campos de Marte')&&!n.nodeValue.includes('Campos de Marte & Bellona'))n.nodeValue=n.nodeValue.replaceAll('Campos de Marte','Campos de Marte & Bellona')});
 }
+// Atualiza também a fonte editorial: novas seções entram na navegação, não apenas no HTML visível.
+let storedPatchRunning=false;
+function patchStored(){
+ if(storedPatchRunning)return;
+ storedPatchRunning=true;
+ try{
+   for(const key of ['sistema','roma']){
+     const page=window.GUIA_CONTENT?.[key];if(!page?.html)continue;
+     const detached=document.createElement('div');detached.className='page-'+key;detached.innerHTML=page.html;
+     patch(detached);
+     page.html=detached.innerHTML;
+     if(key==='sistema')page.html=page.html.replace(/Os celtas existem na trama, mas seguem indisponíveis para criação por enquanto\./gi,'Os celtas estão liberados como estrangeiros, conforme as regras de origem.');
+   }
+ }finally{storedPatchRunning=false}
+}
+Promise.allSettled([window.DUODECIMA_CORE_READY,window.DUODECIMA_GUIDE_STABILIZATION_READY,window.DUODECIMA_GUIDE_RULES_READY]).then(()=>{
+ patchStored();
+ window.dispatchEvent(new PopStateEvent('popstate',{state:history.state}));
+});
 let scheduled=false,locked=false;function schedule(){if(locked||scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;locked=true;try{patch(document.querySelector('#content'))}finally{locked=false}})}
-new MutationObserver(schedule).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule);document.addEventListener('error',e=>{const img=e.target;if(img?.tagName==='IMG'&&img.src.includes('/assets/nazzano/')){img.hidden=true;img.closest('figure')?.classList.add('oct26-awaiting-art');}},true);schedule();
+new MutationObserver(schedule).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule);document.addEventListener('error',e=>{const img=e.target;if(img?.tagName==='IMG'&&img.src.includes('/assets/nazzano/')){img.hidden=true;img.closest('figure')?.classList.add('oct26-awaiting-art');const parent=img.closest('.camp-map-panel');if(parent){const warning=parent.querySelector('.oct26-map-missing');if(warning)warning.hidden=false;}}},true);schedule();
 })();
