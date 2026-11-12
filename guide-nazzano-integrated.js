@@ -20,12 +20,28 @@ const credits=[
 ];
 const important={
   cyrus:{name:'Cyrus Torres Aurelius',role:'PRAETOR · FILHO DE SUMMANUS',img:'assets/nazzano/cyrus.webp',title:'O Silêncio · A Fúria da Noite',description:'Integrante da Praetoria. Antigo líder da II Coorte, participou das expedições das áquilas de Vênus e Justitia, da recuperação da estátua de Summanus e da batalha contra o Régulo.'},
-  cassius:{name:'Cassius Caesar Augustus',role:'PRAETOR · FILHO DE PHOBETOR',img:'assets/nazzano/cassius.webp',title:'',description:'Descrição oficial em preparação.'},
+  cassius:{
+    name:'Cassius Caesar Augustus',
+    role:'PRAETOR · FILHO DE PHOBETOR',
+    img:'assets/nazzano/cassius.webp',
+    title:'O Campeão de Angerona · O Senhor dos Pesadelos · O Vidente · O Herdeiro dos Augustus',
+    description:'Atual praetor do triunvirato e antigo centurião da II Coorte. Descendente de uma das famílias fundadoras de Nova Roma, Cassius é ferreiro, campeão de Angerona e servidor de Phobetor nos domínios do Sonhar. Sua trajetória reúne a recuperação de relíquias divinas, o trabalho na Forja de Prometheus e a defesa da Legião.',
+    details:[
+      'Nascido entre os Augustus, uma das famílias patrícias responsáveis pela fundação de Nova Roma, Cassius é filho de Phobetor e herdeiro de uma ascendência que também remonta a Metus e Marte. Chegou sozinho à Legião e, logo em seu primeiro combate, enfrentou duas harpias sem qualquer auxílio. Anos depois, assumiria a liderança da Segunda Coorte após o afastamento de sua esposa, Cerise Mae Bow.',
+      'Durante muitos anos, Cassius foi um dos poucos ferreiros em atividade no acampamento, chegando a assumir praticamente sozinho a responsabilidade pela produção de armas e armaduras. Seu trabalho acompanhou inúmeros legionários em missões e batalhas, tornando-se uma contribuição indispensável à segurança de Roma e à preparação de seus combatentes.',
+      'Seu domínio da forja foi especialmente importante durante a expedição à lendária Forja de Prometheus, da qual participou ao lado de Cerise, Cyrus, Celeste e Caelus. Na ocasião, trabalhou o ouro imperial desde seu estado bruto, conduzindo o processo que permitiu transformar o precioso recurso em um metal utilizável.',
+      'Entre seus maiores feitos, destaca-se a recuperação solitária da áquila de Angerona, realizada durante uma missão no próprio Sonhar. A conquista estabeleceu uma ligação divina que permanece entre as maiores honrarias de sua trajetória.',
+      'Como filho de Phobetor, Cassius mantém uma relação particularmente próxima com os domínios oníricos. Até hoje, continua trabalhando a serviço de seu pai, percorrendo o Sonhar para caçar mortais e perturbar seus sonhos. É dessa atuação que nasce parte de sua reputação como Senhor dos Pesadelos, uma figura cuja presença pode ser tão ameaçadora durante o sono quanto nos campos de batalha.',
+      'Ao lado de Cyrus Aurelius, participou da recuperação do busto perdido de Summanus, uma relíquia há muito esquecida que foi devolvida ao deus dos trovões noturnos. Também esteve presente nos acontecimentos relacionados ao conclave de Vênus, envolvendo-se em assuntos divinos que ultrapassavam as fronteiras do acampamento.',
+      'Participou dos esforços que culminaram na derrota de Régulo de Nazzano, cuja presença ameaçava a região destinada a receber Roma. Sua contribuição ajudou a garantir a segurança das novas terras, permitindo que a Legião encontrasse um lar após a mudança para a Itália.',
+      'Sua história também foi marcada por perdas pessoais. Durante um atentado ao Senado, uma explosão tirou a vida de seu avô, levando Cassius a assumir a responsabilidade de investigar o ocorrido. Determinado a descobrir os responsáveis, empenhou-se em identificar os traidores envolvidos e garantir que respondessem por seus crimes. Hoje serve Roma como praetor do triunvirato.'
+    ]
+  },
   beatrice:{name:'Alessia Beatrice Czartoryski Sapieha Wojciechowski',role:'PONTIFEX · RELIGIO',img:'assets/nazzano/beatrice.webp',title:'A Impronunciável · A Evidência · A Sentença · A Executora',description:'Representante da Religio, ligada à justiça romana e à proteção dos cultos de divindades menores.'}
 };
 function officialPerson(person){
 const src=esc(person.img),name=esc(person.name);
-return '<article class="leader-card oct26-official-person"><div class="oct26-leader-photo"><img src="'+src+'" alt="Retrato de '+name+'" loading="lazy"><div class="oct26-image-placeholder">Retrato em atualização</div></div><div class="leader-copy"><span>'+esc(person.role)+'</span><h3>'+name+'</h3>'+(person.title?'<em>'+esc(person.title)+'</em>':'')+'<p>'+esc(person.description)+'</p></div></article>';
+return '<article class="leader-card oct26-official-person"><div class="oct26-leader-photo"><img src="'+src+'" alt="Retrato de '+name+'" loading="lazy"><div class="oct26-image-placeholder">Retrato em atualização</div></div><div class="leader-copy"><span>'+esc(person.role)+'</span><h3>'+name+'</h3>'+(person.title?'<em>'+esc(person.title)+'</em>':'')+'<p>'+esc(person.description)+'</p>'+(person.details?.length?'<details class="duo-praetor-details"><summary>Conhecer a trajetória completa</summary><div class="duo-praetor-detail-copy">'+person.details.map(par=>'<p>'+esc(par)+'</p>').join('')+'</div></details>':'')+'</div></article>';
 }
 function sectionSource(root,re){const h=find(root,re);return h?.closest('section')||h?.closest('.section')||null;}
 const find=(root,re)=>[...root.querySelectorAll('h1,h2,h3,h4')].find(x=>re.test(x.textContent));
@@ -105,8 +121,7 @@ if(castra&&!castra.querySelector('.oct26-castra-note')){
  n.innerHTML='<strong>Organização atual em Nazzano.</strong> O mapa oficial mostra as coortes I a V, a Principia, a Academia, a Biblioteca, o Armamentarium, a Forja, a Enfermaria, o Pavilhão, o Laboratório, os Estábulos, o Depósito, a Domus Memoriae, os Campos de Marte &amp; Bellona e as torres de vigia. Descrições antigas de distâncias e posições devem ser lidas como registros históricos, não como planta vigente.';
  castra.prepend(n);
 }
-const rootHolder=sectionId(root,/nova roma/i)||root;
-if(!root.querySelector('#domus-memoriae')){const s=document.createElement('section');s.className='section oct26-hall searchable';s.id='domus-memoriae';s.dataset.title='Domus Memoriae — Honrarias da Legião';s.innerHTML='<div class="section-head"><div><small>MEMÓRIA · ROMA</small><h2>Domus Memoriae</h2></div></div><p class="section-lead">O Hall da Fama preserva a trajetória dos legionários cuja dedicação deixou marcas na história de Roma. Os cinco homenageados aqui também participaram da vitória contra o Régulo de Nazzano, fundamental para o retorno da cidade à Itália.</p><div class="oct26-profiles">'+honorees.map(x=>article(x[0],x[1],'',x[2])).join('')+'</div>';if(rootHolder===root)root.append(s);else rootHolder.after(s)}
+// Os homenageados da Domus Memoriae agora possuem uma página exclusiva.
 if(!root.querySelector('#memorial-retorno')){const s=document.createElement('section');s.id='memorial-retorno';s.className='section oct26-hall searchable';s.dataset.title='Aqueles que trouxeram Roma para casa';s.innerHTML='<div class="section-head"><div><small>MEMÓRIA · RETORNO</small><h2>Aqueles que trouxeram Roma para casa</h2></div></div><p class="section-lead">A transferência exigiu negociação, combate, purificação, doações de itens mágicos e a reconstrução de estruturas essenciais. Cada participação faz parte da história coletiva do retorno à Itália.</p><div class="oct26-credits">'+credits.map(x=>'<article><h3>'+esc(x[0])+'</h3><p>'+esc(x[1])+'</p></article>').join('')+'</div>';root.append(s)}
 // Prioriza a designação oficial em toda a página sem duplicações.
 root.querySelectorAll('*').forEach(el=>{if(el.children.length===0 && el.textContent && /Campos de Marte(?!\s*&\s*Bellona)/i.test(el.textContent))el.textContent=el.textContent.replace(/Campos de Marte(?!\s*&\s*Bellona)/gi,'Campos de Marte & Bellona')});
