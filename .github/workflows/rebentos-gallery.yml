@@ -1,0 +1,47 @@
+name: Rebentos · galeria visual
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/rebentos/**'
+      - 'guide-editorial-v273.js'
+      - 'guide-editorial-v273.css'
+      - 'index.html'
+      - 'scripts/rebentos-smoke.mjs'
+      - '.github/workflows/rebentos-gallery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gallery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verificar JavaScript
+        run: |
+          node --check guide-editorial-v273.js
+          node --check scripts/rebentos-smoke.mjs
+      - name: Preparar navegador
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Servir Guia
+        run: |
+          python3 -m http.server 4173 >/tmp/guia-rebentos.log 2>&1 &
+          sleep 2
+      - name: Conferir imagens, texto, ordem e responsividade
+        run: node scripts/rebentos-smoke.mjs
+      - name: Guardar capturas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: galeria-rebentos
+          path: rebentos-artifacts
+          if-no-files-found: ignore
