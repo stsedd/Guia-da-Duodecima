@@ -78,7 +78,7 @@
       art.innerHTML='<img src="assets/visual/sobre-nova-roma.webp" alt="Arte de Nova Roma, representando o território protegido da Legião" loading="lazy" decoding="async">';
       gateway.append(art);gateway.classList.add('duo-gateway');
     }
-    const map=section(root,/mapa do acampamento/);
+    const map=section(root,/mapa do acampamento|nazzano nos dois mundos/)||root.querySelector('.duo-reorganized-map');
     if(map&&!map.classList.contains('duo-reorganized-map')){
       map.classList.add('duo-reorganized-map');
       // O mapa real e a planta ficcional passam a fazer parte da mesma seção, sem apresentação duplicada.
@@ -166,6 +166,7 @@
   function apply(root){
     if(!root?.classList?.contains('page-roma'))return;
     plotPatch(root);
+    root.querySelectorAll('.guide-page-hero-tags span').forEach(tag=>{if(/fio da trama/i.test(tag.textContent))tag.textContent='Situação atual'});
     arrivalPatch(root);
     lupaPatch(root);
     rulesPatch(root);
@@ -173,9 +174,11 @@
   }
   function stored(){
     const page=window.GUIA_CONTENT?.roma;
-    if(!page?.html||page.html.includes('id="situacao-atual-roma"'))return false;
+    if(!page?.html)return false;
     const root=document.createElement('div');root.className='page-roma';root.innerHTML=page.html;
-    apply(root);page.html=root.innerHTML;return true;
+    apply(root);
+    if(root.innerHTML!==page.html){page.html=root.innerHTML;return true}
+    return false;
   }
   function visible(){
     if(content.classList.contains('page-roma'))apply(content);
