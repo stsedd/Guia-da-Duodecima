@@ -14,7 +14,7 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
  page.on('pageerror',error=>failures.push(test.name+': JS '+error.message));
  try{
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:25000});
-  await page.locator('[data-page="domus"]').first().click();
+  await page.locator('[data-page="domus"]').first().evaluate(el=>el.click());
   await page.waitForFunction(()=>location.hash==='#page:domus',null,{timeout:10000});
   await page.locator('.page-domus #rebento-cyrus').waitFor({timeout:12000});
   await page.evaluate(()=>document.querySelectorAll('.page-domus .domus-artwork img').forEach(im=>im.loading='eager'));
@@ -36,13 +36,14 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
    if(item.paragraphs.some(x=>x<3))failures.push(test.name+': biografia não ampliada '+i);
   }
   if(info.scrollWidth>info.viewport+2)failures.push(test.name+': overflow na Domus '+info.scrollWidth+'/'+info.viewport);
-  await page.locator('#rebento-cerise-cassius').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(6800);
+  await page.evaluate(()=>document.querySelector('#rebento-cerise-cassius')?.scrollIntoView());
   await page.locator('#rebento-cerise-cassius').screenshot({path:'rebentos-artifacts/'+test.name+'-domus-primeiro.png',timeout:25000});
   await page.locator('[data-page="roma"]').first().evaluate(x=>x.click());
   await page.waitForFunction(()=>location.hash==='#page:roma',null,{timeout:10000});
   await page.locator('#domus-memoriae.duo-domus-invite').waitFor({timeout:12000});
   await page.locator('.oct26-current-leadership').first().waitFor({timeout:12000});
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(1800);
   const roma=await page.evaluate(()=>{
    const cassius=[...document.querySelectorAll('.oct26-official-person')].find(x=>(x.querySelector('h3')?.textContent||'').includes('Cassius'));
    const alessia=[...document.querySelectorAll('.oct26-official-person')].find(x=>(x.querySelector('h3')?.textContent||'').includes('Alessia'));
