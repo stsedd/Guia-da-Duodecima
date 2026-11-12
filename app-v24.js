@@ -17,7 +17,7 @@
   const mobileSectionSelect=document.querySelector('#mobileSectionSelect');
   const coreFallbackNotice=document.querySelector('#coreFallbackNotice');
   const themeColorMeta=document.querySelector('#themeColorMeta');
-  const labels={sistema:'ARCHIVVM · SISTEMA',crafting:'ARS · PRODUÇÃO',roma:'ROMA · LORE',magia:'ARS ARCANA',deuses:'PANTHEON · ROMA'};
+  const labels={sistema:'ARCHIVVM · SISTEMA',crafting:'ARS · PRODUÇÃO',roma:'ROMA · LORE',domus:'ROMA · MEMORIAE',magia:'ARS ARCANA',deuses:'PANTHEON · ROMA'};
   let current='sistema';
   let deityFocus=null;
   let activeSearchIndex=-1;
