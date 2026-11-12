@@ -156,12 +156,13 @@
     if(exit){const p=exit.querySelector('p');if(p)p.innerHTML='Saídas do território romano exigem autorização da <em>Praetoria</em>. Durante as folgas, legionários podem solicitar viagens a <strong>Roma</strong> — a cerca de 30 minutos de trem da estação de <strong>Poggio Mirteto Scalo</strong> — ou a outras regiões da Itália. As viagens não podem ocorrer no horário de trabalho nem prejudicar as obrigações com a Legião.'}
   }
   function rebentoPatch(root){
-    if(root.querySelector('#quadros-rebento'))return;
-    const s=document.createElement('section');s.id='quadros-rebento';s.className='section searchable duo-rebento-section';
+    let s=root.querySelector('#quadros-rebento');
+    if(!s){s=document.createElement('section');s.id='quadros-rebento';s.className='section searchable duo-rebento-section';
     s.dataset.title='Quadros de Rebento';
     s.innerHTML='<div class="section-head"><div><small>MEMÓRIA · LEGADO</small><h2>Quadros de Rebento</h2></div></div><p class="duo-rebento-note">Espaço reservado para os quadros de Rebento. A disposição das obras será definida na próxima atualização.</p>';
+    root.append(s)}
     const memoria=root.querySelector('#domus-memoriae');
-    memoria?memoria.after(s):root.append(s);
+    if(memoria&&s.previousElementSibling!==memoria)memoria.after(s);
   }
   function apply(root){
     if(!root?.classList?.contains('page-roma'))return;
