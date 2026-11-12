@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - 'assets/rebentos/**'
+      - 'guide-domus-v275.js'
+      - 'guide-domus-v275.css'
+      - 'guide-nazzano-integrated.js'
+      - 'app-v24.js'
+      - 'assets/nazzano/beatrice.webp'
       - 'guide-editorial-v273.js'
       - 'guide-editorial-v273.css'
       - 'index.html'
@@ -27,6 +32,8 @@ jobs:
       - name: Verificar JavaScript
         run: |
           node --check guide-editorial-v273.js
+          node --check guide-domus-v275.js
+          node --check guide-nazzano-integrated.js
           node --check scripts/rebentos-smoke.mjs
       - name: Preparar navegador
         run: |
