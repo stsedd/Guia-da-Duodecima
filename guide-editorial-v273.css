@@ -95,3 +95,119 @@
  .page-roma .duo-map-tile .oct26-map-embed iframe{min-height:235px}
  .duo-passage-panel{padding:17px}
 }
+
+/* Quadro de Rebento · galeria editorial v2.7.4 */
+.page-roma #quadros-rebento{
+  scroll-margin-top:96px;
+  max-width:100%;
+}
+.page-roma #quadros-rebento .rebento-intro{
+  max-width:79ch;
+  margin:0 0 clamp(28px,3vw,44px)!important;
+  font:400 clamp(14px,1.05vw,15px)/1.76 var(--sans);
+  color:var(--muted);
+}
+.page-roma #quadros-rebento .rebento-gallery{
+  display:flex;
+  flex-direction:column;
+  gap:clamp(40px,5.5vw,72px);
+  width:100%;
+}
+.page-roma #quadros-rebento .rebento-item{
+  min-width:0;
+  width:100%;
+  max-width:1040px;
+  margin-inline:auto;
+  padding:0 0 clamp(26px,3.8vw,45px);
+  border-bottom:1px solid var(--line);
+}
+.page-roma #quadros-rebento .rebento-item:last-child{
+  border-bottom:0;
+  padding-bottom:0;
+}
+.page-roma #quadros-rebento .rebento-item--portrait{
+  max-width:960px;
+}
+.page-roma #quadros-rebento .rebento-item--solo{
+  max-width:760px;
+}
+.page-roma #quadros-rebento .rebento-figure{
+  display:flex;
+  width:min(100%,930px);
+  justify-content:center;
+  align-items:center;
+  min-width:0;
+  margin:0 auto clamp(22px,3vw,36px);
+}
+.page-roma #quadros-rebento .rebento-item--portrait .rebento-figure{
+  width:min(100%,455px);
+}
+.page-roma #quadros-rebento .rebento-item--solo .rebento-figure{
+  width:min(100%,475px);
+}
+.page-roma #quadros-rebento .rebento-figure img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:100%;
+  max-height:none;
+  object-fit:contain;
+  background:transparent;
+  border:0;
+  box-shadow:none;
+}
+.page-roma #quadros-rebento .rebento-bio-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(22px,4vw,58px);
+  align-items:start;
+}
+.page-roma #quadros-rebento .rebento-item--solo .rebento-bio-grid{
+  grid-template-columns:minmax(0,1fr);
+}
+.page-roma #quadros-rebento .rebento-bio{
+  min-width:0;
+  max-width:100%;
+}
+.page-roma #quadros-rebento .rebento-bio h3{
+  color:var(--red);
+  margin:0 0 14px!important;
+  text-align:center;
+  text-transform:uppercase;
+  letter-spacing:.045em;
+  font:700 clamp(19px,1.8vw,25px)/1.3 var(--sans)!important;
+  overflow-wrap:break-word;
+}
+.page-roma #quadros-rebento .rebento-bio p{
+  color:var(--ink);
+  opacity:.94;
+  margin:0;
+  font:400 clamp(14px,1.1vw,15px)/1.76 var(--sans)!important;
+  text-align:left;
+  overflow-wrap:break-word;
+}
+.page-roma #quadros-rebento .rebento-item--solo .rebento-bio{
+  max-width:720px;
+  margin-inline:auto;
+}
+@media(max-width:720px){
+  .page-roma #quadros-rebento .rebento-bio-grid{
+    grid-template-columns:minmax(0,1fr);
+    gap:28px;
+  }
+  .page-roma #quadros-rebento .rebento-figure{
+    width:100%;
+    margin-bottom:20px;
+  }
+  .page-roma #quadros-rebento .rebento-item--portrait .rebento-figure,
+  .page-roma #quadros-rebento .rebento-item--solo .rebento-figure{
+    width:min(100%,420px);
+  }
+  .page-roma #quadros-rebento .rebento-bio h3{
+    font-size:20px!important;
+    margin-bottom:9px!important;
+  }
+  .page-roma #quadros-rebento .rebento-bio p{
+    font-size:14px!important;
+  }
+}
