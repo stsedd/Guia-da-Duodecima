@@ -41,7 +41,12 @@ for(const test of [
           people:[...entry.querySelectorAll('.rebento-bio h3')].map(x=>x.textContent.trim()),
           descriptions:[...entry.querySelectorAll('.rebento-bio p')].map(x=>x.textContent.trim().length),
           top:rect.top,
-          bottom:rect.bottom
+          bottom:rect.bottom,
+          imgClientWidth:img?.getBoundingClientRect().width||0,
+          imgClientHeight:img?.getBoundingClientRect().height||0,
+          opacity:img?getComputedStyle(img).opacity:null,
+          visibility:img?getComputedStyle(img).visibility:null,
+          display:img?getComputedStyle(img).display:null
         };
       });
       return {items,width:document.documentElement.scrollWidth,viewport:innerWidth,title:section.querySelector('h2')?.textContent,sectionVisible:section.getBoundingClientRect().width>0};
@@ -59,6 +64,9 @@ for(const test of [
     }
     if(results.width>results.viewport+2)failures.push(test.name+': overflow horizontal '+results.width+' > '+results.viewport);
     if(results.items.some((x,i)=>i>0&&x.top<results.items[i-1].bottom-2))failures.push(test.name+': quadros sobrepostos');
+    await page.locator('#quadros-rebento .rebento-item--wide .rebento-figure').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(750);
+    await page.locator('#quadros-rebento .rebento-item--wide .rebento-figure').screenshot({path:'rebentos-artifacts/'+test.name+'-primeiro-quadro.png',timeout:30000});
     await page.locator('#quadros-rebento').screenshot({path:'rebentos-artifacts/'+test.name+'-rebentos.png',timeout:30000});
     console.log(test.name+': '+JSON.stringify(results));
   }catch(e){
