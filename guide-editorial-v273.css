@@ -1,0 +1,97 @@
+/* Duodécima · revisão editorial Roma v2.7.3
+   Organização sem selos decorativos, com conteúdo em colunas equilibradas. */
+
+.page-roma .duo-plot-summary{margin-top:18px!important}
+.page-roma .duo-plot-summary .section-head{margin-bottom:20px!important}
+.page-roma .duo-plot-introduction{max-width:970px;margin:0 0 25px}
+.page-roma .duo-plot-introduction p{font:400 clamp(15px,1.2vw,17px)/1.82 var(--sans);color:var(--ink);margin:0}
+.page-roma .duo-plot-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,2.2vw,30px);align-items:start;margin-bottom:24px}
+.page-roma .duo-story{min-width:0;padding:24px 0 7px;border-top:2px solid var(--line);background:none}
+.page-roma .duo-story small,.page-roma .duo-passage-head small{display:block;color:var(--red);font:800 10px/1.4 var(--sans);letter-spacing:.13em;margin-bottom:6px}
+.page-roma .duo-story h3{font:700 clamp(23px,2.3vw,30px)/1.2 var(--serif);margin:7px 0 13px;color:var(--ink)}
+.page-roma .duo-story p{font:400 15px/1.76 var(--sans);margin:0;color:var(--ink)}
+.page-roma .duo-plot-status{display:grid;grid-template-columns:1.25fr .9fr;gap:clamp(24px,4vw,54px);padding:22px 0 0;border-top:1px solid var(--line)}
+.page-roma .duo-plot-status>div{min-width:0}
+.page-roma .duo-plot-status>div+div{padding-left:clamp(18px,3vw,40px);border-left:1px solid var(--line)}
+.page-roma .duo-plot-status h3{margin:0 0 13px;font:700 clamp(20px,1.9vw,24px)/1.25 var(--serif)}
+.page-roma .duo-plot-status ul{margin:0;padding-left:19px;display:grid;gap:8px}
+.page-roma .duo-plot-status li{padding-left:2px;font:400 14px/1.65 var(--sans);color:var(--ink)}
+
+/* Ponte de Nazzano: texto e arte existentes, com equilíbrio de área. */
+.page-roma .duo-gateway{display:grid;grid-template-columns:minmax(0,1.28fr) minmax(260px,.87fr);gap:clamp(22px,3vw,46px);align-items:center;overflow:hidden;margin:12px 0 22px!important;padding:clamp(24px,3vw,36px)!important}
+.page-roma .duo-gateway-copy{min-width:0}
+.page-roma .duo-gateway-copy>small{display:block;color:var(--red);font-size:10px;font-weight:800;letter-spacing:.13em}
+.page-roma .duo-gateway-copy h3{font:700 clamp(28px,3vw,38px)/1.15 var(--serif);margin:10px 0 19px;max-width:720px;color:var(--ink)}
+.page-roma .duo-gateway-copy p{max-width:70ch;margin:0 0 13px;font-size:15px!important;line-height:1.75}
+.page-roma .duo-gateway-copy p:last-child{margin-bottom:0}
+.page-roma .duo-gateway-visual{margin:0;display:grid;align-items:center;min-width:0;align-self:stretch}
+.page-roma .duo-gateway-visual img{display:block;width:100%;height:100%;max-height:530px;min-height:270px;object-fit:contain;object-position:center;background:transparent;filter:none;border-radius:10px}
+
+/* Os dois mapas são um único conjunto, logo após a explicação de Nazzano. */
+.page-roma .duo-reorganized-map{padding-top:16px!important;margin-bottom:15px!important}
+.page-roma .duo-reorganized-map>.section-head{margin-bottom:18px!important}
+.page-roma .duo-map-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+.page-roma .duo-map-tile{min-width:0;padding:clamp(14px,1.6vw,22px);border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.page-roma .duo-map-tile .oct26-map-head{margin:0 0 16px}
+.page-roma .duo-map-tile .oct26-map-head h3{font-size:clamp(21px,2vw,27px);margin:5px 0}
+.page-roma .duo-map-tile .oct26-real-map{margin:0}
+.page-roma .duo-map-tile .oct26-map-embed{aspect-ratio:5/4;min-height:280px;border-radius:10px}
+.page-roma .duo-map-tile .oct26-map-embed iframe{height:100%;min-height:280px}
+.page-roma .duo-map-tile .camp-map-panel{width:100%;max-width:none;margin:0}
+.page-roma .duo-map-tile .camp-map-panel img{display:block;width:100%;max-height:510px;height:auto;object-fit:contain;border-radius:10px}
+.page-roma .duo-map-tile .map-note{margin:12px 0 0;font-size:12.5px;line-height:1.6}
+.page-roma .duo-map-tile .oct26-map-link{margin:9px 0 0}
+.page-roma .duo-map-organization{border-top:1px solid var(--line);padding-top:16px;margin:18px 0 0;font:400 13px/1.65 var(--sans);color:var(--muted)}
+.page-roma .duo-map-organization strong{color:var(--ink)}
+
+/* Etapas contínuas, não quatro caixas desiguais. */
+.page-roma~.duo-passage-panel,.duo-passage-panel{min-width:0;max-width:100%;margin:18px 0 27px;padding:clamp(18px,2.3vw,28px);border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.duo-passage-head{margin-bottom:15px}
+.duo-passage-head h3{margin:4px 0 0;font:700 clamp(23px,2.3vw,30px)/1.2 var(--serif);color:var(--ink)}
+.duo-passage-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.duo-passage-step{padding:20px clamp(12px,2vw,23px);min-width:0;position:relative}
+.duo-passage-step:first-child{padding-left:0}
+.duo-passage-step+ .duo-passage-step{border-left:1px solid var(--line)}
+.duo-passage-step>span{display:block;color:var(--red);font:700 15px/1.3 var(--serif);margin-bottom:5px}
+.duo-passage-step h4{margin:0 0 9px;font:700 clamp(18px,1.7vw,22px)/1.23 var(--serif);color:var(--ink)}
+.duo-passage-step p{margin:0;font:400 13.5px/1.65 var(--sans);color:var(--ink)}
+.duo-passage-note{padding:18px 0 0}
+.duo-passage-note strong{font:700 17px/1.35 var(--serif);color:var(--ink)}
+.duo-passage-note p{margin:6px 0 0;max-width:90ch;color:var(--muted);font:400 13.5px/1.65 var(--sans)}
+.duo-passage-panel .duo-map-organization{color:var(--muted)}
+
+/* Formação em Lupa: dois painéis equivalentes, com respiro e conteúdo alinhado. */
+.page-roma .duo-lupa-layout{display:grid;grid-template-columns:1fr 1fr;align-items:stretch;gap:16px;margin:16px 0 24px}
+.page-roma .duo-lupa-card{min-width:0;margin:0!important;max-width:none!important;padding:clamp(19px,2vw,25px)!important;border-radius:13px!important;background:var(--panel)!important;border:1px solid var(--line)!important}
+.page-roma .duo-lupa-card h3,.page-roma .duo-lupa-card h4{font:700 clamp(20px,2vw,25px)/1.3 var(--serif);margin:0 0 12px}
+.page-roma .duo-lupa-card p,.page-roma .duo-lupa-card li{font:400 14px/1.7 var(--sans)}
+.page-roma .duo-lupa-card p{margin:10px 0}
+.page-roma .duo-lupa-card>p:last-child{margin-bottom:0}
+.page-roma .duo-lupa-card strong{white-space:normal}
+
+/* Apenas a estrutura de Rebento por enquanto: sem inventar quadros. */
+.page-roma .duo-rebento-section{margin-top:20px!important}
+.page-roma .duo-rebento-note{margin:0!important;color:var(--muted);font:400 14px/1.7 var(--sans)}
+
+@media(max-width:1100px){
+ .page-roma .duo-gateway{grid-template-columns:minmax(0,1fr) minmax(220px,.65fr)}
+ .page-roma .duo-plot-status{grid-template-columns:1fr 1fr}
+}
+@media(max-width:860px){
+ .page-roma .duo-gateway{grid-template-columns:1fr}
+ .page-roma .duo-gateway-visual{max-height:320px}
+ .page-roma .duo-gateway-visual img{min-height:0;max-height:320px;object-fit:contain}
+ .page-roma .duo-map-grid,.page-roma .duo-plot-overview,.page-roma .duo-lupa-layout{grid-template-columns:1fr}
+ .duo-passage-steps{grid-template-columns:1fr}
+ .duo-passage-step,.duo-passage-step:first-child{padding:17px 0}
+ .duo-passage-step+.duo-passage-step{border-left:0;border-top:1px solid var(--line)}
+}
+@media(max-width:600px){
+ .page-roma .duo-plot-status{grid-template-columns:1fr}
+ .page-roma .duo-plot-status>div+div{padding-left:0;padding-top:19px;border-left:0;border-top:1px solid var(--line)}
+ .page-roma .duo-gateway{padding:18px!important}
+ .page-roma .duo-gateway-copy h3{font-size:27px}
+ .page-roma .duo-map-tile .oct26-map-embed{aspect-ratio:4/3}
+ .page-roma .duo-map-tile .oct26-map-embed iframe{min-height:235px}
+ .duo-passage-panel{padding:17px}
+}
