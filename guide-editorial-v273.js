@@ -155,69 +155,23 @@
     if(work){const p=work.querySelector('p');if(p)p.innerHTML='O período de trabalho costuma acontecer das <strong>06h às 18h</strong>, com pausa para almoço. Legionários têm folga nos fins de semana; <em>probatii</em> descansam apenas aos domingos.'}
     if(exit){const p=exit.querySelector('p');if(p)p.innerHTML='Saídas do território romano exigem autorização da <em>Praetoria</em>. Durante as folgas, legionários podem solicitar viagens a <strong>Roma</strong> — a cerca de 30 minutos de trem da estação de <strong>Poggio Mirteto Scalo</strong> — ou a outras regiões da Itália. As viagens não podem ocorrer no horário de trabalho nem prejudicar as obrigações com a Legião.'}
   }
-  function rebentoPatch(root){
-  let section=root.querySelector('#quadros-rebento');
-  if(!section){
-    section=document.createElement('section');
-    section.id='quadros-rebento';
-    section.className='section searchable duo-rebento-section';
-    section.dataset.title='Quadros de Rebento';
-    root.append(section);
+
+  function domusTeaserPatch(root){
+    const gallery=root.querySelector('#quadros-rebento');
+    if(gallery)gallery.remove();
+    const old=root.querySelector('#domus-memoriae');
+    if(old?.classList.contains('duo-domus-invite'))return;
+    const promo=document.createElement('section');
+    promo.id='domus-memoriae';
+    promo.className='section searchable duo-domus-invite';
+    promo.dataset.title='Domus Memoriae';
+    promo.innerHTML='<div class="section-head"><div><small>MEMÓRIA · ROMA</small><h2>Domus Memoriae</h2></div></div><div class="duo-domus-invite-content"><div><p>A Domus Memoriae preserva a história daqueles que dedicaram suas vidas à Legião e conquistaram o descanso em honra. Seus quadros recordam não apenas grandes feitos, mas também as pessoas que ajudaram a construir a Roma de hoje.</p><p>Conheça os rebentos da primeira geração e as trajetórias que permanecem entre nós.</p></div><a class="duo-domus-link" href="#page:domus">Conhecer os rebentos de Roma <span aria-hidden="true">↗</span></a></div>';
+    if(old)old.replaceWith(promo);
+    else {
+      const collective=root.querySelector('#memorial-retorno');
+      collective?collective.before(promo):root.append(promo);
+    }
   }
-  if(!section.querySelector('.rebento-gallery')){
-    const entries=[
-      {
-        image:'assets/rebentos/01-cerise-cassius.webp',
-        alt:'Quadro comemorativo de Cerise M. Augustus e Cassius C. Augustus, com Wren, a raposa, à esquerda',
-        variant:'wide',
-        people:[
-          {
-            name:'Cerise M. Augustus',
-            text:'Cerise, filha de Vênus e Milo Bow, tornou-se a primeira centuriã do Acampamento Júpiter desde a Guerra dos Oceanus. Diplomata presente em grande parte dos tratados de sua geração, participou da recuperação das áquilas de Vênus e Arcus, da expedição à Forja de Prometheus e do enfrentamento do Régulo. Por muitos anos, foi a principal boticária da Legião, e suas receitas permanecem no laboratório. Sua raposa Wren tornou-se uma presença querida de Roma. Após deixar a carreira militar, assumiu uma cadeira no Senado e casou-se com Cassius Caesar Augustus.'
-          },
-          {
-            name:'Cassius C. Augustus',
-            text:'Descendente da família patrícia Augustus, Cassius fez da forja uma das bases da defesa de Roma. Por anos, produziu grande parte das armas e armaduras da Legião; na Forja de Prometheus, trabalhou o ouro imperial recuperado em expedição. Resgatou sozinho a áquila de Angerona, recuperou com Cyrus a cabeça da estátua de Summanus e participou do enfrentamento do Régulo de Nazzano. Investigou o atentado ao Senado que matou seu avô. Aposentado da atividade militar, permanece entre os grandes nomes da história romana.'
-          }
-        ]
-      },
-      {
-        image:'assets/rebentos/02-celeste-caelus.webp',
-        alt:'Quadro comemorativo de Celeste Cavalcanti e Caelus Severus, ladeados por uma moldura com inscrições da Quinta Coorte',
-        variant:'portrait',
-        people:[
-          {
-            name:'Celeste Cavalcanti',
-            text:'Celeste assumiu uma V Coorte desacreditada e ajudou a devolvê-la à posição de honra na Legião. Foi combatente de linha de frente nas expedições das áquilas de Vênus e Fortuna, na Forja de Prometheus e no confronto com o Régulo. Durante o serviço na Exploratio, recebeu de Bellona a profecia de que Nova Roma deveria retornar à Itália. Seu legado é a coragem demonstrada em batalha e a confiança restaurada na coorte que comandou.'
-          },
-          {
-            name:'Caelus Severus',
-            text:'Anteriormente conhecido como Takeshi Sakai, Caelus desobedeceu uma determinação de Júpiter durante a recuperação da áquila de Justitia e iniciou uma jornada de penitência e devoção. Participou da recuperação da áquila de Fortuna e da expedição à Forja de Prometheus. Em uma provação divina, enfrentou Diocleciano e matou Aquele que Devorou o Céu, libertando a tempestade aprisionada de Júpiter. Também enfrentou o Régulo antes da instalação da Legião em Nazzano.'
-          }
-        ]
-      },
-      {
-        image:'assets/rebentos/03-cyrus.webp',
-        alt:'Quadro individual de Cyrus Aurelius com moldura cerimonial e inscrição da Segunda Coorte',
-        variant:'solo',
-        people:[
-          {
-            name:'Cyrus Aurelius',
-            text:'Natural do Chile, Cyrus Torres Aurelius chegou com Cerise e Cenric e tornou-se referência da II Coorte em discrição e infiltração. Recuperou as áquilas de Vênus e Justitia, sendo reclamado por Summanus durante a segunda expedição. Ao lado de Cassius, recuperou a cabeça perdida da estátua de seu pai. Infiltrou-se entre vampiros para auxiliar negociações diplomáticas, participou da expedição à Forja de Prometheus e enfrentou o Régulo de Nazzano. É atualmente um dos três pretores de Roma.'
-          }
-        ]
-      }
-    ];
-    const escText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const cards=entries.map((entry,i)=>{
-      const bios=entry.people.map(person=>`<div class="rebento-bio"><h3>${escText(person.name)}</h3><p>${escText(person.text)}</p></div>`).join('');
-      return `<article class="rebento-item rebento-item--${entry.variant}" aria-label="Quadro de Rebento ${i+1}"><figure class="rebento-figure"><img src="${entry.image}" alt="${escText(entry.alt)}" loading="lazy" decoding="async" width="${entry.variant==='wide'?1920:1087}" height="${entry.variant==='wide'?1080:1350}"></figure><div class="rebento-bio-grid">${bios}</div></article>`;
-    }).join('');
-    section.innerHTML=`<div class="section-head"><div><small>MEMÓRIA · LEGADO</small><h2>Quadros de Rebento</h2></div></div><p class="rebento-intro">O repouso em honra reconhece legionários cujas jornadas deixaram marcas na história de Roma. Seus quadros preservam as conquistas, os vínculos e o serviço de cada um deles.</p><div class="rebento-gallery">${cards}</div>`;
-  }
-  const memoria=root.querySelector('#domus-memoriae');
-  if(memoria&&section.previousElementSibling!==memoria)memoria.after(section);
-}
   function apply(root){
     if(!root?.classList?.contains('page-roma'))return;
     plotPatch(root);
@@ -225,7 +179,7 @@
     arrivalPatch(root);
     lupaPatch(root);
     rulesPatch(root);
-    rebentoPatch(root);
+    domusTeaserPatch(root);
   }
   function stored(){
     const page=window.GUIA_CONTENT?.roma;
