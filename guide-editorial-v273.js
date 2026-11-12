@@ -126,6 +126,8 @@
     }
     if(map&&map.parentElement===root){arrival.after(map)}
     if(map&&map.parentElement===arrival){gateway.after(map)}
+    const passage=root.querySelector('.duo-passage-panel');
+    if(map&&passage&&passage.previousElementSibling!==map)map.after(passage);
   }
   function lupaPatch(root){
     if(root.querySelector('.duo-lupa-layout'))return;
