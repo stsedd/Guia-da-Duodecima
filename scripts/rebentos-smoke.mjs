@@ -18,19 +18,18 @@ for(const test of [
   const context=await browser.newContext({viewport:{width:test.width,height:test.height}});
   const page=await context.newPage();
   page.on('pageerror',e=>failures.push(test.name+': JS '+e.message));
-  await page.goto(base+'#page:roma',{waitUntil:'domcontentloaded',timeout:25000});
+  await page.goto(base,{waitUntil:'domcontentloaded',timeout:25000});
   try{
+    await page.locator('[data-page="roma"]').first().evaluate(el=>el.click());
+    await page.waitForFunction(()=>location.hash==='#page:roma',null,{timeout:15000});
     await page.locator('#quadros-rebento .rebento-gallery .rebento-item').first().waitFor({timeout:22000});
-    const results=await page.evaluate(async()=>{
+    await page.waitForTimeout(900);
+    await page.evaluate(()=>document.querySelectorAll('#quadros-rebento img').forEach(im=>im.loading='eager'));
+    await page.waitForFunction(()=>[...document.querySelectorAll('#quadros-rebento img')].length===3&&[...document.querySelectorAll('#quadros-rebento img')].every(im=>im.complete),null,{timeout:15000});
+    const results=await page.evaluate(()=>{
       const section=document.querySelector('#quadros-rebento');
       if(!section)return null;
       const entries=[...section.querySelectorAll('.rebento-item')];
-      await Promise.all(entries.map(entry=>new Promise(resolve=>{
-        const im=entry.querySelector('img');
-        if(!im || im.complete){resolve();return}
-        im.addEventListener('load',resolve,{once:true});
-        im.addEventListener('error',resolve,{once:true});
-      })));
       const items=entries.map(entry=>{
         const img=entry.querySelector('img');
         const rect=entry.getBoundingClientRect();
