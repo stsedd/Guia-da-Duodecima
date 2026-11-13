@@ -105,7 +105,7 @@ if(map){
   const panel=map.querySelector('.camp-map-panel,.map-panel');
   if(panel){
     const im=panel.querySelector('img');
-    if(im){im.src='assets/nazzano/mapa-nazzano.webp';im.alt='Mapa narrativo do Acampamento Júpiter em Nazzano, com a distribuição das coortes e instalações';im.style.filter='none';im.style.opacity='1';}
+    if(im){if(!im.getAttribute('src')?.endsWith('assets/nazzano/mapa-nazzano.webp'))im.src='assets/nazzano/mapa-nazzano.webp';im.alt='Mapa narrativo do Acampamento Júpiter em Nazzano, com a distribuição das coortes e instalações';im.loading='eager';im.decoding='async';im.style.filter='none';im.style.opacity='1';}
     if(!panel.querySelector('.oct26-map-missing')){const msg=document.createElement('p');msg.className='oct26-map-missing';msg.hidden=true;msg.textContent='O mapa oficial de Nazzano está preparado, mas seu arquivo de imagem ainda não foi publicado nesta versão.';panel.append(msg);}
   }
   const mapNote=map.querySelector('.map-note');if(mapNote)mapNote.textContent='Mapa interno do bolsão mágico romano. As instalações aqui representadas não são visíveis no mapa geográfico do mundo mortal.';
