@@ -21,7 +21,7 @@ for(const v of views){
   try{await page.waitForFunction(r=>location.hash==='#page:'+r,route,{timeout:7000})}catch{}
   await page.waitForTimeout(route==='roma'?4400:route==='domus'?1800:1300);
   await page.evaluate(()=>document.querySelectorAll('#content img').forEach(img=>{img.loading='eager';img.decoding='sync';}));
-  await page.waitForTimeout(1300);
+  await page.waitForTimeout(route==='roma'?4000:1300);
   const state=await page.evaluate(()=>{
    const section=document.querySelector('#content');
    const imgs=[...section.querySelectorAll('img')].map(img=>({
@@ -40,6 +40,8 @@ for(const v of views){
     bodyWidth:document.documentElement.scrollWidth,clientWidth:innerWidth,
     contentLength:section.innerText.length,images:imgs,iframes,
     mapCount:section.querySelectorAll('.oct26-real-map').length,
+    geographicLink:section.querySelector('.duo-map-world .oct26-map-link')?.getAttribute('href')||null,
+    mapProvider:section.querySelector('.duo-map-world iframe')?.getAttribute('src')||null,
     mapGridCount:section.querySelectorAll('.duo-map-grid').length,
     mapHTML:map?.outerHTML?.slice(0,1800),
     duplicateIDs:[...section.querySelectorAll('[id]')].map(x=>x.id).filter((x,i,a)=>a.indexOf(x)!==i),
@@ -92,4 +94,18 @@ for(const x of all){
  if(!x.route){console.log('ERRORS '+x.viewport+' '+JSON.stringify(x.failures));continue}
  console.log('PAGE '+x.viewport+'/'+x.route+' title='+x.title+' overflow='+(x.bodyWidth-x.clientWidth)+' imageCount='+x.images.length+' broken='+JSON.stringify(x.images.filter(img=>img.naturalWidth===0||img.hidden||img.cssWidth===0).map(img=>({src:img.src,hidden:img.hidden,w:img.cssWidth,h:img.cssHeight})))+' iframe='+JSON.stringify(x.iframes)+' mapCount='+x.mapCount+' mapGridCount='+x.mapGridCount+' dupIds='+JSON.stringify(x.duplicateIDs));
 }
+const problems=[];
+for(const p of all.filter(x=>x.route)){
+  const failedImages=p.images.filter(i=>i.naturalWidth===0||i.hidden||i.cssWidth<1||i.cssHeight<1);
+  if(failedImages.length)problems.push(p.viewport+'/'+p.route+': '+failedImages.length+' imagens indisponíveis');
+  if(p.bodyWidth>p.clientWidth+2)problems.push(p.viewport+'/'+p.route+': overflow horizontal');
+  if(p.duplicateIDs.length)problems.push(p.viewport+'/'+p.route+': IDs duplicados '+p.duplicateIDs.join(','));
+  if(p.route==='roma'){
+    if(p.mapCount!==1||p.mapGridCount!==1)problems.push(p.viewport+'/roma: seção de mapas incompleta');
+    if(!p.mapProvider?.includes('openstreetmap.org/export/embed.html'))problems.push(p.viewport+'/roma: mapa interativo sem provedor estável');
+    if(!p.geographicLink?.includes('google.com/maps/search/'))problems.push(p.viewport+'/roma: falta link ao Google Maps');
+  }
+}
+if(problems.length){console.error('AUDITORIA REPROVADA\n- '+problems.join('\n- '));process.exitCode=1}
+else console.log('AUDITORIA APROVADA: 7 páginas em 2 resoluções, imagens válidas e mapas integrados.');
 console.log('Audit completed, full diagnostics and screenshots in site-audit.');
