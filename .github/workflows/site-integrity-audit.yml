@@ -6,6 +6,14 @@ on:
     paths:
       - 'scripts/site-audit.mjs'
       - '.github/workflows/site-integrity-audit.yml'
+      - 'index.html'
+      - 'app-v24.js'
+      - 'guide-editorial-v273.js'
+      - 'guide-nazzano-integrated.js'
+      - 'guide-integrity-v276.css'
+      - 'guide-domus-v275.js'
+      - 'guide-domus-v275.css'
+      - 'assets/**'
 permissions:
   contents: read
 jobs:
