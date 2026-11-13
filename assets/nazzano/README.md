@@ -1,30 +1,18 @@
-# Acervo visual de Nazzano — mapa e retratos publicados
+# Acervo de Nazzano e Domus Memoriae
 
-Os binários foram entregues em chat, convertidos sem alterações artísticas e publicados no Guia oficial em 7 de novembro de 2026:
+Este diretório guarda os retratos e o mapa narrativo usados no Guia da Duodécima.
 
-- `mapa-nazzano.webp` — mapa ilustrado oficial enviado em 7 nov. 2026 (1783×2048)
-- `cassius.webp` — imagem "nightmare" de Cassius Caesar Augustus (1080×1080)
-- `cyrus.webp` — imagem "silent" de Cyrus Torres Aurelius (1080×1080)
+Arquivos presentes e utilizados:
+- `mapa-nazzano.webp` — mapa ilustrado oficial do Acampamento Júpiter em Nazzano;
+- `cassius.webp` — retrato já existente do praetor Cassius Caesar Augustus (preservado);
+- `cyrus.webp` — retrato do praetor Cyrus Torres Aurelius;
+- `beatrice.webp` — retrato da Pontifex Alessia Beatrice, publicado em novembro de 2026.
 
-O Guia já usa esses caminhos em `guide-nazzano-integrated.js`. **Os três arquivos binários estão publicados na branch principal.** O mapa oficial de Nazzano e os retratos de Cassius e Cyrus podem ser carregados pelo Guia; a conferência das páginas após a implantação ainda é parte do QA.
+Os quadros da **Domus Memoriae** estão em `assets/rebentos/`:
+- `01-cerise-cassius.webp`
+- `02-celeste-caelus.webp`
+- `03-cyrus.webp`
 
-Retratos ainda não fornecidos para publicação:
-- `beatrice.webp` — Pontifex Alessia Beatrice (a referência está no Guia, sem arquivo no repositório)
-- `cenric-in-memoriam.webp` — memorial futuro, não exibido na liderança atual
+A imagem `cenric-in-memoriam.webp` **não está publicada**. O código do Guia não deve fazer referência a esse arquivo inexistente.
 
-Acervo para a futura Domus Memoriae:
-- `domus-cerise-cassius.webp`
-- `domus-celeste-caelus.webp`
-- `domus-cyrus.webp`
-
-Banners citados em etapas anteriores, mas ainda não ativados:
-- `banner-nova-roma.webp`
-- `banner-devocao.webp`
-- `banner-halloween.webp` (apenas com aprovação editorial)
-
-Arquivos já existentes, preservados:
-- `assets/jasmine.webp`
-- `assets/blume.webp`
-- `assets/emma.webp`
-
-O mapa do Google é geográfico e público, enquanto o mapa ilustrado representa o bolsão mágico. A ponte é uma convenção narrativa do RPG, não uma localização assinalada no Google Maps.
+A página **Sobre Roma** apresenta o mapa narrativo e o mapa geográfico real da reserva em painéis separados. A geografia é exibida em um mapa interativo do OpenStreetMap com acesso direto ao Google Maps; a cidade protegida é um elemento exclusivamente ficcional da campanha.
