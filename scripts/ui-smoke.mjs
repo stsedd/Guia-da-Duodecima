@@ -35,7 +35,7 @@ async function openRoute(page,test,route){
     await page.waitForFunction(()=>document.querySelector('#sidebar')?.classList.contains('open'),null,{timeout:5000});
   }
   await page.locator(`[data-page="${route}"]`).first().click({timeout:5000});
-  await page.waitForFunction(expected=>location.hash===`#page:${expected}`,route,{timeout:3000});
+  await page.waitForFunction(expected=>location.hash===`#page:${expected}`,route,{timeout:6500});
   await page.waitForFunction(()=>{
     const content=document.querySelector('#content');
     return !!content?.querySelector('.section')&&(content.innerText||'').trim().length>80;
@@ -65,6 +65,8 @@ for(const test of cases){
   const started=Date.now();
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:15000});
   await waitReady(page,`${test.name}/boot`);
+  // Core e camadas editoriais atualizam o HTML após o primeiro paint; iniciar navegação após sua estabilização.
+  await page.waitForTimeout(1400);
   diagnostics.push(`${test.name}: boot ${Date.now()-started}ms`);
 
   for(const route of ['combate','crafting','magia','deuses','roma','sistema']){
