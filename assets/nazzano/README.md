@@ -8,10 +8,10 @@ Arquivos presentes e utilizados:
 - `cyrus.webp` — retrato do praetor Cyrus Torres Aurelius;
 - `beatrice.webp` — retrato da Pontifex Alessia Beatrice, publicado em novembro de 2026.
 
-Os quadros da **Domus Memoriae** estão em `assets/rebentos/`:
-- `01-cerise-cassius.webp`
-- `02-celeste-caelus.webp`
-- `03-cyrus.webp`
+Os quadros da **Domus Memoriae** estão em `assets/rebentos/`, em PNG transparente conforme os originais enviados:
+- `01-cerise-cassius.png`
+- `02-celeste-caelus.png`
+- `03-cyrus.png`
 
 A imagem `cenric-in-memoriam.webp` **não está publicada**. O código do Guia não deve fazer referência a esse arquivo inexistente.
 
