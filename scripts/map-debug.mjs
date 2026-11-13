@@ -43,6 +43,22 @@ for(const t of [0,3000,6000,10000]){
  child.url=page.frames().filter(f=>f!==page.mainFrame()).map(f=>f.url()).join(' | ');
  console.log('CHECK t='+t+' PARENT '+JSON.stringify(parent)+' CHILD '+JSON.stringify(child));
 }
+await page.evaluate(()=>document.querySelectorAll('.duo-map-grid img').forEach(i=>i.loading='eager'));
+await page.locator('.duo-map-grid').scrollIntoViewIfNeeded();
+await page.waitForTimeout(8000);
+const afterScroll=await page.evaluate(()=>({
+  mapRect:document.querySelector('.duo-map-grid')?.getBoundingClientRect().toJSON(),
+  narrativeLoaded:[...document.querySelectorAll('.duo-map-grid img')].map(i=>({src:i.getAttribute('src'),loaded:i.naturalWidth>0,complete:i.complete})),
+  changes:(window.__mapChanges||[]).length
+}));
+let inViewFrame={images:0,loaded:0,body:''};
+try{
+  const f=page.frameLocator('.duo-map-grid iframe');
+  inViewFrame.body=(await f.locator('body').innerText({timeout:5000})).slice(0,220);
+  inViewFrame.images=await f.locator('img').count();
+  inViewFrame.loaded=await f.locator('img').evaluateAll(ims=>ims.filter(im=>im.naturalWidth>0).length);
+}catch(e){inViewFrame.body='ERR: '+e.message.slice(0,150)}
+console.log('AFTER SCROLL '+JSON.stringify({afterScroll,inViewFrame}));
 console.log('FRAMES '+JSON.stringify(events.slice(-30)));
 const count=await page.evaluate(()=>(window.__mapChanges||[]).length);
 const tiles=await page.frameLocator('.duo-map-grid iframe').locator('img').count().catch(()=>0);
