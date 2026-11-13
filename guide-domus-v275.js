@@ -2,7 +2,7 @@
 'use strict';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rebentos=[
-  {id:'cerise-cassius',series:'I',label:'II COORTE · DOIS LEGADOS',image:'assets/rebentos/01-cerise-cassius.webp',alt:'Quadro cerimonial de Cerise Mae Augustus e Cassius Caesar Augustus, com Wren, a raposa, diante de arcos romanos',shape:'wide',people:[
+  {id:'cerise-cassius',series:'I',label:'II COORTE · DOIS LEGADOS',image:'assets/rebentos/01-cerise-cassius.png',alt:'Quadro cerimonial de Cerise Mae Augustus e Cassius Caesar Augustus, com Wren, a raposa, diante de arcos romanos',shape:'wide',people:[
     {name:'Cerise M. Augustus',subtitle:'FILHA DE VÊNUS · EX-CENTURIÃ DA II COORTE · SENADORA',paragraphs:[
       'Filha de Vênus e Milo Bow, Cerise Mae Bow — mais tarde Augustus — tornou-se a primeira centuriã do Acampamento Júpiter desde a Guerra dos Oceanus. Sua história esteve ligada à reconstrução de uma geração de legionários, tanto pela liderança da Segunda Coorte quanto por sua capacidade de negociar onde as armas não bastavam. Participou de tratados e encontros diplomáticos que ajudaram Roma a manter relações com outros povos e poderes.',
       'Sua presença também foi decisiva em missões que marcaram a Legião. Participou da recuperação das áquilas divinas de Vênus e Arcus, da expedição à lendária Forja de Prometheus e dos acontecimentos que culminaram no enfrentamento do Régulo de Nazzano. Para além das campanhas, dedicou anos à boticária: suas fórmulas e receitas permaneceram como parte do conhecimento transmitido pelo laboratório romano.',
@@ -14,7 +14,7 @@ const rebentos=[
       'Sua trajetória se estende dos domínios dos sonhos às instituições de Roma. Continua trabalhando para Phobetor no Sonhar, ajudou Cyrus a recuperar o busto de Summanus, participou dos acontecimentos ligados ao conclave de Vênus e do enfrentamento ao Régulo. Após a morte de seu avô em um atentado ao Senado, empenhou-se em investigar os responsáveis. Hoje integra a Praetoria, levando consigo a experiência conquistada como ferreiro, centurião e defensor da Legião.'
     ]}
   ]},
-  {id:'celeste-caelus',series:'II',label:'V COORTE · FORÇA E DEVER',image:'assets/rebentos/02-celeste-caelus.webp',alt:'Quadro cerimonial de Celeste Cavalcanti e Caelus Severus, sob o arco da Quinta Coorte',shape:'portrait',people:[
+  {id:'celeste-caelus',series:'II',label:'V COORTE · FORÇA E DEVER',image:'assets/rebentos/02-celeste-caelus.png',alt:'Quadro cerimonial de Celeste Cavalcanti e Caelus Severus, sob o arco da Quinta Coorte',shape:'portrait',people:[
     {name:'Celeste Cavalcanti',subtitle:'FILHA DE BELLONA · EX-CENTURIÃ DA V COORTE · EXPLORATIO',paragraphs:[
       'Celeste Cavalcanti assumiu a liderança de uma Quinta Coorte cuja reputação havia sido abalada. Em vez de aceitar a desconfiança que recaía sobre seus legionários, trabalhou para devolver à unidade seu lugar de honra na Legião. Sua carreira foi marcada tanto pelo comando quanto pela disposição de estar na linha de frente dos confrontos que exigiam a presença de Roma.',
       'Esteve nas expedições de recuperação das áquilas divinas de Vênus e Fortuna, na jornada à Forja de Prometheus e nos esforços que levaram à derrota do Régulo. Sua trajetória também esteve ligada à Exploratio, onde o dever ultrapassava os limites conhecidos do acampamento. Foi durante seu serviço que recebeu de Bellona a profecia de que Nova Roma deveria retornar à Itália.',
@@ -26,7 +26,7 @@ const rebentos=[
       'Mais do que uma história de vitórias, sua trajetória passou pelo reconhecimento dos próprios erros e pela escolha de enfrentá-los. O quadro de Caelus, ao lado do de Celeste, recorda dois percursos diferentes de responsabilidade perante Roma: um construído pelo comando, outro pela penitência, ambos ligados ao futuro da Legião.'
     ]}
   ]},
-  {id:'cyrus',series:'III',label:'II COORTE · SUMMANUS',image:'assets/rebentos/03-cyrus.webp',alt:'Quadro cerimonial de Cyrus Torres Aurelius, filho de Summanus, sob um arco da Segunda Coorte',shape:'solo',people:[
+  {id:'cyrus',series:'III',label:'II COORTE · SUMMANUS',image:'assets/rebentos/03-cyrus.png',alt:'Quadro cerimonial de Cyrus Torres Aurelius, filho de Summanus, sob um arco da Segunda Coorte',shape:'solo',people:[
     {name:'Cyrus Aurelius',subtitle:'FILHO DE SUMMANUS · EX-CENTURIÃO DA II COORTE · PRAETOR',paragraphs:[
       'Nascido no Chile, Cyrus Torres Aurelius chegou à Legião ao lado de Cerise e Cenric. Discrição, infiltração e capacidade de agir sem chamar atenção tornaram-se marcas de sua passagem pela Segunda Coorte. Participou das expedições em busca das áquilas divinas de Vênus e Justitia e foi reclamado por Summanus durante a segunda dessas jornadas, estabelecendo um vínculo decisivo com o deus dos trovões noturnos.',
       'Ao lado de Cassius, recuperou a cabeça perdida da estátua de Summanus, devolvendo ao culto de seu pai uma parte importante de sua memória. Também se infiltrou entre vampiros para auxiliar negociações diplomáticas, participou da expedição à Forja de Prometheus e esteve entre os legionários que enfrentaram o Régulo de Nazzano. Suas contribuições não se resumiram à força em batalha: envolveram paciência, estratégia e capacidade de reconhecer o momento certo de agir.',
