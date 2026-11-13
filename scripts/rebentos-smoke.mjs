@@ -23,7 +23,8 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
    const entries=[...document.querySelectorAll('.page-domus .domus-rebento')];
    return {title:document.querySelector('#pageTitle')?.textContent,hash:location.hash,items:entries.map(entry=>{
     const im=entry.querySelector('img'); const rect=entry.getBoundingClientRect();
-    return {src:im?.getAttribute('src'),loaded:!!im?.naturalWidth,people:[...entry.querySelectorAll('.domus-biography h3')].map(x=>x.textContent.trim()),paragraphs:[...entry.querySelectorAll('.domus-biography')].map(x=>x.querySelectorAll('p').length),top:rect.top,bottom:rect.bottom};
+    const canvas=document.createElement('canvas');canvas.width=1;canvas.height=1;const ctx=canvas.getContext('2d');if(im?.naturalWidth)ctx.drawImage(im,0,0,1,1,0,0,1,1);const cornerAlpha=ctx.getImageData(0,0,1,1).data[3];
+    return {src:im?.getAttribute('src'),loaded:!!im?.naturalWidth,cornerAlpha,people:[...entry.querySelectorAll('.domus-biography h3')].map(x=>x.textContent.trim()),paragraphs:[...entry.querySelectorAll('.domus-biography')].map(x=>x.querySelectorAll('p').length),top:rect.top,bottom:rect.bottom};
    }),scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth};
   });
   if(info.items.length!==3)failures.push(test.name+': esperado 3 quadros, encontrados '+info.items.length);
@@ -32,6 +33,7 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
    const item=info.items[i];
    if(!item.src.endsWith(expected[i]))failures.push(test.name+': imagem incorreta '+i+' '+item.src);
    if(!item.loaded)failures.push(test.name+': imagem não carregada '+i);
+   if(item.cornerAlpha!==0)failures.push(test.name+': PNG sem transparência no canto '+i+' alfa='+item.cornerAlpha);
    if(item.people.join('|')!==names[i].join('|'))failures.push(test.name+': ordem de nomes incorreta '+i+' '+item.people);
    if(item.paragraphs.some(x=>x<3))failures.push(test.name+': biografia não ampliada '+i);
   }
