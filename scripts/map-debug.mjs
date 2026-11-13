@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 const browser=await chromium.launch({headless:true});
-const page=await browser.newPage({viewport:{width:1440,height:1000}});
+const page=await browser.newPage({viewport:{width:390,height:844}});
 await fs.mkdir('map-debug-artifacts',{recursive:true});
 let events=[];
 page.on('frameattached',frame=>events.push('frame-attached '+frame.url().slice(0,95)));
@@ -44,7 +44,7 @@ for(const t of [0,3000,6000,10000]){
  console.log('CHECK t='+t+' PARENT '+JSON.stringify(parent)+' CHILD '+JSON.stringify(child));
 }
 await page.evaluate(()=>document.querySelectorAll('.duo-map-grid img').forEach(i=>i.loading='eager'));
-await page.locator('.duo-map-grid').scrollIntoViewIfNeeded();
+await page.locator('.duo-map-world .oct26-map-embed').scrollIntoViewIfNeeded();
 await page.waitForTimeout(8000);
 const afterScroll=await page.evaluate(()=>({
   mapRect:document.querySelector('.duo-map-grid')?.getBoundingClientRect().toJSON(),
