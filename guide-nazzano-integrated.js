@@ -90,7 +90,8 @@ if(people&&!people.querySelector('.oct26-current-leadership')){
   const header=people.querySelector('.section-head>div>small');if(header)header.textContent='ROMA · INSTITUIÇÕES';
   const tagline=people.querySelector('.section-head>span');if(tagline)tagline.textContent='PERSONAE';
 }
-const arrival=sectionId(root,/chegando a roma/i);if(arrival&&!arrival.dataset.oct26Arrival){
+const arrival=sectionId(root,/chegando a roma/i);
+if(arrival)arrival.dataset.title='Chegando a Roma';if(arrival&&!arrival.dataset.oct26Arrival){
   const gateway=document.createElement('article');gateway.className='oct26-gateway';
   gateway.innerHTML='<small>NAZZANO · PORTA DE ROMA</small><h3>A ponte que revela o Acampamento Júpiter</h3><p>Para um mortal comum, a <em>Riserva Naturale Regionale Nazzano, Tevere-Farfa</em> é apenas uma reserva natural italiana: trilhas, árvores e as águas do Tibre. Mesmo ao passar pelos arredores da antiga estação de Nazzano, nada parece diferente do mundo conhecido.</p><p>Ali, porém, dois legionários permanecem de guarda junto à ponte do Antigo Tibre. É a travessia que faz a diferença. Quando alguém cruza a ponte, o Acampamento Júpiter finalmente se revela, com suas coortes, templos, torres e muralhas. Sem atravessá-la, a pessoa continua andando pela reserva comum, incapaz de ver ou alcançar o território romano.</p><p>O acampamento existe, portanto, dentro de um <strong>bolsão mágico</strong>, uma espécie de dimensão de bolso ligada ao mundo mortal por uma única passagem reconhecida: <strong>a ponte do Tibre</strong>. Não basta estar perto ou caminhar na direção certa; é necessário cruzar o limiar.</p>';
   const sectionHead=arrival.querySelector('.section-head');if(sectionHead)sectionHead.after(gateway);else arrival.prepend(gateway);
@@ -102,6 +103,7 @@ const arrival=sectionId(root,/chegando a roma/i);if(arrival&&!arrival.dataset.oc
 }
 const map=sectionId(root,/mapa do acampamento/i);
 if(map){
+  map.dataset.title='Nazzano nos dois mundos';
   const panel=map.querySelector('.camp-map-panel,.map-panel');
   if(panel){
     const im=panel.querySelector('img');
