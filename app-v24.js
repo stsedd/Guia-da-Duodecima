@@ -373,6 +373,9 @@
     let {historyMode='push',restoreY=null}=options;
     if(restoreY==null&&!anchor&&historyMode==='push'){try{const stored=Number(sessionStorage.getItem(`guia_scroll_${key}`));if(Number.isFinite(stored)&&stored>0)restoreY=stored;}catch{}}
     if(!pages[key]) key='sistema';
+    // A rota é atualizada antes da reconstrução visual, evitando que atualizações assíncronas
+    // do Core reabram uma página anterior durante a navegação.
+    if(historyMode!=='none')writeHistory(key,anchor,historyMode,0);
     current=key; deityFocus=null;
     content.className=`content page-${key}`;
     content.innerHTML=pages[key].html;
@@ -391,7 +394,6 @@
     rebuildSectionNav();
     bindLocalControls();
     updateCoreFallbackNotice();
-    if(historyMode!=='none')writeHistory(key,anchor,historyMode,0);
     requestAnimationFrame(()=>{
       if(anchor)navigateAnchor(anchor,{historyMode:'none',behavior:restoreY==null?'smooth':'auto'});
       if(Number.isFinite(restoreY)){requestAnimationFrame(()=>window.scrollTo({top:restoreY,behavior:'auto'}));}
