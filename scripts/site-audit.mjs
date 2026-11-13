@@ -102,7 +102,7 @@ for(const p of all.filter(x=>x.route)){
   if(p.duplicateIDs.length)problems.push(p.viewport+'/'+p.route+': IDs duplicados '+p.duplicateIDs.join(','));
   if(p.route==='roma'){
     if(p.mapCount!==1||p.mapGridCount!==1)problems.push(p.viewport+'/roma: seção de mapas incompleta');
-    if(!p.mapProvider?.includes('openstreetmap.org/export/embed.html'))problems.push(p.viewport+'/roma: mapa interativo sem provedor estável');
+    if(!p.mapProvider?.includes('google.com/maps?q='))problems.push(p.viewport+'/roma: incorporação do Google Maps ausente');
     if(!p.geographicLink?.includes('google.com/maps/search/'))problems.push(p.viewport+'/roma: falta link ao Google Maps');
   }
 }
