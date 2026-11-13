@@ -70,6 +70,7 @@
     const arrival=section(root,/chegando a roma/);
     const gateway=arrival?.querySelector('.oct26-gateway');
     if(!arrival||!gateway)return;
+    arrival.dataset.title='Chegando a Roma';
     if(!gateway.querySelector('.duo-gateway-visual')){
       const copy=document.createElement('div');copy.className='duo-gateway-copy';
       while(gateway.firstChild)copy.append(gateway.firstChild);
@@ -79,6 +80,7 @@
       gateway.append(art);gateway.classList.add('duo-gateway');
     }
     const map=section(root,/mapa do acampamento|nazzano nos dois mundos/)||root.querySelector('.duo-reorganized-map');
+    if(map)map.dataset.title='Nazzano nos dois mundos';
     if(map&&!map.classList.contains('duo-reorganized-map')){
       map.classList.add('duo-reorganized-map');
       // O mapa real e a planta ficcional passam a fazer parte da mesma seção, sem apresentação duplicada.
