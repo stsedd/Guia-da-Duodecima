@@ -75,7 +75,7 @@
       while(gateway.firstChild)copy.append(gateway.firstChild);
       gateway.append(copy);
       const art=document.createElement('figure');art.className='duo-gateway-visual';
-      art.innerHTML='<img src="assets/visual/sobre-nova-roma.webp" alt="Arte de Nova Roma, representando o território protegido da Legião" loading="lazy" decoding="async">';
+      art.innerHTML='<img src="assets/visual/sobre-nova-roma.webp" alt="Arte panorâmica de Nova Roma" loading="lazy" decoding="async" width="1400" height="300"><figcaption class="duo-gateway-facts"><small>NAZZANO · LÁCIO</small><strong>Uma fronteira entre dois mundos</strong><p>A ponte do Antigo Tibre marca a entrada reconhecida para o acampamento. A reserva natural continua visível aos mortais, enquanto a cidade protegida só se revela depois da travessia.</p><div><span>Reserva de Nazzano</span><span>Pequeno Tibre</span><span>Território romano</span></div></figcaption>';
       gateway.append(art);gateway.classList.add('duo-gateway');
     }
     const map=section(root,/mapa do acampamento|nazzano nos dois mundos/)||root.querySelector('.duo-reorganized-map');
