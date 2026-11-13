@@ -15,4 +15,4 @@ Os quadros da **Domus Memoriae** estão em `assets/rebentos/`:
 
 A imagem `cenric-in-memoriam.webp` **não está publicada**. O código do Guia não deve fazer referência a esse arquivo inexistente.
 
-A página **Sobre Roma** apresenta o mapa narrativo e o mapa geográfico real da reserva em painéis separados. A geografia é exibida em um mapa interativo do OpenStreetMap com acesso direto ao Google Maps; a cidade protegida é um elemento exclusivamente ficcional da campanha.
+A página **Sobre Roma** apresenta o mapa narrativo e o mapa geográfico real da reserva em painéis separados. A geografia é exibida com Google Maps incorporado e um link para abrir a reserva diretamente no serviço; a cidade protegida é um elemento exclusivamente ficcional da campanha.
