@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 
 const base=process.env.UI_BASE_URL||'http://127.0.0.1:4173/';
 const browser=await chromium.launch({headless:true});
-const expected=['01-cerise-cassius.webp','02-celeste-caelus.webp','03-cyrus.webp'];
+const expected=['01-cerise-cassius.png','02-celeste-caelus.png','03-cyrus.png'];
 const names=[['Cerise M. Augustus','Cassius C. Augustus'],['Celeste Cavalcanti','Caelus Severus'],['Cyrus Aurelius']];
 const failures=[];
 await fs.mkdir('rebentos-artifacts',{recursive:true});
