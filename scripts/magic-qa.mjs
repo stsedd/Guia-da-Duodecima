@@ -31,6 +31,36 @@ for(const [name,width,height] of [['desktop',1440,1000],['mobile',390,844]]){
     const el=page.locator(selector);
     if(await el.count())await el.screenshot({path:'magic-artifacts/'+name+'-'+label+'.png',timeout:20000});
   }
+  const checks=await page.evaluate(()=>{
+    const formula=document.querySelector('#concentracao .big-formula');
+    const spellLimit=document.querySelector('#alta-magia .high-magic-grid>article');
+    const costBlocks=document.querySelector('#circulos .magic-cost-explainer-grid');
+    const formulaChildren=formula?[...formula.children].map(x=>({text:x.innerText.trim(),rect:x.getBoundingClientRect().toJSON()})):[];
+    const limitChildren=spellLimit?[...spellLimit.children].map(x=>({text:x.innerText.trim(),rect:x.getBoundingClientRect().toJSON()})):[];
+    const text=document.querySelector('#circulos')?.innerText||'';
+    const costInfo=[...document.querySelectorAll('#circulos h3')].filter(x=>/custo de energia por círculo/i.test(x.textContent));
+    return {
+      formulaGap:formula?getComputedStyle(formula).gap:null,
+      formulaDisplay:formula?getComputedStyle(formula).display:null,
+      limitGap:spellLimit?getComputedStyle(spellLimit).gap:null,
+      limitDisplay:spellLimit?getComputedStyle(spellLimit).display:null,
+      formulaChildren,
+      limitChildren,
+      costBlockCount:costBlocks?.children.length||0,
+      costHeaders:costInfo.length,
+      costLists:document.querySelectorAll('#circulos .magic-cost-table,#circulos .magic-cost-list').length,
+      scrollWidth:document.documentElement.scrollWidth,
+      viewport:innerWidth,
+      bodyLength:text.length
+    }
+  });
+  console.log('VALIDATION '+name+' '+JSON.stringify(checks));
+  if(checks.formulaDisplay!=='flex'||checks.limitDisplay!=='flex')errors.push('Fórmulas sem display flex');
+  if(checks.formulaGap==='0px'||checks.limitGap==='0px')errors.push('Sem espaço entre os valores');
+  if(checks.costBlockCount!==3)errors.push('Quadros explicativos de energia ausentes');
+  if(checks.costHeaders||checks.costLists)errors.push('Apresentação redundante dos custos');
+  if(checks.scrollWidth>checks.viewport+2)errors.push('Rolagem horizontal');
+  if(errors.length){console.error('MAGIC FAIL '+name+': '+JSON.stringify(errors));process.exitCode=1}
   console.log('ERRORS '+name+': '+JSON.stringify(errors));
   await ctx.close();
 }
