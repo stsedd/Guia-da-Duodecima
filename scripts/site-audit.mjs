@@ -63,6 +63,29 @@ for(const v of views){
  all.push({viewport:v.name,failures:failures.slice(0,50)});
  await context.close();
 }
+
+const providers=[
+ {name:'osm',url:'https://www.openstreetmap.org/export/embed.html?bbox=12.57%2C42.18%2C12.74%2C42.27&layer=mapnik&marker=42.220%2C12.635'},
+ {name:'google',url:'https://www.google.com/maps?q=Riserva%20Naturale%20Regionale%20Nazzano%20Tevere-Farfa%2C%20Lazio%2C%20Italia&z=11&output=embed'}
+];
+for(const provider of providers){
+ const context=await browser.newContext({viewport:{width:720,height:600}});
+ const page=await context.newPage();
+ const errors=[];
+ page.on('requestfailed',req=>{if(errors.length<15)errors.push({u:req.url(),e:req.failure()?.errorText})});
+ await page.goto(base);
+ await page.evaluate(url=>{
+  document.body.innerHTML='<iframe id="geo-provider" title="Teste mapa" style="display:block;width:700px;height:500px;border:0" src="'+url+'"></iframe>';
+ },provider.url);
+ await page.waitForTimeout(7500);
+ const f=page.frameLocator('#geo-provider');
+ const info={url:page.frames()[1]?.url()||'',bodyText:'',images:0,loadedImages:0};
+ try{info.bodyText=(await f.locator('body').innerText({timeout:4000})).slice(0,600)}catch(e){info.bodyText='BLOCKED: '+e.message.slice(0,120)}
+ try{info.images=await f.locator('img').count();info.loadedImages=await f.locator('img').evaluateAll(ims=>ims.filter(im=>im.naturalWidth>0).length)}catch{}
+ await page.screenshot({path:'site-audit/provider-'+provider.name+'.png'});
+ console.log('PROVIDER '+provider.name+' '+JSON.stringify(info)+' REQUEST_ERRORS '+JSON.stringify(errors));
+ await context.close();
+}
 await browser.close();
 await fs.writeFile('site-audit/diagnostics.json',JSON.stringify(all,null,2));
 for(const x of all){
