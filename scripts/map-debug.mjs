@@ -30,7 +30,7 @@ for(const t of [0,3000,6000,10000]){
   iframeSrc:document.querySelector('.duo-map-grid iframe')?.src,
   container:document.querySelector('.duo-map-grid .oct26-map-embed')?.getBoundingClientRect().toJSON(),
   frame:document.querySelector('.duo-map-grid iframe')?.getBoundingClientRect().toJSON(),
-  changes:window.__mapChanges||[]
+  changeCount:(window.__mapChanges||[]).length,changes:(window.__mapChanges||[]).slice(-5)
  }));
  let child={url:'',body:'',imageCount:-1,loaded:-1,containerSize:''};
  try{
@@ -43,6 +43,10 @@ for(const t of [0,3000,6000,10000]){
  child.url=page.frames().filter(f=>f!==page.mainFrame()).map(f=>f.url()).join(' | ');
  console.log('CHECK t='+t+' PARENT '+JSON.stringify(parent)+' CHILD '+JSON.stringify(child));
 }
-console.log('FRAMES '+JSON.stringify(events.slice(-40)));
+console.log('FRAMES '+JSON.stringify(events.slice(-30)));
+const count=await page.evaluate(()=>(window.__mapChanges||[]).length);
+const tiles=await page.frameLocator('.duo-map-grid iframe').locator('img').count().catch(()=>0);
+console.log('FINAL MAP DOM_CHANGES='+count+' TILE_IMAGES='+tiles);
+if(count>12||tiles<1){console.error('REPROVADO: mapa instável, recriado ou sem conteúdo.');process.exitCode=1}
 await page.locator('.duo-map-grid').screenshot({path:'map-debug-artifacts/site-map.png',timeout:30000});
 await browser.close();
