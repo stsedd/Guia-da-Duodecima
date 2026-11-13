@@ -22,7 +22,12 @@ for(const [name,width,height] of [['desktop',1440,1000],['mobile',390,844]]){
     return {sections:sec,costHeads:matches,inspect,fullScrollWidth:document.documentElement.scrollWidth,viewport:innerWidth};
   });
   console.log('MAGIC '+name+' '+JSON.stringify(state));
-  for(const [label,selector] of [['cost','#energia-magica'],['concentration','#concentracao'],['high','#alta-magia']]){
+  const circle=await page.evaluate(()=>{
+    const node=document.querySelector('#circulos');
+    return {text:node?.innerText?.slice(0,4300),html:node?.outerHTML?.slice(0,11500)};
+  });
+  console.log('CIRCLES '+name+' '+JSON.stringify(circle));
+  for(const [label,selector] of [['cost','#energia-magica'],['concentration','#concentracao'],['high','#alta-magia'],['circles','#circulos']]){
     const el=page.locator(selector);
     if(await el.count())await el.screenshot({path:'magic-artifacts/'+name+'-'+label+'.png',timeout:20000});
   }
