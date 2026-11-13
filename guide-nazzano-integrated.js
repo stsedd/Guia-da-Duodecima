@@ -47,7 +47,7 @@ function sectionSource(root,re){const h=find(root,re);return h?.closest('section
 const find=(root,re)=>[...root.querySelectorAll('h1,h2,h3,h4')].find(x=>re.test(x.textContent));
 function sectionId(root,re){const h=find(root,re);return h?.closest('section')||h?.closest('.section')||null}
 function article(name,title,alias,desc,memorial=false){
-const img=name.startsWith('Cyrus')?'assets/nazzano/cyrus.webp':name.startsWith('Alessia')?'assets/nazzano/beatrice.webp':name.startsWith('Cenric')?'assets/nazzano/cenric-in-memoriam.webp':'';
+const img=name.startsWith('Cyrus')?'assets/nazzano/cyrus.webp':name.startsWith('Alessia')?'assets/nazzano/beatrice.webp':name.startsWith('Cenric')?'':'';
 return '<article class="oct26-person '+(memorial?'oct26-memorial':'')+'">'+(img?'<img class="oct26-person-img" src="'+img+'" alt="Retrato de '+esc(name)+'" loading="lazy">':'<div class="oct26-avatar" aria-hidden="true">'+(memorial?'✝':'XII')+'</div>')+'<div><small>'+esc(title)+'</small><h3>'+esc(name)+'</h3>'+(alias?'<em>'+esc(alias)+'</em>':'')+'<p>'+esc(desc)+'</p></div></article>'}
 function patch(root){
 if(!root)return;
@@ -161,5 +161,5 @@ Promise.allSettled([window.DUODECIMA_CORE_READY,window.DUODECIMA_GUIDE_STABILIZA
  window.dispatchEvent(new PopStateEvent('popstate',{state:history.state}));
 });
 let scheduled=false,locked=false;function schedule(){if(locked||scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;locked=true;try{patch(document.querySelector('#content'))}finally{locked=false}})}
-new MutationObserver(schedule).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule);document.addEventListener('error',e=>{const img=e.target;if(img?.tagName==='IMG'&&img.src.includes('/assets/nazzano/')){img.hidden=true;img.closest('figure')?.classList.add('oct26-awaiting-art');const parent=img.closest('.camp-map-panel');if(parent){const warning=parent.querySelector('.oct26-map-missing');if(warning)warning.hidden=false;}}},true);schedule();
+new MutationObserver(schedule).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule);document.addEventListener('error',e=>{const img=e.target;if(img?.tagName!=='IMG'||!img.src.includes('/assets/nazzano/'))return;if(img.dataset.oct26Retry!=='1'){img.dataset.oct26Retry='1';img.hidden=false;const url=new URL(img.src,location.href);url.searchParams.set('refresh','2.7.6');img.src=url.href;return}img.hidden=true;img.closest('figure,.oct26-leader-photo')?.classList.add('oct26-awaiting-art');const parent=img.closest('.camp-map-panel');if(parent){const warning=parent.querySelector('.oct26-map-missing');if(warning){warning.hidden=false;warning.textContent='Não foi possível carregar a imagem do mapa. Tente atualizar a página.'}}},true);schedule();
 })();
