@@ -126,8 +126,10 @@
       if(map&&map.isConnected){map.after(passage)}
       else {gateway.after(passage)}
     }
-    if(map&&map.parentElement===root){arrival.after(map)}
-    if(map&&map.parentElement===arrival){gateway.after(map)}
+    // Só reposiciona quando realmente necessário: mover um iframe repetidamente
+    // cancela seu carregamento e cria um ciclo de MutationObserver.
+    if(map&&map.parentElement===root&&map.previousElementSibling!==arrival){arrival.after(map)}
+    if(map&&map.parentElement===arrival&&map.previousElementSibling!==gateway){gateway.after(map)}
     const passage=root.querySelector('.duo-passage-panel');
     if(map&&passage&&passage.previousElementSibling!==map)map.after(passage);
   }
@@ -154,8 +156,8 @@
   function rulesPatch(root){
     const work=[...root.querySelectorAll('.camp-rule-grid article,article,.card')].find(el=>/^(trabalho)$/i.test(norm(el.querySelector('h3,h4')?.textContent))&&/periodo de trabalho/i.test(norm(el.textContent)));
     const exit=[...root.querySelectorAll('.camp-rule-grid article,article,.card')].find(el=>/sair do acampamento/i.test(norm(el.querySelector('h3,h4')?.textContent)));
-    if(work){const p=work.querySelector('p');if(p)p.innerHTML='O período de trabalho costuma acontecer das <strong>06h às 18h</strong>, com pausa para almoço. Legionários têm folga nos fins de semana; <em>probatii</em> descansam apenas aos domingos.'}
-    if(exit){const p=exit.querySelector('p');if(p)p.innerHTML='Saídas do território romano exigem autorização da <em>Praetoria</em>. Durante as folgas, legionários podem solicitar viagens a <strong>Roma</strong> — a cerca de 30 minutos de trem da estação de <strong>Poggio Mirteto Scalo</strong> — ou a outras regiões da Itália. As viagens não podem ocorrer no horário de trabalho nem prejudicar as obrigações com a Legião.'}
+    if(work){const p=work.querySelector('p');const html='O período de trabalho costuma acontecer das <strong>06h às 18h</strong>, com pausa para almoço. Legionários têm folga nos fins de semana; <em>probatii</em> descansam apenas aos domingos.';if(p&&p.innerHTML!==html)p.innerHTML=html}
+    if(exit){const p=exit.querySelector('p');const html='Saídas do território romano exigem autorização da <em>Praetoria</em>. Durante as folgas, legionários podem solicitar viagens a <strong>Roma</strong> — a cerca de 30 minutos de trem da estação de <strong>Poggio Mirteto Scalo</strong> — ou a outras regiões da Itália. As viagens não podem ocorrer no horário de trabalho nem prejudicar as obrigações com a Legião.';if(p&&p.innerHTML!==html)p.innerHTML=html}
   }
 
   function domusTeaserPatch(root){
