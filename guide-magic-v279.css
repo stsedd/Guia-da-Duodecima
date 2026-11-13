@@ -1,0 +1,179 @@
+/* Guia da Duodécima — Magia · revisão tipográfica e custos v2.7.9
+   Correções direcionadas, sem alterar fontes, cores ou regras dos demais módulos. */
+
+/* Em fórmulas, etiquetas adjacentes precisam de espaçamento real. */
+.page-magia :is(#sacrificio,#concentracao) .big-formula{
+  display:flex!important;
+  flex-flow:row wrap;
+  align-items:center;
+  gap:7px clamp(10px,1.5vw,17px);
+  min-height:52px;
+  padding:12px 16px!important;
+  font-family:var(--serif);
+  line-height:1.5!important;
+}
+.page-magia :is(#sacrificio,#concentracao) .big-formula :is(b,span,strong){
+  display:inline-block;
+  width:auto;
+  max-width:100%;
+  margin:0;
+  vertical-align:middle;
+  overflow-wrap:break-word;
+}
+.page-magia #concentracao .big-formula{
+  justify-content:center;
+  text-align:center;
+}
+.page-magia #concentracao .big-formula>span{
+  color:var(--muted);
+  font:700 13px/1.45 var(--sans);
+}
+.page-magia #concentracao .big-formula>strong{color:var(--ink);}
+
+/* Os quadros que continham <b> e <span> sem espaço passam a apresentar
+   rótulo e informação em duas linhas, preservando a legibilidade. */
+.page-magia :is(#magicos .magic-benefit-grid,
+                #combate-magico .combat-magic-grid,
+                #rituais .ritual-grid,
+                #componentes .component-grid)>article{
+  display:flex!important;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:7px;
+  min-width:0;
+}
+.page-magia :is(#magicos .magic-benefit-grid,
+                #combate-magico .combat-magic-grid,
+                #rituais .ritual-grid,
+                #componentes .component-grid)>article>:is(b,span,strong){
+  display:block;
+  max-width:100%;
+  margin:0;
+  line-height:1.4;
+}
+
+/* Alta magia: valores e descrições com espaço e sem emendas no texto. */
+.page-magia #alta-magia .high-magic-grid>article{
+  display:flex!important;
+  flex-flow:row wrap;
+  align-items:center;
+  gap:8px 12px;
+  min-width:0;
+  padding:17px 20px!important;
+}
+.page-magia #alta-magia .high-magic-grid>article>b{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:33px;
+  color:var(--ink);
+  font:700 18px/1.35 var(--serif);
+  margin:0;
+}
+.page-magia #alta-magia .high-magic-grid>article>span{
+  display:inline-block;
+  margin:0;
+  min-width:0;
+  color:var(--ink);
+  line-height:1.55;
+}
+
+/* Uma única seção de custos: o valor aparece nos quadros de Círculos;
+   informações sobre gasto, cansaço e desmaio ficam abaixo deles. */
+.page-magia #circulos .magic-cost-explainer{
+  margin:22px 0 12px;
+  padding:clamp(18px,2.4vw,28px);
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--panel);
+  min-width:0;
+}
+.page-magia #circulos .magic-cost-explainer-head{
+  max-width:85ch;
+  margin:0 0 21px;
+}
+.page-magia #circulos .magic-cost-explainer-head small{
+  display:block;
+  margin-bottom:6px;
+  color:var(--red);
+  letter-spacing:.12em;
+  font:800 10px/1.5 var(--sans);
+}
+.page-magia #circulos .magic-cost-explainer-head h3{
+  margin:0 0 9px;
+  color:var(--ink);
+  font:700 clamp(21px,2vw,27px)/1.25 var(--serif);
+}
+.page-magia #circulos .magic-cost-explainer-head p{
+  margin:0;
+  color:var(--ink);
+  font:400 14.5px/1.72 var(--sans);
+}
+.page-magia #circulos .magic-cost-explainer-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:stretch;
+  gap:12px;
+}
+.page-magia #circulos .magic-cost-explainer-grid article{
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:clamp(15px,1.6vw,19px);
+  background:var(--panel2);
+  min-width:0;
+}
+.page-magia #circulos .magic-cost-explainer-grid strong{
+  display:block;
+  color:var(--ink);
+  font:700 17px/1.35 var(--serif);
+  margin:0 0 11px;
+}
+.page-magia #circulos .magic-cost-explainer-grid p{
+  margin:0;
+  color:var(--ink);
+  font:400 13.5px/1.7 var(--sans);
+}
+.page-magia #circulos .magic-circle-copy em{
+  white-space:nowrap;
+  font-style:normal;
+}
+.page-magia #circulos .magic-circle-card{
+  min-width:0;
+}
+.page-domus .domus-artwork,
+.page-domus .domus-artwork img{
+  background:transparent!important;
+}
+.page-domus .domus-artwork img{
+  object-fit:contain!important;
+  filter:none!important;
+}
+@media (max-width:920px){
+  .page-magia #circulos .magic-cost-explainer-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .page-magia #circulos .magic-cost-explainer-grid article:last-child{
+    grid-column:1 / -1;
+  }
+}
+@media (max-width:620px){
+  .page-magia :is(#sacrificio,#concentracao) .big-formula{
+    padding:12px 13px!important;
+    gap:6px 10px;
+    font-size:18px!important;
+  }
+  .page-magia #alta-magia .high-magic-grid>article{
+    padding:15px 17px!important;
+  }
+  .page-magia #circulos .magic-cost-explainer-grid{
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+  }
+  .page-magia #circulos .magic-cost-explainer-grid article:last-child{
+    grid-column:auto;
+  }
+  .page-magia #circulos .magic-cost-explainer{
+    padding:17px 14px;
+  }
+}
