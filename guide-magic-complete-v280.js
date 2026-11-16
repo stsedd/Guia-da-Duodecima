@@ -102,7 +102,7 @@
     p('Aprender a controlar água não transforma alguém em filho de Netuno. Magia de fogo não confere parentesco com Vulcano, necromancia não concede autoridade sobre o Submundo e adivinhação não obriga os deuses a responder.')+
     p('O conhecimento mágico permanece sob o olhar das divindades relacionadas a ele; interferir em seus domínios pode produzir consequências narrativas.')
   ));
-  page.html='<div class="magic-opening"><div class="magic-opening-copy"><small>LEGIO XII FULMINATA · ARS ARCANA</small><h1>Sistema de Magia</h1><p>Aprendizado, sacrifícios, círculos, conjuração, rituais e os limites entre magia e poder divino.</p></div></div><div class="arcana-rules-full">'+rules.join('')+'</div>';
+  page.html='<div class="magic-opening"><div class="magic-opening-copy"><small>LEGIO XII FULMINATA · ARS ARCANA</small><h1>Sistema de Magia</h1><p>Aprendizado, sacrifícios, círculos, conjuração, rituais e os limites entre magia e poder divino.</p></div></div>'+rules.join('');
   const entries=rules.map(html=>{
     const holder=document.createElement('div');holder.innerHTML=html;
     const el=holder.querySelector('section');
