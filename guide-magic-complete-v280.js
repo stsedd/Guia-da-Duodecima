@@ -4,7 +4,7 @@
   const page=window.GUIA_CONTENT&&window.GUIA_CONTENT.magia;
   if(!page)return;
   const card=(title,body)=>'<article class="arcana-rule-card"><h3>'+title+'</h3>'+body+'</article>';
-  const section=(id,ordinal,title,body)=>'<section id="'+id+'" class="arcana-rule-section searchable" data-title="'+title+'"><div class="section-head"><div><small>ARS ARCANA · '+ordinal+'</small><h2>'+title+'</h2></div></div><div class="arcana-section-body">'+body+'</div></section>';
+  const section=(id,ordinal,title,body)=>'<section id="'+id+'" class="section arcana-rule-section searchable" data-title="'+title+'"><div class="section-head"><div><small>ARS ARCANA · '+ordinal+'</small><h2>'+title+'</h2></div></div><div class="arcana-section-body">'+body+'</div></section>';
   const grid=parts=>'<div class="arcana-grid">'+parts.join('')+'</div>';
   const p=text=>'<p>'+text+'</p>';
   const rules=[];
