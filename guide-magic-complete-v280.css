@@ -1,0 +1,38 @@
+/* Duodécima · Guia completo de Magia · 15/11/2026 */
+.page-magia .arcana-rules-full{display:grid;gap:30px;margin-top:24px}
+.page-magia .arcana-rule-section{min-width:0;scroll-margin-top:100px}
+.page-magia .arcana-section-body{font:400 15px/1.8 var(--sans);color:var(--ink)}
+.page-magia .arcana-section-body>p{max-width:90ch;margin:12px 0 17px}
+.page-magia .arcana-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px;margin:16px 0 24px}
+.page-magia .arcana-rule-card,.page-magia .arcana-grid>article{border:1px solid var(--line);background:var(--panel2);padding:19px;border-radius:12px;min-width:0}
+.page-magia .arcana-rule-card h3{font:700 19px/1.35 var(--serif);color:var(--ink);margin:0 0 9px}
+.page-magia .arcana-rule-card p,.page-magia .arcana-grid>article p{margin:7px 0 0;line-height:1.7}
+.page-magia .arcana-grid>article :is(b,strong){display:block;margin-bottom:8px}
+.page-magia .arcana-grid>article span{display:block;color:var(--ink);font-size:14px;line-height:1.65}
+.page-magia .big-formula{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:12px 20px;border-radius:12px;border:1px solid var(--line);background:var(--panel);padding:16px 18px;margin:20px 0;font-size:17px}
+.page-magia .big-formula b,.page-magia .big-formula strong{white-space:normal;overflow-wrap:anywhere}
+.page-magia .arcana-circle-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0 18px}
+.page-magia .arcana-circle-grid>article{border:1px solid var(--line);padding:20px;border-radius:13px;background:var(--panel2);min-width:0;display:flex;flex-direction:column;gap:7px}
+.page-magia .arcana-circle-grid article span{font:800 10px/1.4 var(--sans);letter-spacing:.1em;color:var(--red)}
+.page-magia .arcana-circle-grid article strong{font:700 20px/1.35 var(--serif);color:var(--ink)}
+.page-magia .arcana-circle-grid article em{font:700 14px/1.5 var(--sans);color:var(--ink);font-style:normal}
+.page-magia .arcana-section-body>.arcana-rule-card{margin:18px 0}
+.page-magia .arcana-subheading{margin:30px 0 14px}
+.page-magia .arcana-subheading h3{font:700 20px/1.3 var(--serif);margin:0 0 5px}
+.page-magia .arcana-subheading p{margin:0}
+.page-magia .arcana-instability-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.page-magia .arcana-instability-grid>article{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start}
+.page-magia .arcana-instability-grid>article>b{flex:none;border-radius:8px;background:var(--panel);border:1px solid var(--line);padding:5px 12px;font-size:18px}
+.page-magia .arcana-instability-grid strong{display:block;margin-bottom:4px}
+.page-magia .arcana-instability-grid p{font-size:13px;margin:0;line-height:1.65}
+.page-magia .arcana-high-magic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.page-magia .arcana-high-magic-grid article{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;min-width:0}
+.page-magia .arcana-high-magic-grid article b{font:700 24px/1.3 var(--serif)}
+.page-magia .arcana-high-magic-grid article span{font-size:14px}
+.page-magia .magic-opening{border:1px solid var(--line);border-radius:14px;padding:clamp(24px,4vw,42px);background-image:linear-gradient(112deg,rgba(10,7,10,.85),rgba(10,7,10,.25)),url('assets/visual/magia-hero.webp');background-size:cover;background-position:center;min-height:230px;display:flex;align-items:center}
+.page-magia .magic-opening-copy{max-width:640px}
+.page-magia .magic-opening-copy small{font:800 11px/1.4 var(--sans);letter-spacing:.13em;color:#f6bdc3}
+.page-magia .magic-opening-copy h1{font:700 clamp(28px,4vw,45px)/1.12 var(--serif);color:#fff;margin:12px 0}
+.page-magia .magic-opening-copy p{font:400 15px/1.7 var(--sans);color:#fff;max-width:580px;margin:0}
+@media(max-width:740px){.page-magia .arcana-circle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.page-magia .arcana-instability-grid{grid-template-columns:1fr}.page-magia .arcana-high-magic-grid{grid-template-columns:1fr}}
+@media(max-width:430px){.page-magia .arcana-circle-grid{grid-template-columns:1fr}.page-magia .arcana-rule-card,.page-magia .arcana-grid>article{padding:15px}.page-magia .arcana-section-body{font-size:14px}}
