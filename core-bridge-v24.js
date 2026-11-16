@@ -35,6 +35,68 @@
     }
     return bundle;
   }
+
+  // Canonical Nov/2026 ability overlays; preserve descriptions and unrelated mechanics.
+  function applyAbilityAdjustments(bundle){
+    const changes=bundle?.abilityAdjustments?.changes||[];
+    const deities=bundle?.gods?.deities||[];
+    const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    const tierKey=t=>{
+      const min=Number(t?.min);
+      if(Number.isFinite(min)){if(min>=30)return '30+';if(min>=16)return '16-29';return '0-15'}
+      const name=norm(t?.id||t?.label||'');
+      if(name.includes('30'))return '30+';
+      if(name.includes('16')||name.includes('29'))return '16-29';
+      return '0-15';
+    };
+    const replaceDeep=(value,replacements)=>{
+      if(typeof value==='string'){
+        for(const entry of replacements){
+          const literal=String(entry.find||'').replace(/[.*+?^${}()|[\]\\]/g,'\\  function rootFor(page){');
+          value=value.replace(new RegExp(literal,entry.flags||'g'),String(entry.replace??''));
+        }
+        return value.replace(/\.\s*\./g,'.').replace(/\s{2,}/g,' ').trim();
+      }
+      if(Array.isArray(value))return value.map(x=>replaceDeep(x,replacements));
+      if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,replaceDeep(v,replacements)]));
+      return value;
+    };
+    for(const change of changes){
+      const ids=[change.deityId,...(change.deityAliases||[])].map(norm);
+      const deity=deities.find(d=>ids.includes(norm(d.id))||ids.includes(norm(d.name)));
+      if(!deity)continue;
+      const abilities=[...(deity.passives||[]),...(deity.actives||[])];
+      const ab=abilities.find(a=>a.id===change.abilityId||norm(a.name)===norm(change.abilityName));
+      if(!ab)continue;
+      const amended=replaceDeep(ab,change.replaceText||[]);
+      Object.assign(ab,amended);
+      if(change.summary!=null)ab.summary=change.summary;
+      if(change.note!=null)ab.note=change.note;
+      if(change.level!=null)ab.level=change.level;
+      if(change.tierOverrides){
+        const vals=change.tierOverrides;
+        if(Array.isArray(ab.tiers)){
+          for(const tier of ab.tiers)if(vals[tierKey(tier)]!=null)tier.text=vals[tierKey(tier)];
+        } else if(ab.tiers&&typeof ab.tiers==='object'){
+          for(const [key,val] of Object.entries(vals)){const k=key==='30+'?'high':key==='16-29'?'mid':'low';ab.tiers[k]=val}
+        } else {
+          ab.tiers=[{id:'0-15',label:'0–15',min:0,max:15,text:vals['0-15']||''},{id:'16-29',label:'16–29',min:16,max:29,text:vals['16-29']||''},{id:'30+',label:'30+',min:30,max:null,text:vals['30+']||''}];
+        }
+        if(Array.isArray(ab.blocks)){
+          for(const block of ab.blocks){
+            if(block.type==='tiers'&&Array.isArray(block.items)){
+              for(const item of block.items)if(vals[tierKey(item)]!=null)item.text=vals[tierKey(item)];
+            }
+            if(block.type==='description'&&change.summary!=null)block.text=change.summary;
+            if(block.type==='note'&&change.note!=null)block.text=change.note;
+          }
+          if(change.note!=null&&!ab.blocks.some(x=>x.type==='note'))ab.blocks.push({type:'note',text:change.note});
+        }
+      }
+    }
+    return bundle;
+  }
+
   function rootFor(page){const box=document.createElement('div');box.innerHTML=window.GUIA_CONTENT[page].html;return box;}
   function saveRoot(page,box){window.GUIA_CONTENT[page].html=box.innerHTML;}
   function sectionHead(kicker,title,badge,banner=false){return `${banner?'<div class="banner-strip"></div>':''}<div class="section-head"><div><small>${kicker}</small><h2>${title}</h2></div><span>${badge}</span></div>`;}
@@ -204,7 +266,7 @@
   async function init(){
     try{
       const core=await loadCore();
-      patchSystem(core);patchGods(core);rebuildSearch();patchTalentEnhancerCompatibility();
+      applyAbilityAdjustments(core);patchSystem(core);patchGods(core);rebuildSearch();patchTalentEnhancerCompatibility();
       state.status='online';state.source='core';state.version=core.manifest.contentVersion;state.manifest=core.manifest;
     }catch(err){
       console.warn('[Duodécima Core] Falha ao sincronizar; usando snapshot local.',err);
