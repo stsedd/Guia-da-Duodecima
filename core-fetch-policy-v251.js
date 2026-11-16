@@ -41,8 +41,13 @@
   async function snapshotResponse(relative){
     const snap=await snapshot();
     let body=null;
-    if(relative==='manifest.json')body=snap.manifest;
-    else{
+    if(relative==='manifest.json')body={...snap.manifest,files:{...(snap.manifest?.files||{}),abilityAdjustments:'data/ajustes-habilidades-2026-11.json'}};
+    else if(relative==='data/ajustes-habilidades-2026-11.json'){
+      const local=await nativeFetch('./ability-adjustments-2026-11.json?v=2026.11.15.1',{cache:'no-cache'});
+      if(!local.ok)throw new Error('Ajustes de habilidades locais indisponíveis.');
+      window.DUODECIMA_CORE_SERVED_FROM_SNAPSHOT=true;
+      return local;
+    }else{
       const entry=Object.entries(snap.manifest?.files||{}).find(([,path])=>path===relative);
       if(entry)body=snap[entry[0]];
     }
