@@ -3,8 +3,8 @@ import fs from 'node:fs/promises';
 
 const base=process.env.UI_BASE_URL||'http://127.0.0.1:4173/';
 const browser=await chromium.launch({headless:true});
-const expected=['01-cerise-cassius.png','02-celeste-caelus.png','03-cyrus.png','04-jasmine-blume.webp'];
-const names=[['Cerise M. Augustus','Cassius C. Augustus'],['Celeste Cavalcanti','Caelus Severus'],['Cyrus Aurelius'],['Jasmine Imperione','Blume Becker Boudreaux']];
+const expected=['04-jasmine-blume.webp','01-cerise-cassius.png','02-celeste-caelus.png','03-cyrus.png'];
+const names=[['Jasmine Imperione','Blume Becker Boudreaux'],['Cerise M. Augustus','Cassius C. Augustus'],['Celeste Cavalcanti','Caelus Severus'],['Cyrus Aurelius']];
 const failures=[];
 await fs.mkdir('rebentos-artifacts',{recursive:true});
 
@@ -39,8 +39,8 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
   }
   if(info.scrollWidth>info.viewport+2)failures.push(test.name+': overflow na Domus '+info.scrollWidth+'/'+info.viewport);
   await page.waitForTimeout(6800);
-  await page.evaluate(()=>document.querySelector('#rebento-cerise-cassius')?.scrollIntoView());
-  await page.locator('#rebento-cerise-cassius').screenshot({path:'rebentos-artifacts/'+test.name+'-domus-primeiro.png',timeout:25000});
+  await page.evaluate(()=>document.querySelector('#rebento-jasmine-blume')?.scrollIntoView());
+  await page.locator('#rebento-jasmine-blume').screenshot({path:'rebentos-artifacts/'+test.name+'-domus-primeiro.png',timeout:25000});
   await page.locator('[data-page="roma"]').first().evaluate(x=>x.click());
   await page.waitForFunction(()=>location.hash==='#page:roma',null,{timeout:10000});
   await page.locator('#domus-memoriae.duo-domus-invite').waitFor({timeout:12000});
@@ -73,6 +73,8 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
   if(!roma.collective)failures.push(test.name+': desapareceu memória coletiva');
   if(roma.cassiusImage!=='assets/nazzano/cassius.webp')failures.push(test.name+': retrato de Cassius alterado');
   if(roma.cassiusDetails<7||roma.cassiusDescription<160)failures.push(test.name+': descrição do Cassius incompleta');
+  const cyrusPreview=await page.locator('.oct26-figure-grid .leader-card').filter({hasText:'Cyrus Torres Aurelius'}).locator('.leader-copy > p').first().textContent();
+  if(!cyrusPreview||cyrusPreview.length<350||!cyrusPreview.includes('Infiltrou-se entre vampiros'))failures.push(test.name+': resumo de Cyrus insuficiente');
   if(roma.alessiaImage!=='assets/nazzano/beatrice.webp')failures.push(test.name+': retrato de Alessia incorreto');
   for(const [name,history] of Object.entries(roma.histories)){
     if(!history.hasDisclosure||history.paragraphs<(name.startsWith('Cyrus')?3:5))failures.push(test.name+': trajetória incompleta de '+name+' '+JSON.stringify(history));
