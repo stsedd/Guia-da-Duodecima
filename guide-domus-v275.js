@@ -34,6 +34,21 @@ const rebentos=[
     ]}
   ]}
 ];
+// A quarta homenagem compartilha o mesmo padrão dos quadros anteriores.
+// Jasmine ocupa a metade esquerda da obra; Blume, a metade direita.
+const jointHistory=window.DUODECIMA_TRAJETORIAS||{};
+if(jointHistory.jasmine?.domusParagraphs?.length&&jointHistory.blume?.domusParagraphs?.length){
+  rebentos.push({
+    id:'jasmine-blume',series:'IV',label:'II E IV COORTES · PRAETORIA',
+    image:'assets/rebentos/04-jasmine-blume.png',
+    alt:'Quadro cerimonial de Jasmine Imperione à esquerda e Blume Becker Boudreaux à direita, diante de arcos romanos adornados com crânios',
+    shape:'wide',
+    people:[
+      {name:'Jasmine Imperione',subtitle:'FILHA DE AQUILON · ESCOLHIDA DE ALMA · EX-PRAETORA',paragraphs:jointHistory.jasmine.domusParagraphs},
+      {name:'Blume Becker Boudreaux',subtitle:'FILHA DE VÊNUS · ABENÇOADA POR LAETITIA · EX-PRAETORA',paragraphs:jointHistory.blume.domusParagraphs}
+    ]
+  });
+}
 const card=entry=>`<section class="section searchable domus-rebento domus-rebento--${entry.shape}" id="rebento-${entry.id}" data-title="${esc(entry.people.map(p=>p.name).join(' e '))}">
   <div class="domus-rebento-heading"><span class="domus-rebento-number">${entry.series}</span><div><small>${esc(entry.label)}</small><h2>${esc(entry.people.map(p=>p.name).join(' & '))}</h2></div></div>
   <figure class="domus-artwork"><img src="${entry.image}" alt="${esc(entry.alt)}" loading="lazy" decoding="async"></figure>
@@ -41,7 +56,7 @@ const card=entry=>`<section class="section searchable domus-rebento domus-rebent
 </section>`;
 const html=`<section class="section searchable domus-intro" id="domus-memoriae" data-title="Domus Memoriae">
   <div class="section-head"><div><small>ROMA · MEMÓRIA · HONRA</small><h2>Domus Memoriae</h2></div><span>MEMORIA · HONOS</span></div>
-  <div class="domus-intro-copy"><div><p class="domus-opening">Nem toda história de Roma termina quando um legionário deixa de lutar.</p><p>A <strong>Domus Memoriae</strong> preserva os quadros daqueles que conquistaram o <strong>descanso em honra</strong>, os rebentos de Roma. Não se trata necessariamente de morte ou esquecimento. É o reconhecimento de trajetórias que transformaram a Legião e que continuam a fazer parte de sua história, mesmo quando seus protagonistas assumem outros caminhos e responsabilidades.</p><p>Os retratos recordam os feitos, os vínculos e as decisões de quem ajudou a proteger, construir e devolver Roma à Itália. Cada homenagem pertence à memória coletiva do acampamento.</p></div><aside class="domus-intro-aside"><small>HONRARIAS DA LEGIO XII</small><strong>Três quadros, cinco trajetórias.</strong><p>As obras aqui apresentadas pertencem à primeira leva de rebentos homenageados pela Legião.</p></aside></div>
+  <div class="domus-intro-copy"><div><p class="domus-opening">Nem toda história de Roma termina quando um legionário deixa de lutar.</p><p>A <strong>Domus Memoriae</strong> preserva os quadros daqueles que conquistaram o <strong>descanso em honra</strong>, os rebentos de Roma. Não se trata necessariamente de morte ou esquecimento. É o reconhecimento de trajetórias que transformaram a Legião e que continuam a fazer parte de sua história, mesmo quando seus protagonistas assumem outros caminhos e responsabilidades.</p><p>Os retratos recordam os feitos, os vínculos e as decisões de quem ajudou a proteger, construir e devolver Roma à Itália. Cada homenagem pertence à memória coletiva do acampamento.</p></div><aside class="domus-intro-aside"><small>HONRARIAS DA LEGIO XII</small><strong>Quatro quadros, sete trajetórias.</strong><p>As obras reúnem a primeira leva de rebentos e a homenagem às antigas pretoras que ajudaram a conduzir Roma até a Itália.</p></aside></div>
 </section>${rebentos.map(card).join('')}`;
 if(!window.GUIA_CONTENT)window.GUIA_CONTENT={};
 window.GUIA_CONTENT.domus={title:'Domus Memoriae',html};
