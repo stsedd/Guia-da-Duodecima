@@ -3,8 +3,8 @@ import fs from 'node:fs/promises';
 
 const base=process.env.UI_BASE_URL||'http://127.0.0.1:4173/';
 const browser=await chromium.launch({headless:true});
-const expected=['01-cerise-cassius.png','02-celeste-caelus.png','03-cyrus.png'];
-const names=[['Cerise M. Augustus','Cassius C. Augustus'],['Celeste Cavalcanti','Caelus Severus'],['Cyrus Aurelius']];
+const expected=['01-cerise-cassius.png','02-celeste-caelus.png','03-cyrus.png','04-jasmine-blume.webp'];
+const names=[['Cerise M. Augustus','Cassius C. Augustus'],['Celeste Cavalcanti','Caelus Severus'],['Cyrus Aurelius'],['Jasmine Imperione','Blume Becker Boudreaux']];
 const failures=[];
 await fs.mkdir('rebentos-artifacts',{recursive:true});
 
@@ -18,7 +18,7 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
   await page.waitForFunction(()=>location.hash==='#page:domus',null,{timeout:10000});
   await page.locator('.page-domus #rebento-cyrus').waitFor({timeout:12000});
   await page.evaluate(()=>document.querySelectorAll('.page-domus .domus-artwork img').forEach(im=>im.loading='eager'));
-  await page.waitForFunction(()=>[...document.querySelectorAll('.page-domus .domus-artwork img')].length===3&&[...document.querySelectorAll('.page-domus .domus-artwork img')].every(im=>im.complete),null,{timeout:12000});
+  await page.waitForFunction(()=>[...document.querySelectorAll('.page-domus .domus-artwork img')].length===4&&[...document.querySelectorAll('.page-domus .domus-artwork img')].every(im=>im.complete),null,{timeout:12000});
   const info=await page.evaluate(()=>{
    const entries=[...document.querySelectorAll('.page-domus .domus-rebento')];
    return {title:document.querySelector('#pageTitle')?.textContent,hash:location.hash,items:entries.map(entry=>{
@@ -27,13 +27,13 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
     return {src:im?.getAttribute('src'),loaded:!!im?.naturalWidth,cornerAlpha,people:[...entry.querySelectorAll('.domus-biography h3')].map(x=>x.textContent.trim()),paragraphs:[...entry.querySelectorAll('.domus-biography')].map(x=>x.querySelectorAll('p').length),top:rect.top,bottom:rect.bottom};
    }),scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth};
   });
-  if(info.items.length!==3)failures.push(test.name+': esperado 3 quadros, encontrados '+info.items.length);
+  if(info.items.length!==4)failures.push(test.name+': esperado 4 quadros, encontrados '+info.items.length);
   if(info.title!=='Domus Memoriae')failures.push(test.name+': título incorreto '+info.title);
-  for(let i=0;i<Math.min(info.items.length,3);i++){
+  for(let i=0;i<Math.min(info.items.length,4);i++){
    const item=info.items[i];
    if(!item.src.endsWith(expected[i]))failures.push(test.name+': imagem incorreta '+i+' '+item.src);
    if(!item.loaded)failures.push(test.name+': imagem não carregada '+i);
-   if(item.cornerAlpha!==0)failures.push(test.name+': PNG sem transparência no canto '+i+' alfa='+item.cornerAlpha);
+   if(item.cornerAlpha!==0)failures.push(test.name+': imagem sem transparência no canto '+i+' alfa='+item.cornerAlpha);
    if(item.people.join('|')!==names[i].join('|'))failures.push(test.name+': ordem de nomes incorreta '+i+' '+item.people);
    if(item.paragraphs.some(x=>x<3))failures.push(test.name+': biografia não ampliada '+i);
   }
@@ -60,6 +60,10 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
     cassiusImage:cassius?.querySelector('img')?.getAttribute('src'),
     cassiusDescription:cassius?.querySelector('.leader-copy p')?.textContent?.length||0,
     cassiusDetails:cassius?.querySelectorAll('.duo-praetor-details p')?.length||0,
+    histories:Object.fromEntries(['Cyrus Torres Aurelius','Jasmine Imperione','Blume Becker'].map(name=>{
+      const card=[...document.querySelectorAll('.oct26-figure-grid .leader-card')].find(x=>(x.querySelector('h3')?.textContent||'').includes(name));
+      return [name,{hasDisclosure:!!card?.querySelector('.duo-praetor-details summary'),paragraphs:card?.querySelectorAll('.duo-praetor-details p')?.length||0}];
+    })),
     alessiaImage:pic?.getAttribute('src'),
     scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth
    };
@@ -70,6 +74,9 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
   if(roma.cassiusImage!=='assets/nazzano/cassius.webp')failures.push(test.name+': retrato de Cassius alterado');
   if(roma.cassiusDetails<7||roma.cassiusDescription<160)failures.push(test.name+': descrição do Cassius incompleta');
   if(roma.alessiaImage!=='assets/nazzano/beatrice.webp')failures.push(test.name+': retrato de Alessia incorreto');
+  for(const [name,history] of Object.entries(roma.histories)){
+    if(!history.hasDisclosure||history.paragraphs<(name.startsWith('Cyrus')?3:5))failures.push(test.name+': trajetória incompleta de '+name+' '+JSON.stringify(history));
+  }
   if(roma.scrollWidth>roma.viewport+2)failures.push(test.name+': overflow em Roma');
   await page.locator('#domus-memoriae').screenshot({path:'rebentos-artifacts/'+test.name+'-roma-link.png',timeout:25000});
   console.log(test.name+' Domus '+JSON.stringify(info));
@@ -79,4 +86,4 @@ for(const test of [{name:'desktop',width:1440,height:1050},{name:'mobile',width:
 }
 await browser.close();
 if(failures.length){console.error('REPROVADO\n- '+failures.join('\n- '));process.exit(1)}
-console.log('APROVADO: Domus exclusiva, cinco biografias, três imagens, Cassius e Alessia em Roma, links e responsividade.');
+console.log('APROVADO: Domus exclusiva, sete biografias, quatro imagens, Cassius, Cyrus, Jasmine, Blume e Alessia em Roma, links e responsividade.');
