@@ -38,8 +38,8 @@ const rebentos=[
 // Jasmine ocupa a metade esquerda da obra; Blume, a metade direita.
 const jointHistory=window.DUODECIMA_TRAJETORIAS||{};
 if(jointHistory.jasmine?.domusParagraphs?.length&&jointHistory.blume?.domusParagraphs?.length){
-  rebentos.push({
-    id:'jasmine-blume',series:'IV',label:'II E IV COORTES · PRAETORIA',
+  rebentos.unshift({
+    id:'jasmine-blume',series:'I',label:'II E IV COORTES · PRAETORIA',
     image:'assets/rebentos/04-jasmine-blume.webp',
     alt:'Quadro cerimonial de Jasmine Imperione à esquerda e Blume Becker Boudreaux à direita, diante de arcos romanos adornados com crânios',
     shape:'wide',
@@ -49,6 +49,8 @@ if(jointHistory.jasmine?.domusParagraphs?.length&&jointHistory.blume?.domusParag
     ]
   });
 }
+// A numeração acompanha a ordem de exibição dos quadros.
+rebentos.forEach((entry,index)=>{entry.series=['I','II','III','IV'][index]||String(index+1)});
 const card=entry=>`<section class="section searchable domus-rebento domus-rebento--${entry.shape}" id="rebento-${entry.id}" data-title="${esc(entry.people.map(p=>p.name).join(' e '))}">
   <div class="domus-rebento-heading"><span class="domus-rebento-number">${entry.series}</span><div><small>${esc(entry.label)}</small><h2>${esc(entry.people.map(p=>p.name).join(' & '))}</h2></div></div>
   <figure class="domus-artwork"><img src="${entry.image}" alt="${esc(entry.alt)}" loading="lazy" decoding="async"></figure>
