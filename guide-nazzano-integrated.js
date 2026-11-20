@@ -19,7 +19,7 @@ const credits=[
 ['Eliminação da corrupção em Nazzano','Rhea Cornelius · Skye R. Victrix · Miwa Ruriko']
 ];
 const important={
-  cyrus:{name:'Cyrus Torres Aurelius',role:'PRAETOR · FILHO DE SUMMANUS',img:'assets/nazzano/cyrus.webp',title:'O Silêncio · A Fúria da Noite',description:'Integrante da Praetoria. Antigo líder da II Coorte, participou das expedições das áquilas de Vênus e Justitia, da recuperação da estátua de Summanus e da batalha contra o Régulo.'},
+  cyrus:{name:'Cyrus Torres Aurelius',role:'PRAETOR · FILHO DE SUMMANUS',img:'assets/nazzano/cyrus.webp',title:'O Silêncio · A Fúria da Noite',description:'Atual pretor de Roma e antigo líder da II Coorte, Cyrus Torres Aurelius construiu sua trajetória pela discrição, infiltração e estratégia. Reclamado por Summanus durante a expedição à áquila de Justitia, também participou da recuperação da áquila de Vênus e da cabeça perdida da estátua de seu pai. Infiltrou-se entre vampiros para auxiliar negociações diplomáticas, esteve na Forja de Prometheus e enfrentou o Régulo de Nazzano.'},
   cassius:{
     name:'Cassius Caesar Augustus',
     role:'PRAETOR · FILHO DE PHOBETOR',
