@@ -1,0 +1,48 @@
+name: Importar quadro de Jasmine e Blume para Domus Memoriae
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-jasmine-blume-image.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-portrait:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Copiar quadro original para um arquivo permanente do Guia
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/rebentos
+          if test -s assets/rebentos/04-jasmine-blume.webp; then
+            echo "Quadro já materializado"; exit 0
+          fi
+          CANDIDATE='https://media.discordapp.net/attachments/1561555504965353613/1572049068295725268/jas_e_blume_quadro.png?ex=6b019189&is=6b004009&hm=c20fa5cbb37a0af91bfdaceaa68e63a6051039a5d19169bdc0d812404a3c0626&format=webp&quality=lossless&width=2048&height=1280'
+          ORIGINAL='https://media.discordapp.net/attachments/1561555504965353613/1572049068295725268/jas_e_blume_quadro.png?ex=6b019189&is=6b004009&hm=c20fa5cbb37a0af91bfdaceaa68e63a6051039a5d19169bdc0d812404a3c0626&format=webp&quality=lossless&width=768&height=480'
+          curl --fail --location --silent --show-error --retry 2 --max-time 35 "$CANDIDATE" -o /tmp/jasmine-blume.webp || curl --fail --location --silent --show-error --retry 2 --max-time 35 "$ORIGINAL" -o /tmp/jasmine-blume.webp
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/jasmine-blume.webp')
+          b=p.read_bytes()
+          assert len(b)>50000 and b[:4]==b'RIFF' and b[8:12]==b'WEBP', 'Imagem inválida ou resposta de erro'
+          print('Quadro de Jasmine e Blume: WEBP íntegro,',len(b),'bytes')
+          PY
+          mv /tmp/jasmine-blume.webp assets/rebentos/04-jasmine-blume.webp
+      - name: Publicar imagem no repositório
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add assets/rebentos/04-jasmine-blume.webp
+          if git diff --staged --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'assets: add Jasmine and Blume Domus Memoriae portrait'
+          git push
