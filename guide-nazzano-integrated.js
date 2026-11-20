@@ -39,6 +39,21 @@ const important={
   },
   beatrice:{name:'Alessia Beatrice Czartoryski Sapieha Wojciechowski',role:'PONTIFEX · RELIGIO',img:'assets/nazzano/beatrice.webp',title:'A Impronunciável · A Evidência · A Sentença · A Executora',description:'Representante da Religio, ligada à justiça romana e à proteção dos cultos de divindades menores.'}
 };
+const canonicalBiographies=window.DUODECIMA_TRAJETORIAS||{};
+if(canonicalBiographies.cyrus?.paragraphs?.length){
+  important.cyrus.details=canonicalBiographies.cyrus.paragraphs;
+}
+function addCompleteHistory(card,key){
+  const bio=canonicalBiographies[key],copy=card?.querySelector('.leader-copy');
+  if(!bio?.paragraphs?.length||!copy||copy.querySelector('.duo-praetor-details'))return;
+  const disclosure=document.createElement('details');
+  disclosure.className='duo-praetor-details';
+  disclosure.innerHTML='<summary>Conhecer a trajetória completa</summary><div class="duo-praetor-detail-copy">'
+    +(bio.subtitle?'<p class="duo-praetor-subtitle">'+esc(bio.subtitle)+'</p>':'')
+    +bio.paragraphs.map(par=>'<p>'+esc(par)+'</p>').join('')
+    +'</div>';
+  copy.appendChild(disclosure);
+}
 function officialPerson(person){
 const src=esc(person.img),name=esc(person.name);
 return '<article class="leader-card oct26-official-person"><div class="oct26-leader-photo"><img src="'+src+'" alt="Retrato de '+name+'" loading="lazy"><div class="oct26-image-placeholder">Retrato em atualização</div></div><div class="leader-copy"><span>'+esc(person.role)+'</span><h3>'+name+'</h3>'+(person.title?'<em>'+esc(person.title)+'</em>':'')+'<p>'+esc(person.description)+'</p>'+(person.details?.length?'<details class="duo-praetor-details"><summary>Conhecer a trajetória completa</summary><div class="duo-praetor-detail-copy">'+person.details.map(par=>'<p>'+esc(par)+'</p>').join('')+'</div></details>':'')+'</div></article>';
@@ -75,6 +90,14 @@ if(!isRoma){
 root.querySelectorAll('h1,h2,h3,h4,span,small').forEach(el=>{if(el.children.length)return;const x=el.textContent.trim();if(/quem conduz roma agora/i.test(x))el.textContent='Figuras Importantes';if(/^figuras atuais$/i.test(x))el.textContent='FIGURAS HISTÓRICAS E ATUAIS'});
 // A liderança atual é um triunvirato. Preservamos a biografia das figuras anteriores.
 const people=sectionId(root,/figuras importantes|quem conduz roma agora/i);
+if(people){
+  people.querySelectorAll('.leader-card').forEach(card=>{
+    const name=card.querySelector('h3')?.textContent||'';
+    if(/Jasmine Imperione/i.test(name))addCompleteHistory(card,'jasmine');
+    if(/Blume Becker/i.test(name))addCompleteHistory(card,'blume');
+    if(/Cyrus Torres Aurelius/i.test(name))addCompleteHistory(card,'cyrus');
+  });
+}
 if(people&&!people.querySelector('.oct26-current-leadership')){
   const old=[...people.querySelectorAll('.leader-card')];
   const cardOf=re=>old.find(a=>re.test(a.querySelector('h3')?.textContent||''));
