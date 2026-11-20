@@ -40,7 +40,7 @@ const jointHistory=window.DUODECIMA_TRAJETORIAS||{};
 if(jointHistory.jasmine?.domusParagraphs?.length&&jointHistory.blume?.domusParagraphs?.length){
   rebentos.push({
     id:'jasmine-blume',series:'IV',label:'II E IV COORTES · PRAETORIA',
-    image:'assets/rebentos/04-jasmine-blume.png',
+    image:'assets/rebentos/04-jasmine-blume.webp',
     alt:'Quadro cerimonial de Jasmine Imperione à esquerda e Blume Becker Boudreaux à direita, diante de arcos romanos adornados com crânios',
     shape:'wide',
     people:[
