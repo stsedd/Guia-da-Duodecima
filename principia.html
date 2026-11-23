@@ -99,6 +99,19 @@
     <div class="os-bar-spacer"></div>
     <div class="os-bar-tools">
       <a class="os-cta" href="https://stsedd.github.io/ficha-oficial-duodecima-rpg/" target="_blank" rel="noopener noreferrer" title="Abrir a Ficha Oficial em nova aba">Criar ficha <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      <div class="os-np" id="osNp" hidden>
+        <button class="os-np-open" type="button" data-app="musica" title="Abrir Música">
+          <span class="os-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="os-np-label" id="osNpLabel"></span>
+        </button>
+        <button class="os-np-toggle" type="button" id="osNpToggle" aria-label="Tocar" title="Tocar">
+          <svg class="os-svg os-np-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+          <svg class="os-svg os-np-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.5v13M15.5 5.5v13"/></svg>
+        </button>
+      </div>
+      <a class="os-bar-btn os-bar-btn--msg" href="https://discord.com/channels/1498461819902234624/1498486495668080761" target="_blank" rel="noopener noreferrer" title="iMessage: abre o canal no Discord">
+        <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/></svg><b>iMessage</b>
+      </a>
       <button class="os-bar-btn os-bar-btn--search" type="button" data-action="search" title="Buscar (Ctrl/⌘ K)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><span class="os-vh">Buscar</span><kbd>⌘K</kbd></button>
       <div class="core-status" id="coreStatus" title="Sincronizando com o Duodécima Core"><i></i><span>CORE · CARREGANDO</span></div>
       <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" title="Alternar tema claro e escuro"><span aria-hidden="true">☾</span><b>Escuro</b></button>
@@ -271,6 +284,39 @@
           <h3>Janelas</h3>
           <button class="os-btn" type="button" data-action="reset-windows">Restaurar posição das janelas</button>
         </section>
+      </div>
+    </div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <section class="os-win os-util os-music" data-win="musica" role="dialog" aria-modal="false" aria-labelledby="osMusicTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="osMusicTitle">Música</b><small>Playlists do Spotify</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar (a música continua)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar (a música continua)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body">
+      <div class="os-music-wrap">
+        <form class="os-music-form" id="osMusicForm" novalidate>
+          <label class="os-music-field">
+            <span>Link do Spotify</span>
+            <input id="osMusicUrl" type="url" inputmode="url" placeholder="https://open.spotify.com/playlist/…" autocomplete="off" spellcheck="false">
+          </label>
+          <div class="os-music-row">
+            <label class="os-music-field">
+              <span>Nome <em>(opcional)</em></span>
+              <input id="osMusicLabel" type="text" placeholder="Ex.: playlist da Skye" maxlength="60" autocomplete="off">
+            </label>
+            <button class="os-btn os-btn--primary" type="submit">Adicionar</button>
+          </div>
+          <p class="os-music-msg" id="osMusicMsg" role="status" aria-live="polite"></p>
+        </form>
+        <div class="os-music-player" id="osMusicPlayer" hidden><div id="osMusicEmbed"></div></div>
+        <div class="os-music-list" id="osMusicList" role="list" aria-label="Playlists salvas"></div>
+        <p class="os-music-note">Quem está logado no Spotify neste navegador ouve as faixas completas; sem login, o Spotify toca prévias de 30 segundos. Os links ficam salvos só neste navegador. Fechar a janela não para a música: use o botão de pausa na barra superior.</p>
       </div>
     </div>
     <div class="os-resize" data-resize aria-hidden="true"></div>

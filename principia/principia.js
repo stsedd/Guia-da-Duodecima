@@ -68,12 +68,17 @@
     desktop: '<rect x="3.5" y="4.5" width="17" height="12" rx="2"/><path d="M8.5 20h7M12 16.5V20"/>',
     folder: '<path d="M3.5 7.5a2 2 0 0 1 2-2H10l2 2h6.5a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
     open: '<path d="M14 4.5h5.5V10M19.5 4.5 12 12"/><path d="M18.5 14v4.5a1 1 0 0 1-1 1h-12a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1H10"/>',
-    book: '<path d="M4.5 5.5A2 2 0 0 1 6.5 3.5h12v15h-12a2 2 0 0 0-2 2z"/><path d="M4.5 20.5a2 2 0 0 1 2-2h12v2h-12"/>'
+    book: '<path d="M4.5 5.5A2 2 0 0 1 6.5 3.5h12v15h-12a2 2 0 0 0-2 2z"/><path d="M4.5 20.5a2 2 0 0 1 2-2h12v2h-12"/>',
+    close: '<path d="m7 7 10 10M17 7 7 17"/>',
+    phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/>',
+    music: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.6"/><path d="M12 3.5a8.5 8.5 0 0 1 8.5 8.5"/>'
   };
   const svg = (name, cls = 'os-svg') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${SVG[name] || ''}</svg>`;
 
   /* ---------- Apps ---------- */
   const FICHA_URL = 'https://stsedd.github.io/ficha-oficial-duodecima-rpg/';
+  /* Canal do iMessage (mensagens entre personagens) no Discord da Duodécima. */
+  const IMESSAGE_URL = 'https://discord.com/channels/1498461819902234624/1498486495668080761';
   const ICON = n => `assets/principia/icons/${n}.webp`;
   const PAGES = ['sistema', 'combate', 'crafting', 'magia', 'deuses', 'roma', 'domus'];
   const APPS = {
@@ -87,8 +92,10 @@
     tabularium: { kind: 'win', win: 'tabularium', title: 'Tabularium', art: ICON('tabularium'), tilt: 3 },
     mapa: { kind: 'route', title: 'Mapas', route: ['roma', 'mapa-acampamento'], art: ICON('mapa'), tilt: -2 },
     ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, art: ICON('ficha'), tilt: 2 },
+    imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
+    musica: { kind: 'win', win: 'musica', title: 'Música', custom: 'vinyl', glyph: 'music', tilt: 3 },
     leiame: { kind: 'win', win: 'leiame', title: 'Leia-me', glyph: 'note', tilt: -3 },
-    prefs: { kind: 'win', win: 'prefs', title: 'Preferências', glyph: 'gear', tilt: 2 },
+    prefs: { kind: 'win', win: 'prefs', title: 'Preferências', short: 'Ajustes', glyph: 'gear', tilt: 2 },
     sobre: { kind: 'win', win: 'sobre', title: 'Sobre', glyph: 'info', tilt: 0 },
     buscar: { kind: 'action', action: 'search', title: 'Buscar', glyph: 'search', tilt: 0 }
   };
@@ -104,13 +111,23 @@
   const searchInput = $('#globalSearch');
   const spot = $('#osSpot');
 
+  /* Celular do iMessage: desenho próprio no estilo da legião. */
+  const PHONE_ART = '<svg viewBox="0 0 48 48" aria-hidden="true"><rect class="os-phone-body" x="12" y="4.5" width="23" height="39" rx="5.5"/><rect class="os-phone-screen" x="14.6" y="9.5" width="17.8" height="29" rx="2.2"/><rect class="os-phone-speaker" x="20.5" y="6.4" width="6" height="1.5" rx=".75"/><g class="os-phone-bubble"><path d="M19.5 15h14a4 4 0 0 1 4 4v6.2a4 4 0 0 1-4 4h-6.8l-5.2 4.3v-4.3h-2a4 4 0 0 1-4-4V19a4 4 0 0 1 4-4z"/><circle cx="22.2" cy="22.1" r="1.6"/><circle cx="26.5" cy="22.1" r="1.6"/><circle cx="30.8" cy="22.1" r="1.6"/></g></svg>';
+  function artHTML(a) {
+    const ext = a.kind === 'external' ? `<span class="os-ico-ext">${svg('ext')}</span>` : '';
+    if (a.custom === 'phone') return `<span class="os-ico-art os-ico-art--phone">${PHONE_ART}${ext}</span>`;
+    if (a.custom === 'vinyl') return `<span class="os-ico-art os-ico-art--vinyl"><i class="os-vinyl"></i>${ext}</span>`;
+    if (a.art) return `<span class="os-ico-art" style="background-image:url('${a.art}')">${ext}</span>`;
+    return `<span class="os-ico-art os-ico-art--glyph">${svg(a.glyph)}${ext}</span>`;
+  }
+  /* Versão pequena do ícone (busca e menus). */
+  const miniArt = id => APPS[id].art ? `<img src="${APPS[id].art}" alt="">` : `<span class="os-mini-glyph">${svg(APPS[id].glyph)}</span>`;
+
   function iconHTML(id, i, opts = {}) {
     const a = APPS[id];
     if (!a) return '';
     const label = opts.short ? shortTitle(id) : appTitle(id);
-    const art = a.art
-      ? `<span class="os-ico-art" style="background-image:url('${a.art}')">${a.kind === 'external' ? `<span class="os-ico-ext">${svg('ext')}</span>` : ''}</span>`
-      : `<span class="os-ico-art os-ico-art--glyph">${svg(a.glyph)}</span>`;
+    const art = artHTML(a);
     const attrs = `class="os-ico" data-app="${id}" style="--i:${i};--tilt:${a.tilt || 0}deg"`;
     if (a.kind === 'external') {
       return `<a ${attrs} href="${a.href}" target="_blank" rel="noopener noreferrer" aria-label="${esc(label)} (abre em nova aba)">${art}<span class="os-ico-label">${esc(label)}</span></a>`;
@@ -119,15 +136,19 @@
   }
 
   function renderShell() {
+    // O link do iMessage vem só de IMESSAGE_URL: trocar o canal é editar uma linha.
+    $$('.os-bar-btn--msg').forEach(a => { a.href = IMESSAGE_URL; });
     $('#osIconsLeft').innerHTML = PAGES.map((k, i) => iconHTML(k, i)).join('');
-    $('#osIconsRight').innerHTML = ['tabularium', 'mapa', 'ficha', 'leiame', 'prefs'].map((k, i) => iconHTML(k, i + 2)).join('');
-    $('#osHomeGrid').innerHTML = [...PAGES, 'mapa'].map((k, i) => iconHTML(k, i, { short: true })).join('');
-    $('#osDock').innerHTML = ['buscar', 'tabularium', 'ficha', 'prefs'].map((k, i) => iconHTML(k, i + 8, { short: true })).join('');
+    $('#osIconsRight').innerHTML = ['tabularium', 'mapa', 'ficha', 'imessage', 'musica', 'leiame', 'prefs'].map((k, i) => iconHTML(k, i + 2)).join('');
+    $('#osHomeGrid').innerHTML = [...PAGES, 'mapa', 'tabularium', 'prefs'].map((k, i) => iconHTML(k, i, { short: true })).join('');
+    $('#osDock').innerHTML = ['imessage', 'musica', 'buscar', 'ficha'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
     $('#osBarMenus').innerHTML =
       `<button class="os-menu-trigger os-menu-trigger--all" type="button" data-menu="all" aria-haspopup="menu" aria-expanded="false">Arquivos</button>` +
       PAGES.map(k => `<button class="os-menu-trigger os-menu-trigger--app" type="button" data-menu="app:${k}" aria-haspopup="menu" aria-expanded="false">${esc(shortTitle(k))}</button>`).join('');
     $('#osTabs').innerHTML = PAGES.map(k => `<button class="os-tab" type="button" data-app="${k}" data-tab="${k}" title="${esc(appTitle(k))}"><img src="${APPS[k].art}" alt="">${esc(shortTitle(k))}</button>`).join('');
-    $('#osSpotApps').innerHTML = [...PAGES, 'tabularium', 'mapa', 'leiame'].map(k => `<button class="os-spot-app" type="button" data-app="${k}">${APPS[k].art ? `<img src="${APPS[k].art}" alt="">` : `<span class="os-ico-art os-ico-art--glyph" style="width:30px;height:30px;border-width:2px;border-radius:8px">${svg(APPS[k].glyph)}</span>`}${esc(appTitle(k))}</button>`).join('');
+    $('#osSpotApps').innerHTML = [...PAGES, 'tabularium', 'mapa', 'musica', 'imessage', 'leiame'].map(k => APPS[k].kind === 'external'
+      ? `<a class="os-spot-app" href="${APPS[k].href}" target="_blank" rel="noopener noreferrer" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}<span class="os-spot-ext">↗</span></a>`
+      : `<button class="os-spot-app" type="button" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}</button>`).join('');
   }
 
   /* ---------- Índice de arquivos (menus e Tabularium) ---------- */
@@ -184,7 +205,7 @@
   const WM = (() => {
     const wins = {};
     let z = 200;
-    const MIN = { reader: [760, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260] };
+    const MIN = { reader: [760, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], musica: [340, 420] };
     let saved = {};
     try { saved = JSON.parse(store.get('principia_wins', '{}')) || {}; } catch { saved = {}; }
     const barH = () => isMobile() ? 0 : ($('#osBar')?.offsetHeight || 40);
@@ -196,8 +217,8 @@
         const w = Math.min(1300, vw - 236);
         return { x: Math.round((vw - w) / 2), y: bar + g, w, h: vh - bar - g * 2 };
       }
-      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
-      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0 }[id] || 0;
+      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], musica: [480, 760], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
+      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, musica: 150 }[id] || 0;
       const [w0, h0] = sizes[id] || [620, 480];
       const w = Math.round(Math.min(w0, vw - g * 2)), h = Math.round(Math.min(h0, vh - bar - g * 2));
       return { x: Math.round((vw - w) / 2 + shift), y: Math.round(bar + Math.max(g, (vh - bar - h) / 2 - 10) + shift * .35), w, h };
@@ -810,6 +831,8 @@
         <button class="os-dd-item" type="button" role="menuitem" data-app="prefs">${svg('gear')}Preferências…</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="leiame">${svg('note')}Leia-me</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="tabularium">${svg('folder')}Tabularium</button>
+        <button class="os-dd-item" type="button" role="menuitem" data-app="musica">${svg('music')}Música</button>
+        <a class="os-dd-item" role="menuitem" href="${IMESSAGE_URL}" target="_blank" rel="noopener noreferrer">${svg('phone')}iMessage<em>Discord</em></a>
         <div class="os-dd-sep" role="separator"></div>
         <button class="os-dd-item" type="button" role="menuitem" data-action="desktop">${svg('desktop')}Mostrar área de trabalho</button>
         <button class="os-dd-item" type="button" role="menuitem" data-action="reboot">${svg('power')}Reiniciar terminal</button>
@@ -1020,14 +1043,227 @@
     if (win === 'sobre') renderAbout();
     if (win === 'prefs') syncPrefs();
     if (win === 'leiame') store.set('principia_seen', '1');
+    if (win === 'musica') { renderMusic(); const it = currentTrack(); if (it) playerFor(it, false); }
     await WM.open(win, { from });
     updateRunning();
+    if (win === 'musica' && !music.items.length && !isMobile()) musicEls.url.focus({ preventScroll: true });
   }
-  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer']) {
+  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'musica']) {
     const w = WM.get(id);
     if (!w) continue;
     w.onState = () => updateRunning();
   }
+
+  /* ==========================================================================
+     Música — player oficial do Spotify
+     A janela pode ser fechada ou minimizada sem parar a música: o player continua
+     carregado (apenas oculto) enquanto a página estiver aberta.
+     ========================================================================== */
+  const MUSIC_KEY = 'principia_music';
+  const MUSIC_TYPES = { playlist: 'Playlist', album: 'Álbum', track: 'Música', artist: 'Artista', episode: 'Episódio', show: 'Podcast' };
+  const SPOTIFY_RE = /(?:open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[a-z]{2})?\/)?(?:embed\/)?|spotify:)(playlist|album|track|artist|episode|show)[/:]([A-Za-z0-9]{22})/i;
+  const musicEls = {
+    form: $('#osMusicForm'), url: $('#osMusicUrl'), label: $('#osMusicLabel'), msg: $('#osMusicMsg'),
+    list: $('#osMusicList'), player: $('#osMusicPlayer'), host: $('#osMusicEmbed'),
+    np: $('#osNp'), npLabel: $('#osNpLabel'), npToggle: $('#osNpToggle')
+  };
+  const music = { items: [], current: null, controller: null, frame: null, pending: null, apiPromise: null, playing: false, loadedUri: null, wanted: null };
+  const trackKey = it => `${it.type}:${it.sid}`;
+  const trackUri = it => `spotify:${it.type}:${it.sid}`;
+  const trackLabel = it => it.label || MUSIC_TYPES[it.type] || 'Spotify';
+  const currentTrack = () => music.items.find(it => trackKey(it) === music.current) || null;
+  try {
+    const saved = JSON.parse(store.get(MUSIC_KEY, 'null'));
+    if (saved && Array.isArray(saved.items)) {
+      music.items = saved.items
+        .filter(it => it && MUSIC_TYPES[it.type] && /^[A-Za-z0-9]{22}$/.test(it.sid))
+        .slice(0, 40)
+        .map(it => ({ type: it.type, sid: it.sid, label: String(it.label || '').slice(0, 60) }));
+      music.current = music.items.some(it => trackKey(it) === saved.current) ? saved.current : null;
+    }
+  } catch {}
+  const saveMusic = () => store.set(MUSIC_KEY, JSON.stringify({ items: music.items, current: music.current }));
+
+  function parseSpotify(text) {
+    const s = String(text || '').trim();
+    if (!s) return { error: 'Cole o link de uma playlist, álbum ou música do Spotify.' };
+    if (/spotify\.link\//i.test(s)) return { error: 'Esse é um link curto (spotify.link). Abra-o no navegador e copie o endereço completo, que começa com open.spotify.com.' };
+    const m = SPOTIFY_RE.exec(s);
+    if (!m) return { error: 'Não reconheci esse link. No Spotify, use Compartilhar → Copiar link (open.spotify.com/…).' };
+    return { type: m[1].toLowerCase(), sid: m[2] };
+  }
+
+  function setPlaying(on) {
+    music.playing = !!on;
+    html.dataset.music = music.current ? (on ? 'playing' : 'paused') : 'off';
+    const label = on ? 'Pausar' : 'Tocar';
+    musicEls.npToggle.setAttribute('aria-label', label);
+    musicEls.npToggle.title = label;
+  }
+
+  function loadSpotifyApi() {
+    if (music.apiPromise) return music.apiPromise;
+    music.apiPromise = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('tempo esgotado')), 9000);
+      const previous = window.onSpotifyIframeApiReady;
+      window.onSpotifyIframeApiReady = api => {
+        clearTimeout(timer);
+        resolve(api);
+        if (typeof previous === 'function') { try { previous(api); } catch {} }
+      };
+      const s = document.createElement('script');
+      s.src = 'https://open.spotify.com/embed/iframe-api/v1';
+      s.async = true;
+      s.onerror = () => { clearTimeout(timer); reject(new Error('falha ao carregar')); };
+      document.head.append(s);
+    });
+    return music.apiPromise;
+  }
+
+  /* Sem a API (bloqueada por extensão, por exemplo), usa o embed simples do Spotify. */
+  function mountFallbackFrame(it) {
+    const f = document.createElement('iframe');
+    f.title = 'Player do Spotify';
+    f.width = '100%';
+    f.height = '352';
+    f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+    f.src = `https://open.spotify.com/embed/${it.type}/${it.sid}?utm_source=generator&theme=0`;
+    f.dataset.uri = trackUri(it);
+    musicEls.host.replaceChildren(f);
+    music.frame = f;
+  }
+
+  /* O player é criado uma única vez; depois só troca o que está tocando. */
+  async function playerFor(it, autoplay) {
+    if (!it) return;
+    musicEls.player.hidden = false;
+    music.wanted = { it, autoplay };
+    if (music.controller) {
+      const uri = trackUri(it);
+      if (music.loadedUri !== uri) { music.controller.loadUri(uri); music.loadedUri = uri; }
+      if (autoplay) setTimeout(() => { try { music.controller.play(); } catch {} }, music.loadedUri === uri ? 0 : 600);
+      return;
+    }
+    if (music.frame) {
+      if (music.frame.dataset.uri !== trackUri(it)) mountFallbackFrame(it);
+      return;
+    }
+    if (music.pending) return music.pending;
+    music.pending = (async () => {
+      try {
+        const api = await loadSpotifyApi();
+        const el = document.createElement('div');
+        musicEls.host.replaceChildren(el);
+        const first = music.wanted.it;
+        await new Promise(resolve => {
+          api.createController(el, { uri: trackUri(first), width: '100%', height: 352 }, ctrl => {
+            music.controller = ctrl;
+            music.loadedUri = trackUri(first);
+            ctrl.addListener('playback_update', e => setPlaying(!(e && e.data && e.data.isPaused)));
+            ctrl.addListener('ready', () => resolve());
+            setTimeout(resolve, 5000);
+          });
+        });
+        const want = music.wanted;
+        if (want && trackUri(want.it) !== music.loadedUri) { music.controller.loadUri(trackUri(want.it)); music.loadedUri = trackUri(want.it); }
+        if (want && want.autoplay) { try { music.controller.play(); } catch {} }
+      } catch (err) {
+        console.warn('[Principia] API do Spotify indisponível; usando o player simples.', err);
+        mountFallbackFrame(music.wanted.it);
+      } finally {
+        music.pending = null;
+      }
+    })();
+    return music.pending;
+  }
+
+  function renderMusic() {
+    const cur = music.current;
+    musicEls.list.innerHTML = music.items.length
+      ? `<h4>Salvas neste navegador</h4>` + music.items.map(it => {
+        const k = trackKey(it);
+        const name = trackLabel(it);
+        return `<div class="os-track${k === cur ? ' is-current' : ''}" role="listitem">
+          <button class="os-track-main" type="button" data-music-play="${esc(k)}" aria-label="Tocar ${esc(name)}">
+            <span class="os-track-disc" aria-hidden="true"></span>
+            <span class="os-track-text"><b>${esc(name)}</b><small>${esc(MUSIC_TYPES[it.type])}${k === cur ? ' · selecionada' : ''}</small></span>
+          </button>
+          <a class="os-track-btn" href="https://open.spotify.com/${it.type}/${it.sid}" target="_blank" rel="noopener noreferrer" title="Abrir no Spotify" aria-label="Abrir ${esc(name)} no Spotify">${svg('ext')}</a>
+          <button class="os-track-btn" type="button" data-music-del="${esc(k)}" title="Remover" aria-label="Remover ${esc(name)}">${svg('close')}</button>
+        </div>`;
+      }).join('')
+      : `<p class="os-music-empty">Nenhuma playlist salva ainda. Cole acima o link da playlist do seu personagem para ouvir enquanto navega pelo Guia.</p>`;
+    updateNowPlaying();
+  }
+
+  function updateNowPlaying() {
+    const it = currentTrack();
+    musicEls.np.hidden = !it;
+    if (it) musicEls.npLabel.textContent = trackLabel(it);
+    if (!it) musicEls.player.hidden = true;
+    setPlaying(it ? music.playing : false);
+  }
+
+  musicEls.form.addEventListener('submit', e => {
+    e.preventDefault();
+    const parsed = parseSpotify(musicEls.url.value);
+    const msg = musicEls.msg;
+    if (parsed.error) {
+      msg.textContent = parsed.error;
+      msg.classList.add('is-error');
+      musicEls.url.focus();
+      return;
+    }
+    const label = musicEls.label.value.trim().slice(0, 60);
+    const k = trackKey(parsed);
+    const existing = music.items.find(it => trackKey(it) === k);
+    if (existing) { if (label) existing.label = label; }
+    else music.items.unshift({ type: parsed.type, sid: parsed.sid, label });
+    music.items = music.items.slice(0, 40);
+    music.current = k;
+    saveMusic();
+    musicEls.form.reset();
+    msg.classList.remove('is-error');
+    msg.textContent = existing ? 'Esse link já estava salvo; selecionei de novo.' : 'Salvo neste navegador. Aperte o play no player abaixo.';
+    renderMusic();
+    playerFor(currentTrack(), true);
+  });
+
+  musicEls.list.addEventListener('click', e => {
+    const play = e.target.closest('[data-music-play]');
+    if (play) {
+      music.current = play.dataset.musicPlay;
+      saveMusic();
+      renderMusic();
+      playerFor(currentTrack(), true);
+      return;
+    }
+    const del = e.target.closest('[data-music-del]');
+    if (del) {
+      const k = del.dataset.musicDel;
+      music.items = music.items.filter(it => trackKey(it) !== k);
+      if (music.current === k) {
+        music.current = null;
+        try { music.controller?.pause(); } catch {}
+        if (music.frame) { music.frame.remove(); music.frame = null; }
+        music.playing = false;
+      }
+      saveMusic();
+      renderMusic();
+    }
+  });
+
+  musicEls.npToggle.addEventListener('click', async e => {
+    e.preventDefault();
+    e.stopPropagation();
+    const it = currentTrack();
+    if (!it) return;
+    if (music.controller) { try { music.controller.togglePlay(); } catch {} return; }
+    if (music.frame) { openUtil('musica', null); return; }
+    await playerFor(it, true);
+  });
+
+  updateNowPlaying();
 
   /* ==========================================================================
      Cliques globais (fase de captura, antes do motor)

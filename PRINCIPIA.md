@@ -31,6 +31,8 @@ A proposta convive com o site atual: `index.html` continua intacto e a nova vers
 - **Tabularium:** explorador com o Guia inteiro em pastas e documentos, com filtro.
 - **Visualizador de imagens:** mapas e retratos abrem ampliados em janela própria.
 - **Preferências:** tema Noite/Dia (o mesmo do site atual), quatro papéis de parede, reduzir animações e ligar/desligar a inicialização.
+- **iMessage:** ícone de celular na área de trabalho, no dock do celular e na barra superior, que abre o canal do iMessage no Discord. No celular, o link abre direto no app do Discord. O endereço do canal fica só em `IMESSAGE_URL`, no `principia/principia.js`.
+- **Música:** a pessoa cola o link de uma playlist, álbum ou música do Spotify e pode salvar vários, com o nome do personagem. O player oficial do Spotify fica numa janela; fechar ou minimizar a janela não para a música, e o mini-player da barra superior pausa e retoma de qualquer lugar. Quem está logado no Spotify naquele navegador ouve as faixas completas; sem login, o Spotify toca prévias de 30 segundos. O script do Spotify só é carregado quando alguém usa o app.
 - **Celular:** tela inicial com busca, grade de apps e dock; apps em tela cheia com botão de voltar e gaveta de seções.
 - **Acessibilidade:** respeita "reduzir movimento" do sistema, funciona por teclado (Esc fecha menus e janelas, setas navegam nos menus) e mantém o foco visível.
 
@@ -38,7 +40,7 @@ A proposta convive com o site atual: `index.html` continua intacto e a nova vers
 
 - Quando o `index.html` ganhar uma camada nova de CSS ou JS, replique a mesma linha no `principia.html`, na mesma posição.
 - Para adotar a Principia como padrão, basta publicar o conteúdo de `principia.html` como `index.html`.
-- As preferências ficam no navegador de cada pessoa (`principia_wall`, `principia_motion`, `principia_boot`, `principia_wins`, `principia_seen`).
+- As preferências ficam no navegador de cada pessoa (`principia_wall`, `principia_motion`, `principia_boot`, `principia_wins`, `principia_seen` e, para as playlists, `principia_music`).
 
 ## Pontos para validar
 
