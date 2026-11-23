@@ -18,6 +18,7 @@ A proposta convive com o site atual: `index.html` continua intacto e a nova vers
 | `principia/principia-early.js` | Carrega antes do motor e faz a rolagem e o histórico funcionarem dentro da janela. |
 | `principia/principia.js` | Área de trabalho, janelas, menus, busca, Tabularium, tela do celular e inicialização. |
 | `principia/principia.css` | Visual da interface e ajustes do conteúdo dentro das janelas. |
+| `principia/principia-ficha.js` | App Minha Ficha: importa o JSON da Ficha Oficial e mostra o personagem ao lado do Guia. |
 | `principia/manifest.webmanifest` | Permite adicionar a Principia à tela inicial do celular. |
 | `assets/principia/` | Papel de parede SPQR, ícones dos apps (recortes dos banners da legião) e marcas LEG·XII. |
 
@@ -32,6 +33,7 @@ A proposta convive com o site atual: `index.html` continua intacto e a nova vers
 - **Visualizador de imagens:** mapas e retratos abrem ampliados em janela própria.
 - **Preferências:** tema Noite/Dia (o mesmo do site atual), quatro papéis de parede, reduzir animações e ligar/desligar a inicialização.
 - **iMessage:** ícone de celular na área de trabalho, no dock do celular e na barra superior, que abre o canal do iMessage no Discord. No celular, o link abre direto no app do Discord. O endereço do canal fica só em `IMESSAGE_URL`, no `principia/principia.js`.
+- **Minha Ficha (prévia de teste):** importa o `.json` exportado pela Ficha Oficial e mostra o personagem numa janela da Principia: capa, retrato, HP, Energia, Sanidade, atributos, combate, perícias, talentos, habilidades com as estacas, itens, Roma e história. Cada habilidade, talento e condição tem um link que abre a regra no Guia. No computador, **Lado a lado** coloca a ficha à esquerda e o Guia à direita; no celular, os botões **Ficha** e **Guia** alternam entre as duas telas sem perder o lugar. A ficha também guarda a playlist do personagem, tocada pelo app Música. Os arquivos importados ficam num banco próprio do navegador (`principia_fichas_v1`, IndexedDB), separado dos dados da Ficha Oficial, e nada é enviado. Os números seguem as fórmulas de referência da ficha atual sobre os dados do Core; bônus de Rebento e efeitos de habilidades sobre perícias ainda não entram nas contas. O código fica em `principia/principia-ficha.js`.
 - **Música:** a pessoa cola o link de uma playlist, álbum ou música do Spotify e pode salvar vários, com o nome do personagem. O player oficial do Spotify fica numa janela; fechar ou minimizar a janela não para a música, e o mini-player da barra superior pausa e retoma de qualquer lugar. Quem está logado no Spotify naquele navegador ouve as faixas completas; sem login, o Spotify toca prévias de 30 segundos. O script do Spotify só é carregado quando alguém usa o app.
 - **Celular:** tela inicial com busca, grade de apps e dock; apps em tela cheia com botão de voltar e gaveta de seções.
 - **Acessibilidade:** respeita "reduzir movimento" do sistema, funciona por teclado (Esc fecha menus e janelas, setas navegam nos menus) e mantém o foco visível.

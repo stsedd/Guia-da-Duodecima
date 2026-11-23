@@ -91,7 +91,8 @@
     domus: { kind: 'page', title: 'Domus Memoriae', short: 'Domus', art: ICON('domus'), tilt: -2 },
     tabularium: { kind: 'win', win: 'tabularium', title: 'Tabularium', art: ICON('tabularium'), tilt: 3 },
     mapa: { kind: 'route', title: 'Mapas', route: ['roma', 'mapa-acampamento'], art: ICON('mapa'), tilt: -2 },
-    ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, art: ICON('ficha'), tilt: 2 },
+    minhaficha: { kind: 'win', win: 'ficha', title: 'Minha Ficha', art: ICON('ficha'), tilt: -2 },
+    ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, glyph: 'book', tilt: 2 },
     imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
     musica: { kind: 'win', win: 'musica', title: 'Música', custom: 'vinyl', glyph: 'music', tilt: 3 },
     leiame: { kind: 'win', win: 'leiame', title: 'Leia-me', glyph: 'note', tilt: -3 },
@@ -139,14 +140,14 @@
     // O link do iMessage vem só de IMESSAGE_URL: trocar o canal é editar uma linha.
     $$('.os-bar-btn--msg').forEach(a => { a.href = IMESSAGE_URL; });
     $('#osIconsLeft').innerHTML = PAGES.map((k, i) => iconHTML(k, i)).join('');
-    $('#osIconsRight').innerHTML = ['tabularium', 'mapa', 'ficha', 'imessage', 'musica', 'leiame', 'prefs'].map((k, i) => iconHTML(k, i + 2)).join('');
-    $('#osHomeGrid').innerHTML = [...PAGES, 'mapa', 'tabularium', 'prefs'].map((k, i) => iconHTML(k, i, { short: true })).join('');
-    $('#osDock').innerHTML = ['imessage', 'musica', 'buscar', 'ficha'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
+    $('#osIconsRight').innerHTML = ['minhaficha', 'tabularium', 'mapa', 'ficha', 'imessage', 'musica', 'leiame', 'prefs'].map((k, i) => iconHTML(k, i + 2)).join('');
+    $('#osHomeGrid').innerHTML = [...PAGES, 'mapa', 'tabularium', 'ficha', 'prefs'].map((k, i) => iconHTML(k, i, { short: true })).join('');
+    $('#osDock').innerHTML = ['imessage', 'musica', 'minhaficha', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
     $('#osBarMenus').innerHTML =
       `<button class="os-menu-trigger os-menu-trigger--all" type="button" data-menu="all" aria-haspopup="menu" aria-expanded="false">Arquivos</button>` +
       PAGES.map(k => `<button class="os-menu-trigger os-menu-trigger--app" type="button" data-menu="app:${k}" aria-haspopup="menu" aria-expanded="false">${esc(shortTitle(k))}</button>`).join('');
     $('#osTabs').innerHTML = PAGES.map(k => `<button class="os-tab" type="button" data-app="${k}" data-tab="${k}" title="${esc(appTitle(k))}"><img src="${APPS[k].art}" alt="">${esc(shortTitle(k))}</button>`).join('');
-    $('#osSpotApps').innerHTML = [...PAGES, 'tabularium', 'mapa', 'musica', 'imessage', 'leiame'].map(k => APPS[k].kind === 'external'
+    $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'tabularium', 'mapa', 'musica', 'imessage', 'leiame'].map(k => APPS[k].kind === 'external'
       ? `<a class="os-spot-app" href="${APPS[k].href}" target="_blank" rel="noopener noreferrer" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}<span class="os-spot-ext">↗</span></a>`
       : `<button class="os-spot-app" type="button" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}</button>`).join('');
   }
@@ -184,6 +185,8 @@
       const grouped = new Set(folder.groups.flatMap(g => g.files.map(f => f.id)));
       const orphans = deityEls.filter(el => !grouped.has(el.id));
       if (orphans.length) folder.groups.push({ id: 'outros', title: 'Outras divindades', files: orphans.map(el => ({ id: el.id, title: deityMap.get(el.id) })), virtual: true });
+      // id do Core → slug usado nas âncoras do Guia (#deus-<slug>, <slug>-ativa-<n>).
+      folder.coreSlugs = new Map(deityEls.filter(el => el.dataset.coreId).map(el => [el.dataset.coreId, el.id.replace(/^deus-/, '')]));
     } else {
       folder.files = secs.map(el => ({ id: el.id, title: titleOf(el) }));
     }
@@ -205,7 +208,7 @@
   const WM = (() => {
     const wins = {};
     let z = 200;
-    const MIN = { reader: [760, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], musica: [340, 420] };
+    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], musica: [340, 420], ficha: [360, 420] };
     let saved = {};
     try { saved = JSON.parse(store.get('principia_wins', '{}')) || {}; } catch { saved = {}; }
     const barH = () => isMobile() ? 0 : ($('#osBar')?.offsetHeight || 40);
@@ -217,8 +220,8 @@
         const w = Math.min(1300, vw - 236);
         return { x: Math.round((vw - w) / 2), y: bar + g, w, h: vh - bar - g * 2 };
       }
-      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], musica: [480, 760], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
-      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, musica: 150 }[id] || 0;
+      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], musica: [480, 760], ficha: [600, 860], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
+      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, musica: 150, ficha: -120 }[id] || 0;
       const [w0, h0] = sizes[id] || [620, 480];
       const w = Math.round(Math.min(w0, vw - g * 2)), h = Math.round(Math.min(h0, vh - bar - g * 2));
       return { x: Math.round((vw - w) / 2 + shift), y: Math.round(bar + Math.max(g, (vh - bar - h) / 2 - 10) + shift * .35), w, h };
@@ -459,12 +462,31 @@
       return w;
     }
 
+    /* Posiciona uma janela num retângulo exato (usado para colocar Ficha e Guia lado a lado). */
+    function place(id, rect, animate = true) {
+      const w = wins[id];
+      if (!w || isMobile()) return;
+      const first = w.open ? w.el.getBoundingClientRect() : null;
+      w.max = false;
+      w.custom = true;
+      w.rect = { ...rect };
+      apply(w);
+      save();
+      if (!animate || !first || reduced()) return;
+      const last = w.el.getBoundingClientRect();
+      w.el.animate([
+        { transformOrigin: '0 0', transform: `translate(${first.left - last.left}px,${first.top - last.top}px) scale(${first.width / last.width},${first.height / last.height})` },
+        { transformOrigin: '0 0', transform: 'none' }
+      ], { duration: 380, easing: 'cubic-bezier(.2,.9,.22,1)' });
+    }
+    const metrics = () => ({ bar: barH(), vw: innerWidth, vh: innerHeight });
+
     function relayout() { for (const w of Object.values(wins)) apply(w); }
     function reset() {
       store.del('principia_wins');
       for (const w of Object.values(wins)) { w.rect = null; w.max = false; w.custom = false; apply(w); }
     }
-    return { wins, register, open, close, toggleMax, front, topmost, relayout, reset, get: id => wins[id], isOpen: id => !!wins[id]?.open };
+    return { wins, register, open, close, toggleMax, front, topmost, relayout, reset, place, metrics, get: id => wins[id], isOpen: id => !!wins[id]?.open };
   })();
 
   $$('.os-win[data-win]').forEach(el => WM.register(el));
@@ -631,15 +653,21 @@
     afterRenderBusy = false;
     enterContent();
     opening = false;
+    if (anchor) scrollToAnchorSoon(anchor);
   }
 
+  /* Garante que a âncora fique visível depois que a janela abre (o motor pode ainda estar
+     aplicando o foco da divindade ou a rolagem suave). */
   function scrollToAnchorSoon(anchor) {
-    setTimeout(() => {
+    const tryScroll = () => {
       const t = content.querySelector('#' + CSS.escape(anchor));
-      if (!t) return;
+      if (!t || t.offsetParent === null) return false;
       const top = t.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
-      if (Math.abs(top) > 40) t.scrollIntoView({ block: t.matches('details') ? 'center' : 'start' });
-    }, 120);
+      if (Math.abs(top) <= 40 || (t.matches('details') && top > 0 && top < scroller.clientHeight * .6)) return true;
+      t.scrollIntoView({ block: t.matches('details') ? 'center' : 'start' });
+      return true;
+    };
+    [140, 700, 1400].forEach(ms => setTimeout(tryScroll, ms));
   }
 
   function pulseWindow(el) {
@@ -831,6 +859,7 @@
         <button class="os-dd-item" type="button" role="menuitem" data-app="prefs">${svg('gear')}Preferências…</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="leiame">${svg('note')}Leia-me</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="tabularium">${svg('folder')}Tabularium</button>
+        <button class="os-dd-item" type="button" role="menuitem" data-app="minhaficha"><img src="${APPS.minhaficha.art}" alt="">Minha Ficha<em>teste</em></button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="musica">${svg('music')}Música</button>
         <a class="os-dd-item" role="menuitem" href="${IMESSAGE_URL}" target="_blank" rel="noopener noreferrer">${svg('phone')}iMessage<em>Discord</em></a>
         <div class="os-dd-sep" role="separator"></div>
@@ -1044,11 +1073,43 @@
     if (win === 'prefs') syncPrefs();
     if (win === 'leiame') store.set('principia_seen', '1');
     if (win === 'musica') { renderMusic(); const it = currentTrack(); if (it) playerFor(it, false); }
+    try { P.hooks?.[win]?.open?.(); } catch (err) { console.warn('[Principia]', err); }
     await WM.open(win, { from });
     updateRunning();
     if (win === 'musica' && !music.items.length && !isMobile()) musicEls.url.focus({ preventScroll: true });
   }
-  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'musica']) {
+  /* Ficha e Guia lado a lado (desktop). No celular, as duas ficam em tela cheia e alternam. */
+  const canTile = () => !isMobile() && innerWidth >= 1000;
+  async function tileFichaGuia(key, anchor) {
+    if (!canTile()) {
+      // Celular/tela estreita: as duas janelas ocupam a tela inteira e alternam.
+      if (key) return openPage(key, anchor || null);
+      return openUtil('ficha', null);
+    }
+    const { bar, vw, vh } = WM.metrics();
+    const g = 10, top = bar + g, h = vh - bar - g * 2;
+    const left = Math.round(Math.min(600, Math.max(380, vw * .38)));
+    WM.place('ficha', { x: g, y: top, w: left, h });
+    WM.place('reader', { x: left + g * 2, y: top, w: vw - left - g * 3, h });
+    const tasks = [];
+    if (!WM.isOpen('ficha')) tasks.push(openUtil('ficha', null));
+    if (!WM.isOpen('reader')) tasks.push(openPage(key || engineKey() || 'sistema', anchor || null));
+    else if (key) tasks.push(openPage(key, anchor || null));
+    await Promise.all(tasks);
+  }
+  /* Abre uma regra do Guia a partir da ficha, sem esconder a ficha no desktop. */
+  function openBesideFicha(key, anchor) {
+    if (!canTile()) return openPage(key, anchor);
+    const r = WM.get('reader'), f = WM.get('ficha');
+    const overlap = r.open && f.open && (() => {
+      const a = r.el.getBoundingClientRect(), b = f.el.getBoundingClientRect();
+      return a.left < b.right - 40 && b.left < a.right - 40;
+    })();
+    if (!r.open || overlap) return tileFichaGuia(key, anchor);
+    return openPage(key, anchor);
+  }
+
+  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'musica', 'ficha']) {
     const w = WM.get(id);
     if (!w) continue;
     w.onState = () => updateRunning();
@@ -1263,6 +1324,31 @@
     await playerFor(it, true);
   });
 
+  /* Toca um link do Spotify vindo de outro app (ex.: a playlist salva na ficha). */
+  function playSpotify(link, label) {
+    const parsed = parseSpotify(link);
+    if (parsed.error) return { error: parsed.error };
+    const k = trackKey(parsed);
+    let it = music.items.find(x => trackKey(x) === k);
+    if (!it) { it = { type: parsed.type, sid: parsed.sid, label: String(label || '').slice(0, 60) }; music.items.unshift(it); music.items = music.items.slice(0, 40); }
+    else if (label && !it.label) it.label = String(label).slice(0, 60);
+    music.current = k;
+    saveMusic();
+    renderMusic();
+    playerFor(it, true);
+    return { ok: true, label: trackLabel(it) };
+  }
+
+  /* Aviso rápido no canto da tela (mesmo visual das notificações do Guia). */
+  function toast(message) {
+    let el = $('.os-toast');
+    if (!el) { el = document.createElement('div'); el.className = 'guide-toast os-toast'; el.setAttribute('role', 'status'); document.body.append(el); }
+    el.textContent = message;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
   updateNowPlaying();
 
   /* ==========================================================================
@@ -1328,6 +1414,8 @@
       else if (action === 'desktop') { for (const w of Object.values(WM.wins)) if (w.open && w.id !== 'reader') WM.close(w.id); closeReader(); }
       else if (action === 'reboot') reboot();
       else if (action === 'reset-windows') WM.reset();
+      else if (action === 'ficha-beside') tileFichaGuia();
+      else if (action === 'to-guia') openPage(engineKey() || 'sistema');
       return;
     }
     const skip = t.closest('.skip-link');
@@ -1534,4 +1622,14 @@
 
   P.open = openPage;
   P.WM = WM;
+  P.hooks = P.hooks || {};
+  /* Interface usada por outros apps da Principia (ex.: principia-ficha.js). */
+  P.api = {
+    esc, svg, norm, store, WM, isMobile, reduced, toast,
+    openPage, openUtil, openBeside: openBesideFicha, tile: tileFichaGuia, canTile,
+    engineKey: () => engineKey(),
+    deitySlugs: () => findFolder('deuses')?.coreSlugs || new Map(),
+    music: { play: playSpotify, parse: parseSpotify }
+  };
+  window.dispatchEvent(new CustomEvent('principia:ready'));
 })();
