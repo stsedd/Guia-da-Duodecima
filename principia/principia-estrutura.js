@@ -101,8 +101,11 @@
     LOC['roma:inicio'] = 'casa-do-lobo';
   }
   /* Rota antiga → rota nova. Rotas que já existem passam direto. */
+  /* Âncoras que deixaram de existir porque o conteúdo foi unido a outra seção. */
+  const ANCHOR_ALIAS = { 'forja-canonica': 'forja' };
   function route(key, anchor) {
     if (!key) return { key, anchor };
+    if (anchor && ANCHOR_ALIAS[anchor]) anchor = ANCHOR_ALIAS[anchor];
     if (anchor && LOC[key + ':' + anchor]) return { key: LOC[key + ':' + anchor], anchor };
     if (HIDDEN.includes(key)) return { key: PAGE_FALLBACK[key], anchor: null };
     return { key, anchor };
@@ -226,9 +229,59 @@
     root.className = 'page-' + page;
     root.append(out);
     FIX[page]?.(root);
+    applyTextos(root, page);
     fixAll(root, page);
     return root.innerHTML;
   }
+
+  /* ---------- Textos migrados do documento-mestre (principia/guia-textos.js) ---------- */
+  function applyTextos(root, page) {
+    const list = (window.GUIA_TEXTOS || []).filter(t => t.page === page);
+    const secById = id => root.querySelector(':scope > section#' + CSS.escape(id));
+    for (const t of list) {
+      try {
+        if (t.fn) { t.fn(root); continue; }
+        if (t.remove) { secById(t.remove)?.remove(); continue; }
+        if (t.html && (t.after || t.before)) {
+          const ref = secById(t.after || t.before);
+          if (!ref) continue;
+          const f = frag(t.html);
+          if (f.firstElementChild) f.firstElementChild.dataset.fonte = t.fonte || '';
+          if (t.before) { ref.before(f); continue; }
+          let last = ref;
+          while (last.nextElementSibling && !isSection(last.nextElementSibling)) last = last.nextElementSibling;
+          last.after(f);
+          continue;
+        }
+        const sec = secById(t.id);
+        if (!sec) continue;
+        sec.dataset.fonte = (sec.dataset.fonte ? sec.dataset.fonte + ' | ' : '') + (t.fonte || '');
+        if (t.replace) {
+          const head = sec.querySelector(':scope > .section-head');
+          let n = head ? head.nextElementSibling : sec.firstElementChild;
+          while (n) { const next = n.nextElementSibling; if (!n.matches('.banner-strip,.section-visual')) n.remove(); n = next; }
+          sec.append(frag(t.replace));
+        }
+        if (t.append) sec.append(frag(t.append));
+      } catch (err) { console.warn('[Guia] Texto migrado não aplicado:', t.id || t.after || t.before || t.page, err); }
+    }
+  }
+
+  /* Erros de digitação e acentos (sem mudar o sentido do texto). */
+  const TYPOS = [
+    [/\bCenturiao\b/g, 'Centurião'],
+    [/\bPERICIA\b/g, 'PERÍCIA'],
+    [/\ba Augure Escarlate\b/g, 'a Áugure Escarlate'],
+    [/\bféericos\b/g, 'feéricos'],
+    [/\bGuerra dos Oceanus\b/g, 'Guerra de Oceanus'],
+    [/\bDii Consentes\b/g, 'Dii Consentis'],
+    [/\bnão-mitológic/g, 'não mitológic'],
+    [/\bpena de pégasus\b/g, 'pena de pégaso'],
+    [/\bBombillo's\b/g, "Bombilo's"],
+    [/\bpor descanso prolongado\b/g, 'por descanso longo'],
+    [/\bTrívia\b/g, 'Trivia'],
+    [/ligados a forças que de movimento constante/g, 'ligados a forças de movimento constante']
+  ];
 
   /* ---------- Correções aprovadas (respostas da Staff, 24/11/2026) ---------- */
   const FIX = {
@@ -314,6 +367,7 @@
     replaceText(root, /\bCD\b/g, 'DT');
     // Praetoria atual: triunvirato; Blume é ex-pretora.
     replaceText(root, /esposa da Pretora Blume/g, 'esposa da ex-pretora Blume');
+    TYPOS.forEach(([re, to]) => replaceText(root, re, to));
     rewriteLinks(root, page);
   }
 

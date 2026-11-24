@@ -22,6 +22,7 @@ A pedido da Staff, a interface passou a se chamar **Guia da Duodécima** (o nome
 - **Busca:** o motor guardava a primeira lista de busca e nunca via as atualizações das camadas (por isso aparecia texto antigo). `principia-early.js` passa a atualizar essa lista no lugar, e o índice é refeito com as abas novas.
 - **Visual:** um tema por modo em todas as abas (sem faixas alternadas de papel), um fio entre seções, artes laterais com a altura do texto, "51 kits" ao lado da abertura de Deuses e a linha inteira de cada deus clicável.
 - **Ícones provisórios:** `cursus`, `familiares`, `casa-do-lobo` e `extras` são recortes das artes existentes, até chegarem os PNGs definitivos.
+- **Textos do Discord:** `principia/guia-textos.js` traz os textos do documento-mestre da Staff (consolidado dos canais do Discord, 24/11/2026) como blocos que completam ou substituem seções: Heranças Divinas e O d20 e as rolagens (novas), Devoção Divina completa, Forja (unificada com a antiga "Forja & Materiais"), Alquimia (receitas novas, críticos e preços), Runas, Familiares, Coortes, Hierarquia, Economia, Morte & Vida, Descanso, Status, Estrangeiros, Outros Panteões, Passagem do Tempo, Bolsa Décimus, Combate e Rebentos. Cada bloco guarda a origem em `data-fonte`. Regras com divergência ainda sem resposta da Staff continuam com o texto do Core (lista no topo do arquivo).
 
 ## Design system v3 "pôster"
 
@@ -62,6 +63,7 @@ O app Música usa o player oficial do Spotify. Quando o navegador não tem uma s
 | `principia/guia-ds.css` | Design system "pôster" do conteúdo do Guia (substitui as 13 folhas legadas na Principia). |
 | `principia/principia-guia.js` | Capas, banners em alta, artes e letreiros de capítulo aplicados a cada página. |
 | `principia/principia-estrutura.js` | Monta as 11 abas a partir das páginas do motor, aplica as correções aprovadas e redireciona os links antigos. |
+| `principia/guia-textos.js` | Textos migrados do documento-mestre do Discord, com a origem de cada bloco. |
 | `assets/principia/hq/` | Banners e artes em alta resolução gerados a partir dos originais. |
 | `principia/principia-early.js` | Carrega antes do motor e faz a rolagem e o histórico funcionarem dentro da janela. |
 | `principia/principia.js` | Área de trabalho, janelas, menus, busca, Tabularium, tela do celular e inicialização. |
