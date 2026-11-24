@@ -5,7 +5,7 @@
 
    Enquanto os campos estiverem vazios, o site funciona normalmente em modo visitante. */
 window.DUODECIMA_ONLINE = {
-  supabaseUrl: '',      // ex.: 'https://abcdefghijklmnop.supabase.co'
-  supabaseKey: '',      // a chave "anon public" (legacy) ou "publishable" (sb_publishable_…)
+  supabaseUrl: 'https://ovgshjdzowyxagqxrtny.supabase.co',      // ex.: 'https://abcdefghijklmnop.supabase.co'
+  supabaseKey: 'sb_publishable_hIuWaTU95TTKHAcyRkqOpA_74uMV6t_',      // a chave "anon public" (legacy) ou "publishable" (sb_publishable_…)
   discordGuildId: '1498461819902234624'
 };

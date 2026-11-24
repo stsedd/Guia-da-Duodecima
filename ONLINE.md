@@ -2,6 +2,16 @@
 
 Tudo de graça: Supabase no plano Free (sem cartão), login pelo Discord e automações do GitHub em repositório público. Nenhuma senha, segredo ou chave privada fica no repositório nem passa pelo Claude.
 
+## Estado da implantação (24/11/2026)
+
+- Projeto exclusivo Duodecima criado no Supabase, região São Paulo, plano Free.
+- Esquema instalado com RLS e permissões; configuração pública ligada ao site.
+- Pendente: habilitar o provedor Discord no painel, configurar a URL de retorno e conceder o primeiro papel de Dono após login verificado. Não envie segredos pelo GitHub ou pelo chat.
+- Callback OAuth no Discord: `https://ovgshjdzowyxagqxrtny.supabase.co/auth/v1/callback`.
+- Site URL e redirect permitido no Supabase: `https://stsedd.github.io/Guia-da-Duodecima/principia.html`.
+- A validação do link de fama verifica formato, servidor e duplicidade; não lê o conteúdo da mensagem nem atesta o valor lançado.
+- O perfil passa a usar identidade confirmada pela API do Discord, não metadados editáveis do usuário.
+
 ## O que já está pronto no site
 
 - **Minha Conta** (selo com avatar e @ no canto inferior esquerdo; no celular, no alto da tela inicial): entrar com o Discord, sair e excluir a conta.
@@ -44,9 +54,9 @@ Em **Authentication → URL Configuration**:
 
 ### 7. Virar dono
 1. Abra o site, clique no selo do canto e em **Entrar com o Discord**.
-2. Depois do primeiro login, rode no SQL Editor, trocando `SEU_USUARIO` pelo seu @ do Discord (sem o @):
+2. Depois do primeiro login e da verificação de membro, rode no SQL Editor, trocando `SEU_ID_DISCORD` pelo ID numérico da sua conta Discord (não pelo @):
    ```sql
-   insert into public.papeis (usuario_id, papel) select id, 'dono' from public.perfis where discord_usuario = 'SEU_USUARIO';
+   insert into public.papeis (usuario_id, papel) select id, 'dono' from public.perfis where discord_id = 'SEU_ID_DISCORD' and membro;
    ```
 3. Recarregue o site: o Praetorium aparece nos ícones da direita. A partir daí, você dá papel de Staff aos outros pela aba **Jogadores**.
 

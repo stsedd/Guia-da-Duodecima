@@ -72,26 +72,14 @@ language sql stable security definer set search_path = '' as $$
   );
 $$;
 
--- Copia nome, @ e avatar do Discord para o perfil a cada login.
+-- Cria o perfil; a identidade e o avatar são confirmados pela API do Discord.
 create or replace function public.sincronizar_perfil() returns trigger
 language plpgsql security definer set search_path = '' as $$
-declare
-  m jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
 begin
-  insert into public.perfis (id, discord_id, discord_usuario, nome_exibicao, avatar_url)
-  values (
-    new.id,
-    coalesce(m->>'provider_id', m->>'sub'),
-    coalesce(m->>'full_name', m->>'user_name', split_part(m->>'name', '#', 1)),
-    coalesce(nullif(m->'custom_claims'->>'global_name', ''), m->>'full_name', split_part(m->>'name', '#', 1)),
-    coalesce(m->>'avatar_url', m->>'picture')
-  )
-  on conflict (id) do update set
-    discord_id = coalesce(excluded.discord_id, public.perfis.discord_id),
-    discord_usuario = excluded.discord_usuario,
-    nome_exibicao = excluded.nome_exibicao,
-    avatar_url = excluded.avatar_url,
-    atualizado_em = now();
+  -- O perfil nasce sem identidade pública: os dados vêm da API do Discord
+  -- após a confirmação do token, nunca dos metadados editáveis pelo usuário.
+  insert into public.perfis (id) values (new.id)
+  on conflict (id) do nothing;
   return new;
 end $$;
 
@@ -201,6 +189,7 @@ create table if not exists public.fama_registros (
   motivo_remocao text check (motivo_remocao is null or char_length(motivo_remocao) <= 300)
 );
 create index if not exists fama_por_personagem on public.fama_registros (personagem_id) where removido_em is null;
+create unique index if not exists fama_link_ativo_unico on public.fama_registros (personagem_id, link_discord) where removido_em is null;
 
 create or replace function public.validar_fama() returns trigger
 language plpgsql security definer set search_path = '' as $$
@@ -208,9 +197,12 @@ declare
   guild text := (select valor from public.config where chave = 'discord_guild_id');
 begin
   new.link_discord := btrim(new.link_discord);
-  if new.link_discord !~ ('^https://(www\.|ptb\.|canary\.)?discord(app)?\.com/channels/' || guild || '/[0-9]{5,25}(/[0-9]{5,25})?/?$') then
+  if new.link_discord !~ ('^https://(www\.|ptb\.|canary\.)?discord(app)?\.com/channels/' || guild || '/[0-9]{5,25}/[0-9]{5,25}/?$') then
     raise exception 'Use o link de uma mensagem do servidor da Duodécima (botão direito na mensagem → Copiar link da mensagem).' using errcode = '22023';
   end if;
+  -- Canonicaliza host e barra final para detectar links repetidos.
+  new.link_discord := regexp_replace(regexp_replace(new.link_discord,
+    '^https://(www\.|ptb\.|canary\.)?discord(app)?\.com/', 'https://discord.com/'), '/$', '');
   new.motivo := btrim(new.motivo);
   if auth.uid() is not null then
     new.criado_por := auth.uid();
@@ -263,7 +255,7 @@ begin
   from public.fama_registros f join public.personagens p on p.id = f.personagem_id
   where f.id = registro;
   if not found then raise exception 'Registro não encontrado.'; end if;
-  if not (public.eh_admin() or (r.jogador_id = auth.uid() and r.criado_por = auth.uid())) then
+  if auth.uid() is null or not coalesce(public.eh_admin() or (r.jogador_id = auth.uid() and r.criado_por = auth.uid()), false) then
     raise exception 'Você não pode remover este registro.' using errcode = '42501';
   end if;
   update public.fama_registros
@@ -359,6 +351,7 @@ declare
   ultimo timestamptz;
   r extensions.http_response;
   achou boolean;
+  identidade jsonb;
 begin
   if uid is null then raise exception 'Entre com o Discord primeiro.' using errcode = '28000'; end if;
   if token_discord is null or char_length(token_discord) not between 10 and 300 then
@@ -381,7 +374,8 @@ begin
         array[extensions.http_header('Authorization', 'Bearer ' || token_discord), extensions.http_header('User-Agent', ua)],
         null, null)::extensions.http_request);
   if r.status <> 200 then raise exception 'O Discord não confirmou o login (%). Entre de novo.', r.status; end if;
-  if (r.content::jsonb ->> 'id') is distinct from meu_discord then
+  identidade := r.content::jsonb;
+  if (identidade ->> 'id') is distinct from meu_discord then
     raise exception 'Esse token não é desta conta.' using errcode = '42501';
   end if;
 
@@ -391,7 +385,15 @@ begin
   if r.status <> 200 then raise exception 'O Discord não listou os servidores (%). Entre de novo.', r.status; end if;
   select exists (select 1 from jsonb_array_elements(r.content::jsonb) g where g->>'id' = guild) into achou;
 
-  update public.perfis set membro = achou, membro_verificado_em = now() where id = uid;
+  update public.perfis set
+    discord_id = meu_discord,
+    discord_usuario = identidade->>'username',
+    nome_exibicao = coalesce(nullif(identidade->>'global_name', ''), identidade->>'username'),
+    avatar_url = case when identidade->>'avatar' ~ '^(a_)?[a-f0-9]+$'
+      then 'https://cdn.discordapp.com/avatars/' || meu_discord || '/' || (identidade->>'avatar') || '.png'
+      else null end,
+    membro = achou, membro_verificado_em = now(), atualizado_em = now()
+  where id = uid;
   return jsonb_build_object('membro', achou, 'verificado_em', now());
 end $$;
 
@@ -533,14 +535,18 @@ grant execute on function public.verificar_membro(text), public.minha_conta(),
                           public.remover_fama(uuid, text), public.restaurar_fama(uuid),
                           public.definir_membro(uuid, boolean), public.definir_papel(uuid, text),
                           public.excluir_minha_conta() to authenticated;
+-- Funções de gatilho não são endpoints públicos.
+revoke execute on function public.sincronizar_perfil(), public.proteger_personagem(), public.validar_fama(), public.registrar_auditoria() from public, anon, authenticated;
 -- Leitura pública: ranking, sinal de vida e as regras de título.
 grant execute on function public.tabula_famae(), public.manter_ativo(), public.eh_admin(), public.eh_dono(),
                           public.eh_membro(), public.fama_inicial(text, text, text),
                           public.titulo_fama(integer, text, text, text, text, boolean) to anon, authenticated;
+revoke execute on function public.eh_admin(), public.eh_dono(), public.eh_membro() from public, anon;
+grant execute on function public.eh_admin(), public.eh_dono(), public.eh_membro() to authenticated;
 
 -- =====================================================================
 -- Depois do seu primeiro login no site, rode SÓ a linha abaixo (trocando
--- SEU_USUARIO pelo seu @ do Discord, sem o @) para virar o dono:
+-- SEU_ID_DISCORD pelo ID numérico da sua conta Discord verificada) para virar o dono:
 --
--- insert into public.papeis (usuario_id, papel) select id, 'dono' from public.perfis where discord_usuario = 'SEU_USUARIO';
+-- insert into public.papeis (usuario_id, papel) select id, 'dono' from public.perfis where discord_id = 'SEU_ID_DISCORD' and membro;
 -- =====================================================================
