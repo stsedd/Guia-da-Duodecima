@@ -148,23 +148,6 @@
     return `<button type="button" ${attrs} aria-label="${esc(label)}">${art}<span class="os-ico-label">${esc(label)}</span></button>`;
   }
 
-  /* Com 11 arquivos, os menus individuais nem sempre cabem na barra: os que sobrarem somem
-     (continuam todos no menu "Arquivos", no Tabularium e na busca). */
-  function fitMenus() {
-    const nav = $('#osBarMenus');
-    const tools = $('#osBar .os-bar-tools');
-    if (!nav || !tools) return;
-    const items = $$('.os-menu-trigger--app', nav);
-    items.forEach(b => { b.hidden = false; });
-    if (getComputedStyle(nav).display === 'none') return;
-    const limit = () => tools.getBoundingClientRect().left - 12;
-    for (let i = items.length - 1; i >= 0; i--) {
-      const last = items.slice(0, i + 1).filter(b => !b.hidden).pop();
-      if (!last || last.getBoundingClientRect().right <= limit()) break;
-      items[i].hidden = true;
-    }
-  }
-
   function renderShell() {
     // O link do iMessage vem só de IMESSAGE_URL: trocar o canal é editar uma linha.
     $$('.os-bar-btn--msg').forEach(a => { a.href = IMESSAGE_URL; });
@@ -173,10 +156,7 @@
     $('#osIconsRight').innerHTML = ['leiame', 'tabularium', 'famae', 'prefs', 'mapa', 'praetorium'].map((k, i) => iconHTML(k, i + 2)).join('');
     $('#osHomeGrid').innerHTML = [...PAGES, 'conta', 'mapa', 'tabularium', 'ficha', 'prefs', 'praetorium'].map((k, i) => iconHTML(k, i, { short: true })).join('');
     $('#osDock').innerHTML = ['imessage', 'minhaficha', 'famae', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
-    $('#osBarMenus').innerHTML =
-      `<button class="os-menu-trigger os-menu-trigger--all" type="button" data-menu="all" aria-haspopup="menu" aria-expanded="false">Arquivos</button>` +
-      PAGES.map(k => `<button class="os-menu-trigger os-menu-trigger--app" type="button" data-menu="app:${k}" aria-haspopup="menu" aria-expanded="false">${esc(shortTitle(k))}</button>`).join('');
-    fitMenus();
+    $('#osReaderTabs').innerHTML = PAGES.map(k => `<button class="os-reader-tab" type="button" data-app="${k}" title="${esc(appTitle(k))}">${miniArt(k)}<span>${esc(shortTitle(k))}</span></button>`).join('');
     $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'famae', 'conta', 'tabularium', 'mapa', 'imessage', 'leiame', 'praetorium'].map(k => APPS[k].kind === 'external'
       ? `<a class="os-spot-app" href="${APPS[k].href}" target="_blank" rel="noopener noreferrer" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}<span class="os-spot-ext">↗</span></a>`
       : `<button class="os-spot-app" type="button" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}</button>`).join('');
@@ -623,7 +603,6 @@
     if (!key) return;
     currentKey = key;
     $('#osReaderTitle').textContent = EST?.hidden.includes(key) ? 'Guia da Duodécima' : appTitle(key);
-    $$('#osBarMenus [data-menu^="app:"]').forEach(b => b.classList.toggle('is-current', WM.isOpen('reader') && b.dataset.menu === 'app:' + key));
     $('#osSplashImg').src = APPS[key]?.art || ICON('sistema');
     $('#osSplashTitle').textContent = appTitle(key);
     updateRunning();
@@ -639,7 +618,18 @@
       else if (a?.kind === 'win') on = WM.isOpen(a.win);
       ic.classList.toggle('is-running', on);
     });
-    $$('#osBarMenus [data-menu^="app:"]').forEach(b => b.classList.toggle('is-current', readerOpen && b.dataset.menu === 'app:' + currentKey));
+    $('#osReaderTabs [data-app]').forEach(b => {
+      const active = b.dataset.app === currentKey;
+      b.classList.toggle('is-current', active);
+      if (active) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+      if (active && readerOpen) {
+        const nav = b.parentElement;
+        const x = b.offsetLeft - nav.offsetLeft;
+        if (x < nav.scrollLeft) nav.scrollLeft = x;
+        else if (x + b.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = x + b.offsetWidth - nav.clientWidth;
+      }
+    });
   }
 
   function iconFor(key) {
@@ -1302,6 +1292,52 @@
   tick();
   setInterval(tick, 15000);
 
+  /* Clima real da região da legião (Nazzano, Itália), independente do fuso do visitante. */
+  const weather = $('#osWeather');
+  const weatherURL = 'https://api.open-meteo.com/v1/forecast?latitude=42.23&longitude=12.60&current=temperature_2m,weather_code,is_day&timezone=Europe%2FRome';
+  function weatherCondition(code, day) {
+    if (code === 0) return [day ? '☀' : '☾', 'Céu limpo'];
+    if (code === 1 || code === 2) return [day ? '⛅' : '☁', 'Parcialmente nublado'];
+    if (code === 3) return ['☁', 'Nublado'];
+    if (code === 45 || code === 48) return ['≋', 'Neblina'];
+    if ([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) return ['☂', 'Chuva ou garoa'];
+    if ([71,73,75,77,85,86].includes(code)) return ['❄', 'Neve'];
+    if ([95,96,99].includes(code)) return ['ϟ', 'Trovoada'];
+    return ['☁', 'Condição não identificada'];
+  }
+  let weatherBusy = false;
+  async function refreshWeather() {
+    if (!weather || weatherBusy) return;
+    weatherBusy = true;
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), 8000);
+    try {
+      const res = await fetch(weatherURL, { signal: abort.signal, cache: 'no-store' });
+      if (!res.ok) throw new Error('Clima indisponível');
+      const { current } = await res.json();
+      if (!Number.isFinite(current?.temperature_2m) || !Number.isFinite(current?.weather_code)) throw new Error('Dados meteorológicos inválidos');
+      const [symbol, description] = weatherCondition(current.weather_code, current.is_day === 1);
+      const temp = Math.round(current.temperature_2m) + '°C';
+      weather.querySelector('.os-weather-icon').textContent = symbol;
+      weather.querySelector('.os-weather-temp').textContent = temp;
+      weather.title = 'Nazzano, Itália · ' + description + ' · ' + temp + ' · dados: ' + String(current.time || '').replace('T', ' ') + ' (hora local) · Open-Meteo';
+      weather.setAttribute('aria-label', weather.title);
+      weather.dataset.updated = 'true';
+      weather.classList.remove('is-stale');
+    } catch (_) {
+      weather.classList.add('is-stale');
+      const label = weather.dataset.updated ? 'Nazzano · última leitura disponível (atualização indisponível)' : 'Clima de Nazzano indisponível';
+      weather.setAttribute('aria-label', label + (weather.dataset.updated ? ' · ' + weather.querySelector('.os-weather-temp').textContent : ''));
+      weather.title = weather.dataset.updated ? label + ' · ' + weather.title.replace(/^Nazzano · última leitura disponível \(atualização indisponível\) · /, '') : label;
+    } finally {
+      clearTimeout(timer);
+      weatherBusy = false;
+    }
+  }
+  refreshWeather();
+  setInterval(refreshWeather, 15 * 60 * 1000);
+  window.addEventListener('online', refreshWeather);
+
   /* ---------- Papel de parede com paralaxe ---------- */
   const wallArt = $('#osWallArt');
   let pFrame = 0, px = 0, py = 0;
@@ -1325,9 +1361,7 @@
 
   /* ---------- Redimensionamento ---------- */
   let resizeT = 0;
-  window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { WM.relayout(); closeMenus(); fitMenus(); }, 120); });
-  // As fontes da barra mudam a largura dos menus quando terminam de carregar.
-  document.fonts?.ready?.then(fitMenus);
+  window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { WM.relayout(); closeMenus(); }, 120); });
   mqMobile.addEventListener?.('change', () => { WM.relayout(); updateRunning(); });
 
   /* ---------- Atualizações do Core e camadas ---------- */

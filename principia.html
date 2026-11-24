@@ -47,7 +47,7 @@
   <style id="guide-stabilization-v251-styles"></style>
   <style id="lineage-core-v25-styles"></style>
   <!-- Camada Principia (interface de terminal). -->
-  <link rel="stylesheet" href="principia/principia.css?v=2.2.0">
+  <link rel="stylesheet" href="principia/principia.css?v=2.2.1">
   <link rel="stylesheet" href="principia/principia-online.css?v=1.0.0">
 </head>
 <body class="os-body">
@@ -89,7 +89,6 @@
     <button class="os-bar-logo" type="button" data-menu="principia" aria-haspopup="menu" aria-expanded="false" title="Menu do Guia da Duodécima">
       <i class="os-mark" aria-hidden="true"></i><b>GUIA DA DUODÉCIMA</b>
     </button>
-    <nav class="os-bar-menus" id="osBarMenus" aria-label="Arquivos do Guia"></nav>
     <div class="os-bar-spacer"></div>
     <div class="os-bar-tools">
       <a class="os-cta" href="https://stsedd.github.io/ficha-oficial-duodecima-rpg/" target="_blank" rel="noopener noreferrer" title="Abrir a Ficha Oficial em nova aba">Criar ficha <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
@@ -99,6 +98,7 @@
       <button class="os-bar-btn os-bar-btn--search" type="button" data-action="search" title="Buscar (Ctrl/⌘ K)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><span class="os-vh">Buscar</span><kbd>⌘K</kbd></button>
       <div class="core-status" id="coreStatus" title="Sincronizando com o Duodécima Core"><i></i><span>CORE · CARREGANDO</span></div>
       <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" title="Alternar tema claro e escuro"><span aria-hidden="true">☾</span><b>Escuro</b></button>
+      <span class="os-weather" id="osWeather" role="status" aria-live="polite" title="Clima de Nazzano, Itália"><span class="os-weather-icon" aria-hidden="true">☁</span><span class="os-weather-place">Nazzano</span><span class="os-weather-temp">—</span></span>
       <button class="os-clock" id="osClock" type="button" data-menu="clock" aria-haspopup="dialog" aria-expanded="false">--:--</button>
     </div>
   </header>
@@ -131,6 +131,7 @@
         <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
       </div>
     </div>
+    <nav class="os-reader-tabs" id="osReaderTabs" aria-label="Arquivos do Guia"></nav>
     <div class="os-toolbar">
       <button class="os-tbtn os-tbtn--home" type="button" data-action="home" aria-label="Tela inicial" title="Tela inicial"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6"/></svg></button>
       <button class="os-tbtn os-tbtn--back" type="button" data-action="back" aria-label="Voltar" title="Voltar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6"/></svg></button>
@@ -445,7 +446,7 @@
 <script src="guide-editorial-v273.js?v=2.7.8"></script>
 
 <!-- Camada Principia: área de trabalho, janelas, busca e celular. -->
-<script src="principia/principia.js?v=3.3.0"></script>
+<script src="principia/principia.js?v=3.3.1"></script>
 <!-- Minha Ficha (prévia de teste): lê o JSON exportado pela Ficha Oficial, sem alterá-la. -->
 <script src="principia/principia-ficha.js?v=2.1.0"></script>
 <!-- Contas (login com Discord + Supabase), Tabula Famae e Praetorium. Sem configuração, tudo segue em modo visitante. -->

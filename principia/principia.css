@@ -785,3 +785,16 @@ html[data-motion="reduce"] .os-reader .content .os-reveal{opacity:1;transform:no
   .os-scroller{overflow:visible!important;height:auto!important}
   .os-reader .content .os-reveal{opacity:1!important;transform:none!important}
 }
+
+/* Navegação do leitor e clima do terminal — extensão do design existente. */
+.os-reader-tabs{position:relative;flex:none;display:flex;align-items:stretch;gap:3px;padding:6px 10px 0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:var(--os-win-line) transparent;background:var(--os-win-chrome);border-bottom:1px solid var(--os-win-line)}
+.os-reader-tab{all:unset;box-sizing:border-box;flex:0 0 auto;display:flex;align-items:center;gap:7px;min-height:35px;padding:5px 11px;border:1px solid transparent;border-bottom:0;border-radius:9px 9px 0 0;white-space:nowrap;color:var(--os-win-muted);font:600 12px/1.2 var(--os-font-ui);cursor:pointer}
+.os-reader-tab img{width:19px;height:19px;object-fit:cover;border-radius:5px;flex:none}
+.os-reader-tab:hover{background:var(--os-win-soft);color:var(--os-win-ink)}
+.os-reader-tab.is-current{background:var(--os-win-bg);color:var(--os-win-ink);border-color:var(--os-win-line);box-shadow:inset 0 2px var(--os-red-hi)}
+.os-reader-tab:focus-visible{outline:2px solid var(--os-focus);outline-offset:-2px}
+.os-weather{display:inline-flex;align-items:center;gap:6px;padding:0 8px;white-space:nowrap;font:600 12px/1 var(--os-font-ui);font-variant-numeric:tabular-nums}
+.os-weather-icon{font-size:16px;line-height:1}
+.os-weather.is-stale{opacity:.65}
+@media(max-width:759px){.os-weather{gap:3px;padding:0 3px;font-size:11px}.os-weather-place{display:none}.os-weather-icon{font-size:14px}.os-reader-tabs{order:0;padding:4px 6px 0}.os-reader-tab{min-height:34px;padding:4px 9px}}
+@media print{.os-reader-tabs{display:none!important}}
