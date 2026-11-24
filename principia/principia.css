@@ -98,6 +98,7 @@ html[data-theme="light"] .os-bar .os-mark{background-image:url('../assets/princi
 .os-bar-logo b{font:700 12px/1 var(--os-font-roman);letter-spacing:.16em}
 .os-bar-menus{display:flex;align-items:center;gap:1px;min-width:0}
 .os-menu-trigger{all:unset;box-sizing:border-box;height:28px;padding:0 10px;border-radius:7px;display:flex;align-items:center;gap:6px;font-weight:600;cursor:pointer;white-space:nowrap}
+.os-menu-trigger[hidden]{display:none}
 .os-menu-trigger:hover,.os-menu-trigger[aria-expanded="true"]{background:var(--os-bar-hover)}
 .os-menu-trigger:focus-visible{outline:2px solid var(--os-focus)}
 .os-menu-trigger.is-current{color:var(--os-bar-ink)}

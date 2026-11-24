@@ -106,6 +106,8 @@ html[data-theme="light"] .os-reader .os-scroller{background:var(--paper)}
 .content .oct26-image-placeholder{display:none}
 .content .oct26-leader-photo>img[hidden]~.oct26-image-placeholder{display:grid}
 .content .guide-page-hero-bg{display:none}
+/* A faixa "Sobre Roma" da camada antiga não pertence às abas novas. */
+.content .guide-page-hero--roma{display:none!important}
 /* Imagens de abertura antigas: a capa em alta resolução assume o lugar delas */
 .content :is(.system-hero-media,.rules-page-banner--main),.content :is(.crafting-opening,.magic-opening,.about-opening,.gods-opening)>.opening-visual{display:none!important}
 /* Combate: só a capa; os banners secundários saem para o texto fluir */
@@ -137,6 +139,13 @@ html[data-theme="light"] .os-reader .os-scroller{background:var(--paper)}
 .content .gods-opening__note{display:flex;align-items:baseline;gap:14px;margin-top:22px}
 .content .gods-opening__note b{font:400 clamp(56px,6cqi,96px)/.85 var(--f-cond);color:var(--fg)}
 .content .gods-opening__note span{max-width:16ch;font:800 11px/1.3 var(--f-wide);font-stretch:125%;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3)}
+/* Deuses: o número de kits fica ao lado do texto de abertura (sem o vazio à direita). */
+@container (min-width:820px){
+  .content .gods-opening{display:grid;grid-template-columns:minmax(0,62ch) auto;column-gap:clamp(32px,5cqi,96px);align-items:end;justify-content:start}
+  .content .gods-opening>h1,.content .gods-opening>small{grid-column:1/-1}
+  .content .gods-opening>p{grid-column:1}
+  .content .gods-opening>.gods-opening__note{grid-column:2;grid-row:3;margin:0 0 4px;padding-left:clamp(24px,3cqi,40px);border-left:1px solid var(--rule-2)}
+}
 /* Faixa do arquivo (Magia e Roma): linha de metadados */
 .content .guide-page-hero{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-top:-24px;margin-bottom:clamp(40px,6cqi,80px);padding:14px 0;border-block:1px solid var(--rule);cursor:default}
 .content .guide-page-hero-copy{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;flex:1;min-width:0}
@@ -148,7 +157,9 @@ html[data-theme="light"] .os-reader .os-scroller{background:var(--paper)}
 .content .guide-page-hero-index{margin-left:auto;font:400 14px/1 var(--f-cond);letter-spacing:.06em;color:var(--fg-3)}
 
 /* ---------- 4. Seções ---------- */
-.content>section.section{position:relative;padding:clamp(56px,8cqi,120px) 0 clamp(20px,3cqi,40px);margin-top:0;margin-bottom:0;background:var(--bg);color:var(--fg)}
+.content>section.section{position:relative;padding:clamp(44px,6cqi,88px) 0 clamp(20px,3cqi,40px);margin-top:0;margin-bottom:0;background:var(--bg);color:var(--fg)}
+/* Tema único: sem as faixas de papel, um fio separa uma seção da seguinte. */
+.content>section.section+section.section:not(.deity-detail){border-top:1px solid var(--rule)}
 /* Papel e capítulos sangram até a borda sem mexer na largura do texto */
 .content>section.pg-paper{border-image:linear-gradient(var(--bg) 0 0) fill 0/0/1px 100cqi}
 .content>section.section:has(>:is(.pg-band,.banner-strip:not(:empty),.rules-banner,.section-visual):first-child){padding-top:0}
@@ -188,16 +199,22 @@ html[data-theme="light"] .os-reader .os-scroller{background:var(--paper)}
 .content .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .content .grid>*{min-width:0}
 
-/* Arte quadrada que acompanha o texto (duotom vermelho; cor ao passar o mouse) */
-.content .pg-art{float:right;width:min(34%,340px);margin:0 0 28px clamp(24px,3cqi,48px);background:var(--red);overflow:hidden}
-.content .pg-art img{width:100%;aspect-ratio:1;object-fit:cover;filter:grayscale(1) contrast(1.25);mix-blend-mode:multiply;transition:filter .6s var(--ease)}
+/* Arte quadrada que acompanha o texto: duas colunas da mesma altura. Em seções longas a arte
+   fica fixa no topo da coluna e acompanha a leitura (duotom vermelho; cor ao passar o mouse). */
+.content .pg-art-wrap{display:grid;grid-template-columns:minmax(0,1fr) min(34%,340px);gap:0 clamp(24px,3cqi,48px);align-items:stretch}
+.content .pg-art-body{min-width:0}
+.content .pg-art-body>:first-child{margin-top:0}
+.content .pg-art-body>p{max-width:72ch}
+.content .pg-art{position:relative;margin:0;min-height:240px}
+.content .pg-art-frame{position:sticky;top:20px;display:block;height:100%;min-height:240px;max-height:640px;background:var(--red);overflow:hidden}
+.content .pg-art img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.25);mix-blend-mode:multiply;transition:filter .6s var(--ease)}
 .content .pg-art:hover img{filter:none;mix-blend-mode:normal}
-.content section:has(>.pg-art)::after{content:"";display:table;clear:both}
-.content section:has(>.pg-art)>:is(.grid,[class*="-grid"],[class*="-track"],[class*="-rules"],[class*="-scale"],.affinity-axis,.lineage-creation-guide,.condition-list,.recipe-grid,.cohorts,.subheading,.warning-card,.big-formula,.table-wrap){clear:both}
 
 /* ---------- 5. Botões ---------- */
 .content :is(.sheet-cta-hero>a,.duo-domus-link){display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 26px;border:0;border-radius:0;background:var(--fg);color:var(--bg);font:800 12.5px/1 var(--f-wide);font-stretch:125%;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:background .2s,color .2s,transform .3s var(--spring);white-space:nowrap}
 .content :is(.sheet-cta-hero>a,.duo-domus-link):hover{background:var(--ink);color:#fff;transform:translateY(-2px)}
+/* Botão de continuação no fim de uma seção (ex.: "Conheça mais sobre Roma"). */
+.content .pg-more{margin:32px 0 8px}
 .content :is(.toggle-abilities,.condition-toolbar button,.oct26-map-link){display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border:1px solid var(--rule-2);border-radius:0;background:transparent;color:var(--fg);font:800 11px/1 var(--f-wide);font-stretch:125%;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
 .content :is(.toggle-abilities,.condition-toolbar button,.oct26-map-link):hover{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .content :is(a,button,summary,input):focus-visible{outline:2px solid var(--accent-tx);outline-offset:3px}
@@ -236,7 +253,7 @@ html[data-theme="light"] .os-reader .os-scroller{background:var(--paper)}
 .content :is(.foreign-cta,.inline-link-card):hover *,.content :is(.foreign-cta,.inline-link-card):hover::after{color:var(--on-accent)!important}
 .content :is(.foreign-cta,.inline-link-card):hover::after{transform:translateX(6px)}
 .content .foreign-cta__eyebrow{font:800 11px/1.3 var(--f-wide);font-stretch:125%;letter-spacing:.1em;color:var(--accent-tx)}
-.content .foreign-cta>strong,.content .inline-link-card>strong{font:400 clamp(26px,2.4cqi + 10px,44px)/1 var(--f-cond);text-transform:uppercase}
+.content .foreign-cta>strong,.content .inline-link-card>strong{font:400 clamp(26px,2.4cqi + 10px,44px)/1 var(--f-cond);text-transform:uppercase;text-wrap:balance}
 .content .foreign-cta>small,.content .inline-link-card>span{font-size:14px;color:var(--fg-3)}
 .content .foreign-cta>b{font:800 11px/1.3 var(--f-wide);font-stretch:125%;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-tx);margin-top:6px}
 
@@ -544,11 +561,17 @@ html[data-theme="light"] .content .kind-magia,.content .pg-paper .kind-magia{col
 .content .pantheon-banner__copy p{margin-top:16px;max-width:60ch}
 .content .pantheon-copy{margin:16px 0;max-width:74ch}
 .content .pantheon-members{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(24px,3cqi,48px);margin:24px 0}
-.content .god-row{padding:16px 0;border-top:1px solid var(--rule-2);transition:background .2s,padding .3s var(--ease)}
+.content .god-row{position:relative;padding:16px 0;border-top:1px solid var(--rule-2);transition:background .2s,padding .3s var(--ease)}
 .content .god-row.is-ready:hover{background:var(--surface-2);padding-left:10px;padding-right:10px}
 .content .god-row>div{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 12px}
 .content .god-name{font:400 clamp(24px,1.4cqi + 14px,34px)/1 var(--f-cond);text-transform:uppercase;color:var(--fg);text-decoration:none}
 .content a.god-name:hover{color:var(--accent-tx)}
+/* A linha inteira do deus abre o kit (antes, só o nome era clicável). */
+.content .god-row.is-ready{cursor:pointer}
+.content .god-row.is-ready a.god-name::after{content:"";position:absolute;inset:0}
+.content .god-row.is-ready:hover a.god-name{color:var(--accent-tx)}
+.content .god-row.is-ready a.god-name:focus-visible{outline:none}
+.content .god-row.is-ready:has(a.god-name:focus-visible){outline:2px solid var(--accent-tx);outline-offset:2px}
 .content .god-row:not(.is-ready) .god-name{color:var(--fg-3)}
 .content .god-state{padding:5px 8px;font:800 9px/1 var(--f-wide);font-stretch:125%;letter-spacing:.1em;white-space:nowrap}
 .content .god-state.ready{background:var(--fg);color:var(--bg)}
@@ -786,7 +809,7 @@ html[data-theme="light"] .content .kind-magia,.content .pg-paper .kind-magia{col
   .content .duo-gateway-visual{position:relative;top:auto}
   .content .pantheon-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .content .pg-cover--frieze{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .content .pg-art{width:min(42%,260px)}
+  .content .pg-art-wrap{grid-template-columns:minmax(0,1fr) min(40%,260px)}
   .content .ability-body{padding-left:0;padding-right:0}
   .content .jump-grid,.content .craft-hub{grid-template-columns:minmax(0,1fr)}
 }
@@ -810,8 +833,10 @@ html[data-theme="light"] .content .kind-magia,.content .pg-paper .kind-magia{col
   .content .deity-ability>summary>b{grid-column:2;justify-self:start}
   .content .deity-ability>summary .core-cost{grid-column:3;grid-row:1}
   .content .deity-ability>summary .copy-anchor-btn{display:none}
-  .content .pg-art{float:none;width:100%;margin:0 0 24px}
-  .content .pg-art img{aspect-ratio:16/9}
+  .content .pg-art-wrap{grid-template-columns:minmax(0,1fr)}
+  .content .pg-art{order:-1;min-height:0;margin-bottom:24px}
+  .content .pg-art-frame{position:static;height:auto;min-height:0;max-height:none}
+  .content .pg-art img{height:auto;aspect-ratio:16/9}
   .content .torn-card{grid-template-columns:minmax(0,1fr)}
   .content .event-lines>p,.content .mount-price>p,.content .lineage-creation-rule{grid-template-columns:minmax(0,1fr);gap:4px}
   .content .pantheon-filter{width:auto;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}

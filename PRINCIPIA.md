@@ -10,6 +10,19 @@ A proposta convive com o site atual: `index.html` continua intacto e a nova vers
 - **Links diretos.** O formato `#page:deuses:deus-vulcano` continua valendo; basta trocar `index.html` por `principia.html` no endereço. Na Principia, links para o Combate (`#page:combate:cond-cego`) também funcionam na primeira carga — veja "Correções" abaixo.
 - **Arquivos existentes.** A camada nova só adiciona arquivos, com uma exceção pequena em `guide-stabilization-v251.js` (ver "Correções").
 
+## Estrutura em 11 abas (novembro de 2026)
+
+A pedido da Staff, a interface passou a se chamar **Guia da Duodécima** (o nome "Principia" fica só para o prédio de comando do lore) e o Guia foi reorganizado em 11 abas: **Character Archive**, Combate, **Cursus Honorum**, Crafting, **Familiares**, Magia, **Deuses e Devoção**, **A Casa do Lobo**, **Roma**, **Infos Extras e Mecânicas** e Domus Memoriae.
+
+- **Como funciona:** `principia/principia-estrutura.js` carrega antes do `app-v24.js`, lê as páginas que o motor já monta (Sistema, Sobre Roma etc., com o Core e todas as camadas) e monta as abas novas com as **mesmas seções**. O mapa "seção antiga → aba nova" fica em `PLAN`, no topo do arquivo. A versão final é remontada quando o Core e as camadas terminam (`PRINCIPIA_ESTRUTURA_READY`).
+- **Páginas antigas:** `sistema` e `roma` continuam existindo como fonte, mas não aparecem na navegação. As abas novas usam chaves próprias (`personagem`, `cursus`, `familiares`, `casa-do-lobo`, `roma-hoje`, `extras`) porque camadas antigas reescrevem a página `roma` toda vez que ela aparece (recolocariam a trama de Morcan Glass, por exemplo).
+- **Links antigos:** `#page:sistema:afinidade` abre `#page:deuses:afinidade`, `#page:roma:coortes` abre `#page:roma-hoje:coortes` e assim por diante. Vale para links colados no Discord, cliques em textos antigos, a Minha Ficha e o Tabularium.
+- **Correções aprovadas pela Staff (24/11/2026):** Celtas liberados com −15 de Fama; Praetoria = triunvirato de Cassius, Cyrus e Jasmine, com Blume como ex-pretora em destaque; a Trama mostra só a Helix Vitae; Morcan Glass morreu; regras de Fama de Odiado e Conhecido; DT em todo o Guia; subtítulos novos dos quadros da Domus; Rebentos de Roma depois dos quadros. Todas ficam em `FIX`, em `principia-estrutura.js`.
+- **Conferência:** nenhum texto das páginas antigas se perde na montagem; as únicas diferenças são as correções acima (comparação automática dos textos, feita a cada mudança).
+- **Busca:** o motor guardava a primeira lista de busca e nunca via as atualizações das camadas (por isso aparecia texto antigo). `principia-early.js` passa a atualizar essa lista no lugar, e o índice é refeito com as abas novas.
+- **Visual:** um tema por modo em todas as abas (sem faixas alternadas de papel), um fio entre seções, artes laterais com a altura do texto, "51 kits" ao lado da abertura de Deuses e a linha inteira de cada deus clicável.
+- **Ícones provisórios:** `cursus`, `familiares`, `casa-do-lobo` e `extras` são recortes das artes existentes, até chegarem os PNGs definitivos.
+
 ## Design system v3 "pôster"
 
 Na `principia.html`, as 13 folhas legadas do `index.html` foram substituídas por uma folha única, `principia/guia-ds.css`, e a camada `principia/principia-guia.js` monta capas e banners a cada página. O HTML do conteúdo é o mesmo (texto, âncoras e acordeões idênticos aos do `index.html`); só a apresentação muda. O `index.html` continua com as folhas antigas e não foi tocado.
@@ -47,7 +60,8 @@ O app Música usa o player oficial do Spotify. Quando o navegador não tem uma s
 | --- | --- |
 | `principia.html` | Entrada: carrega os mesmos JS do `index.html`, o design system e a camada Principia. |
 | `principia/guia-ds.css` | Design system "pôster" do conteúdo do Guia (substitui as 13 folhas legadas na Principia). |
-| `principia/principia-guia.js` | Capas, banners em alta, artes e faixas de capítulo aplicadas a cada página. |
+| `principia/principia-guia.js` | Capas, banners em alta, artes e letreiros de capítulo aplicados a cada página. |
+| `principia/principia-estrutura.js` | Monta as 11 abas a partir das páginas do motor, aplica as correções aprovadas e redireciona os links antigos. |
 | `assets/principia/hq/` | Banners e artes em alta resolução gerados a partir dos originais. |
 | `principia/principia-early.js` | Carrega antes do motor e faz a rolagem e o histórico funcionarem dentro da janela. |
 | `principia/principia.js` | Área de trabalho, janelas, menus, busca, Tabularium, tela do celular e inicialização. |

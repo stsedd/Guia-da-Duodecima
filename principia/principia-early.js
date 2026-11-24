@@ -56,5 +56,23 @@
     };
   });
 
+  /* ---------- Índice de busca sempre atual ----------
+     O motor guarda a lista de busca que existe quando ele carrega; as camadas seguintes trocam
+     window.GUIA_SEARCH por listas novas, e o motor continuava pesquisando na primeira (por isso a
+     busca mostrava textos antigos). Aqui a primeira lista é atualizada no lugar a cada troca. */
+  var searchRef=null;
+  try{
+    Object.defineProperty(window,'GUIA_SEARCH',{configurable:true,enumerable:true,
+      get:function(){return searchRef;},
+      set:function(v){
+        if(!Array.isArray(v)||!Array.isArray(searchRef)){searchRef=v;return;}
+        if(v===searchRef)return;
+        var copy=v.slice();
+        searchRef.length=0;
+        for(var i=0;i<copy.length;i++)searchRef.push(copy[i]);
+      }
+    });
+  }catch(err){console.warn('[Guia] Não foi possível acompanhar o índice de busca.',err);}
+
   doc.classList.add('os-html');
 })();

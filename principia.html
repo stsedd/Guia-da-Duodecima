@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#070707" id="themeColorMeta">
-  <meta name="description" content="Principia — o Guia da Duodécima como o terminal da Legio XII Fulminata: sistema, combate, Roma, magia, Domus Memoriae, crafting e panteão.">
-  <title>Principia · Guia da Duodécima</title>
+  <meta name="description" content="Guia da Duodécima — o arquivo da Legio XII Fulminata: personagem, combate, Cursus Honorum, crafting, familiares, magia, deuses, Roma e Domus Memoriae.">
+  <title>Guia da Duodécima</title>
   <link rel="icon" href="assets/principia/brand/favicon-48.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/principia/brand/icon-180.png">
   <link rel="manifest" href="principia/manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Principia">
+  <meta name="apple-mobile-web-app-title" content="Guia da Duodécima">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script>
   (function(){
@@ -41,28 +41,28 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wdth,wght@62..125,400..900&family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=UnifrakturMaguntia&display=swap">
   <!-- Design system do Guia: uma folha única no lugar das 13 camadas legadas do index.html.
        O HTML do conteúdo continua vindo do mesmo motor; só a apresentação muda. -->
-  <link rel="stylesheet" href="principia/guia-ds.css?v=3.1.0">
+  <link rel="stylesheet" href="principia/guia-ds.css?v=3.2.0">
   <!-- Duas camadas do motor injetam CSS próprio; estes marcadores (vazios) fazem com que elas
        pulem a injeção, porque o design system já cobre esses blocos. -->
   <style id="guide-stabilization-v251-styles"></style>
   <style id="lineage-core-v25-styles"></style>
   <!-- Camada Principia (interface de terminal). -->
-  <link rel="stylesheet" href="principia/principia.css?v=2.0.0">
+  <link rel="stylesheet" href="principia/principia.css?v=2.1.0">
 </head>
 <body class="os-body">
 <a class="skip-link" href="#content">Pular para o conteúdo</a>
 
 <!-- ============ INICIALIZAÇÃO ============ -->
-<div class="os-boot" id="osBoot" role="status" aria-live="polite" aria-label="Iniciando a Principia">
+<div class="os-boot" id="osBoot" role="status" aria-live="polite" aria-label="Iniciando o Guia da Duodécima">
   <div class="os-boot-screen">
     <div class="os-boot-center">
       <img class="os-boot-mark" src="assets/principia/brand/mark-white-512.webp" alt="" width="190" height="190" decoding="async" fetchpriority="high">
-      <div class="os-boot-title">PRINCIPIA</div>
+      <div class="os-boot-title">GUIA DA DUODÉCIMA</div>
       <div class="os-boot-sub">LEGIO XII FULMINATA</div>
     </div>
     <div class="os-boot-foot">
       <div class="os-boot-log" id="osBootLog" aria-hidden="true">
-        <p style="--d:.5s"><b>PRINCIPIA</b> · terminal de consulta da legio xii fulminata</p>
+        <p style="--d:.5s"><b>GUIA DA DUODÉCIMA</b> · terminal de consulta da legio xii fulminata</p>
         <p style="--d:.75s">guia da duodécima · interface principia 1.0</p>
         <p style="--d:1s">&gt; energizando terminal <i>...............</i> <em>ok</em></p>
         <p style="--d:1.2s">&gt; verificando selo da legião <i>.........</i> <em>ok</em></p>
@@ -85,8 +85,8 @@
   </div>
 
   <header class="os-bar" id="osBar">
-    <button class="os-bar-logo" type="button" data-menu="principia" aria-haspopup="menu" aria-expanded="false" title="Menu da Principia">
-      <i class="os-mark" aria-hidden="true"></i><b>PRINCIPIA</b>
+    <button class="os-bar-logo" type="button" data-menu="principia" aria-haspopup="menu" aria-expanded="false" title="Menu do Guia da Duodécima">
+      <i class="os-mark" aria-hidden="true"></i><b>GUIA DA DUODÉCIMA</b>
     </button>
     <nav class="os-bar-menus" id="osBarMenus" aria-label="Arquivos do Guia"></nav>
     <div class="os-bar-spacer"></div>
@@ -120,8 +120,8 @@
   <section class="os-home" id="osHome" aria-label="Tela inicial">
     <div class="os-home-hero">
       <small>LEGIO XII FULMINATA</small>
-      <h1>Principia</h1>
-      <p id="osHomeDate">Guia da Duodécima</p>
+      <h1>Guia da Duodécima</h1>
+      <p id="osHomeDate">Legio XII Fulminata</p>
     </div>
     <button class="os-home-search" type="button" data-action="search"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>Buscar regra, deus, habilidade…</button>
     <div class="os-home-hint"><button type="button" data-app="leiame">Primeira vez aqui? Leia-me</button></div>
@@ -148,7 +148,7 @@
       <button class="os-tbtn" id="sidebarCollapse" type="button" aria-label="Mostrar ou ocultar o painel de seções" title="Painel de seções">‹</button>
       <div class="os-crumbs" id="osCrumbs">
         <i class="os-mark" aria-hidden="true"></i>
-        <span class="os-crumb-root">PRINCIPIA</span><span class="os-crumb-sep" aria-hidden="true">/</span>
+        <span class="os-crumb-root">GUIA</span><span class="os-crumb-sep" aria-hidden="true">/</span>
         <span id="pageEyebrow">ARCHIVVM</span>
         <h1 id="pageTitle">Sistema</h1>
         <span class="os-crumb-sep" aria-hidden="true">/</span>
@@ -176,7 +176,7 @@
           <select id="mobileSectionSelect" aria-label="Ir para seção da página"></select>
         </div>
         <div class="content" id="content" tabindex="-1"></div>
-        <footer class="os-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Revisão editorial e visual · v2.8.2 · interface Principia</small></footer>
+        <footer class="os-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Revisão editorial e visual · v2.8.2 · 11 arquivos</small></footer>
       </div>
       <button class="os-totop" id="toTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg></button>
       <div class="os-scrim" id="scrim"></div>
@@ -225,8 +225,8 @@
     </div>
     <div class="os-win-body">
       <article class="os-paper">
-        <h2>Bem-vindo à Principia.</h2>
-        <p>Este terminal reúne todo o Guia da Duodécima – sistema, combate, crafting, magia, deuses, Roma e a Domus Memoriae – organizado como os arquivos de um computador da legião.</p>
+        <h2>Bem-vindo ao Guia da Duodécima.</h2>
+        <p>Este terminal reúne todo o Guia da Duodécima – personagem, combate, Cursus Honorum, crafting, familiares, magia, deuses, Roma e a Domus Memoriae – organizado como os arquivos de um computador da legião.</p>
         <h3>Como navegar</h3>
         <ul>
           <li>Abra um arquivo pelos ícones da área de trabalho ou pelos menus da barra superior; cada menu já lista as seções daquele arquivo.</li>
@@ -329,9 +329,9 @@
         <div class="os-music-player" id="osMusicPlayer" hidden><div id="osMusicEmbed"></div></div>
         <div class="os-music-preview" id="osMusicPreview" role="status" hidden>
           <b><span class="os-music-preview-tag">Prévia</span> O Spotify está tocando só 30 segundos de cada faixa.</b>
-          <p>Isso não é um erro da Principia: o player oficial do Spotify só libera as faixas completas para quem está conectado ao Spotify neste navegador. Sem essa sessão, ele toca uma prévia e pula para a próxima música.</p>
+          <p>Isso não é um erro do Guia: o player oficial do Spotify só libera as faixas completas para quem está conectado ao Spotify neste navegador. Sem essa sessão, ele toca uma prévia e pula para a próxima música.</p>
           <ul>
-            <li>Entre na sua conta em open.spotify.com neste mesmo navegador e recarregue a Principia.</li>
+            <li>Entre na sua conta em open.spotify.com neste mesmo navegador e recarregue o Guia.</li>
             <li>No celular, o caminho mais confiável é abrir a playlist no app do Spotify.</li>
           </ul>
           <div class="os-music-preview-actions">
@@ -340,7 +340,7 @@
           </div>
         </div>
         <div class="os-music-list" id="osMusicList" role="list" aria-label="Playlists salvas"></div>
-        <p class="os-music-note">O player é o oficial do Spotify. Com a sua conta do Spotify conectada neste navegador, ele toca as faixas completas; sem ela, toca prévias de 30 segundos e a Principia avisa com o selo <b>Prévia</b>. Os links ficam salvos só neste navegador. Fechar a janela não para a música: use o botão de pausa na barra superior.</p>
+        <p class="os-music-note">O player é o oficial do Spotify. Com a sua conta do Spotify conectada neste navegador, ele toca as faixas completas; sem ela, toca prévias de 30 segundos e o Guia avisa com o selo <b>Prévia</b>. Os links ficam salvos só neste navegador. Fechar a janela não para a música: use o botão de pausa na barra superior.</p>
       </div>
     </div>
     <div class="os-resize" data-resize aria-hidden="true"></div>
@@ -357,8 +357,8 @@
     <div class="os-win-body">
       <div class="os-about">
         <div class="os-about-mark" aria-hidden="true"></div>
-        <h2>Principia</h2>
-        <p>GUIA DA DUODÉCIMA · LEGIO XII FULMINATA</p>
+        <h2>Guia da Duodécima</h2>
+        <p>LEGIO XII FULMINATA</p>
         <dl id="osAboutList"></dl>
       </div>
     </div>
@@ -404,7 +404,7 @@
   <div class="os-engine" aria-hidden="true"><a id="osEngineLink" href="#page:sistema" data-os-engine tabindex="-1">.</a></div>
 </div>
 
-<script src="principia/principia-early.js?v=1.0.0"></script>
+<script src="principia/principia-early.js?v=1.1.0"></script>
 
 <!-- O conteúdo local e a navegação sobem primeiro; integrações remotas nunca bloqueiam a interface. -->
 <script src="content-v24.js?v=2.7.10"></script>
@@ -412,6 +412,8 @@
 <script src="guide-magic-complete-v280.js?v=2.8.0"></script>
 <script src="guide-vulcano-v280.js?v=2.8.0"></script>
 <script src="guide-domus-v275.js?v=2.8.2"></script>
+<!-- Guia da Duodécima: monta as 11 abas a partir das páginas do motor (só nesta versão). -->
+<script src="principia/principia-estrutura.js?v=1.0.0"></script>
 <script src="app-v24.js?v=2.7.8"></script>
 <script src="guide-visual-v253.js?v=2.6.11"></script>
 
@@ -453,10 +455,10 @@
 <script src="guide-editorial-v273.js?v=2.7.8"></script>
 
 <!-- Camada Principia: área de trabalho, janelas, busca e celular. -->
-<script src="principia/principia.js?v=3.0.0"></script>
+<script src="principia/principia.js?v=3.1.0"></script>
 <!-- Minha Ficha (prévia de teste): lê o JSON exportado pela Ficha Oficial, sem alterá-la. -->
-<script src="principia/principia-ficha.js?v=2.0.0"></script>
+<script src="principia/principia-ficha.js?v=2.0.1"></script>
 <!-- Guia em formato pôster: capas, banners em alta e artes decorativas a cada página. -->
-<script src="principia/principia-guia.js?v=1.0.0"></script>
+<script src="principia/principia-guia.js?v=1.1.0"></script>
 </body>
 </html>

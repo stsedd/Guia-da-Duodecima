@@ -15,6 +15,11 @@
 
   /* Capa de cada arquivo. "title" só aparece quando a página não tem um título próprio (h1). */
   const COVERS = {
+    personagem: { img: 'b-sistema-de-jogo' },
+    cursus: { img: 'b-legio' },
+    'casa-do-lobo': { img: 'cover-roma', tall: true },
+    'roma-hoje': { img: 'b-roma-novo-lar' },
+    /* Familiares, Infos Extras e Domus abrem com o título, sem capa. */
     sistema: { img: 'b-sistema-de-jogo', title: 'Sistema' },
     combate: { img: 'b-combate' },
     crafting: { img: 'b-crafting' },
@@ -60,6 +65,10 @@
 
   /* Seções que ganham banner (a arte existe, mas o Guia não a usava). */
   const BANDS = {
+    cursus: { economia: 'b-monetario' },
+    'roma-hoje': { 'situacao-atual-roma': 'b-trama' },
+    extras: { 'nazzano-atualizacao': 'b-roma-novo-lar', panteoes: 'b-panteoes' },
+    deuses: { 'devocao-divina': 'b-devocao' },
     sistema: { economia: 'b-monetario' },
     crafting: { forja: 'b-forja' },
     magia: { introducao: 'b-magia-poder-divino', circulos: 'b-circulos' },
@@ -68,24 +77,17 @@
 
   /* Artes quadradas que acompanham o texto de algumas seções. */
   const ARTS = {
+    personagem: { talentos: 'a-fama' },
+    familiares: { familiares: 'a-familiar' },
+    'casa-do-lobo': { acampamento: 'a-legio' },
+    'roma-hoje': { 'regras-acampamento': 'a-spqr' },
+    extras: { 'juramentos-orcus': 'a-religio' },
     sistema: { familiares: 'a-familiar', talentos: 'a-fama' },
     crafting: { alquimia: 'a-minerios' },
     magia: { magicos: 'a-magia' },
     roma: { acampamento: 'a-legio', 'regras-acampamento': 'a-spqr', 'juramentos-orcus': 'a-religio' }
   };
 
-  /* Capítulos em papel (o resto fica no fundo escuro). Sem capítulos, alterna seção a seção. */
-  const PAPER_CHAPTERS = {
-    sistema: ['Mecânicas', 'Outros sistemas'],
-    combate: ['Situações de combate'],
-    magia: ['Círculos e conjuração', 'Limites'],
-    roma: ['Trajetória', 'Além de Roma', 'Religio']
-  };
-  const PAPER_SECTIONS = {
-    crafting: ['forja', 'alquimia', 'forja-canonica'],
-    deuses: ['triunviros', 'dii-inferi', 'ventis'],
-    domus: ['domus-memoriae']
-  };
 
   const key = () => (/\bpage-([a-z0-9-]+)/.exec(content.className) || [])[1] || null;
   const topSections = () => [...content.querySelectorAll(':scope > section.section[id]')];
@@ -136,32 +138,48 @@
     }
   }
 
+  /* Arte lateral do tamanho do texto (pedido da Staff): o texto da seção vai para uma coluna e a
+     arte ocupa a outra, com a mesma altura. Em seções longas, a arte acompanha a leitura (fixa no
+     topo da coluna) em vez de terminar no meio do texto. */
   function arts(k) {
     const map = ARTS[k] || {};
     for (const [id, name] of Object.entries(map)) {
       const sec = content.querySelector(`:scope > section#${CSS.escape(id)}`);
-      if (!sec || sec.querySelector(':scope > .pg-art')) continue;
+      if (!sec || sec.querySelector('.pg-art')) continue;
       const head = sec.querySelector(':scope > .section-head');
+      const wrap = document.createElement('div');
+      wrap.className = 'pg-art-wrap';
+      const body = document.createElement('div');
+      body.className = 'pg-art-body';
+      const moving = [];
+      for (let n = head ? head.nextElementSibling : sec.firstElementChild; n; n = n.nextElementSibling) {
+        if (n.matches('.pg-band,.banner-strip,.rules-banner,.section-visual')) continue;
+        moving.push(n);
+      }
+      moving.forEach(n => body.append(n));
       const f = figure('pg-art', hq(name), 'loading="lazy"');
-      head ? head.after(f) : sec.prepend(f);
+      const img = f.querySelector('img');
+      const frame = document.createElement('span');
+      frame.className = 'pg-art-frame';
+      frame.append(img);
+      f.append(frame);
+      wrap.append(body, f);
+      head ? head.after(wrap) : sec.append(wrap);
     }
   }
 
+  /* Um tema por modo em todas as abas (pedido da Staff): sem faixas alternadas de papel.
+     Os capítulos continuam abrindo com o letreiro, agora nas cores do tema. */
   function tones(k) {
     const sections = topSections();
     sections.forEach(s => s.classList.remove('pg-paper', 'pg-chapter-start'));
     const chapters = (P.api?.chapters?.() || {})[k];
-    const paperNames = PAPER_CHAPTERS[k];
-    if (chapters && paperNames) {
-      let current = null;
-      for (const s of sections) {
-        if (chapters[s.id]) { current = chapters[s.id]; s.classList.add('pg-chapter-start'); s.dataset.pgChapter = current; }
-        if (current && paperNames.includes(current)) s.classList.add('pg-paper');
-      }
-      return;
+    if (!chapters) return;
+    for (const s of sections) {
+      if (!chapters[s.id]) continue;
+      s.classList.add('pg-chapter-start');
+      s.dataset.pgChapter = chapters[s.id];
     }
-    const ids = PAPER_SECTIONS[k] || [];
-    for (const s of sections) if (ids.includes(s.id)) s.classList.add('pg-paper');
   }
 
   /* Numeração das seções (01, 02…) para o cabeçalho em formato pôster. */

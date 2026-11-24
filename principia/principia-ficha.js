@@ -412,7 +412,7 @@
       bodyEl.innerHTML = `
         <div class="fx-empty" data-fx-drop>
           <div class="fx-empty-art" aria-hidden="true"></div>
-          <h2>Sua ficha, dentro da Principia</h2>
+          <h2>Sua ficha, dentro do Guia</h2>
           <p>Importe o arquivo <b>.json</b> exportado pela Ficha Oficial (botão <b>Exportar JSON</b>) e mantenha o personagem aberto enquanto consulta o Guia. No computador, use <b>Lado a lado</b>; no celular, alterne pelos botões <b>Ficha</b> e <b>Guia</b>.</p>
           <button type="button" class="os-btn os-btn--primary fx-import-big" data-fx-import>Importar ficha (.json)</button>
           <small>${isMobile() ? 'Escolha o arquivo salvo no celular.' : 'Você também pode arrastar o arquivo para cá.'} A ficha fica só neste navegador: nada é enviado e a Ficha Oficial não muda.</small>
@@ -666,12 +666,12 @@
       if (t.closest('[data-fx-remove]')) {
         const rec = current();
         if (!rec) return;
-        if (!confirm(`Remover a ficha de ${rec.name} da Principia?\nO seu arquivo JSON e a Ficha Oficial não são afetados.`)) return;
+        if (!confirm(`Remover a ficha de ${rec.name} do Guia?\nO seu arquivo JSON e a Ficha Oficial não são afetados.`)) return;
         await dbDelete(rec.id);
         F.currentId = '';
         store.del('principia_ficha_atual');
         await refresh();
-        toast('Ficha removida da Principia.');
+        toast('Ficha removida do Guia.');
       }
     });
 

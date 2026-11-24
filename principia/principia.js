@@ -80,17 +80,26 @@
   /* Canal do iMessage (mensagens entre personagens) no Discord da Duodécima. */
   const IMESSAGE_URL = 'https://discord.com/channels/1498461819902234624/1498486495668080761';
   const ICON = n => `assets/principia/icons/${n}.webp`;
-  const PAGES = ['sistema', 'combate', 'crafting', 'magia', 'deuses', 'roma', 'domus'];
+  /* As 11 abas vêm de principia-estrutura.js; sem ela, ficam as 7 páginas do motor. */
+  const EST = window.PRINCIPIA_ESTRUTURA || null;
+  const PAGES = EST?.order || ['sistema', 'combate', 'crafting', 'magia', 'deuses', 'roma', 'domus'];
+  const HOME = PAGES[0];
   const APPS = {
+    personagem: { kind: 'page', title: 'Character Archive', short: 'Archive', art: ICON('sistema'), tilt: -3 },
+    cursus: { kind: 'page', title: 'Cursus Honorum', short: 'Cursus', art: ICON('cursus'), tilt: 2 },
+    familiares: { kind: 'page', title: 'Familiares', art: ICON('familiares'), tilt: -2 },
+    'casa-do-lobo': { kind: 'page', title: 'A Casa do Lobo', short: 'Casa do Lobo', art: ICON('casa-do-lobo'), tilt: 3 },
+    'roma-hoje': { kind: 'page', title: 'Roma', art: ICON('roma'), tilt: -2 },
+    extras: { kind: 'page', title: 'Infos Extras e Mecânicas', short: 'Extras', art: ICON('extras'), tilt: 2 },
     sistema: { kind: 'page', title: 'Sistema', art: ICON('sistema'), tilt: -3 },
     combate: { kind: 'page', title: 'Combate', art: ICON('combate'), tilt: 2 },
     crafting: { kind: 'page', title: 'Crafting', art: ICON('crafting'), tilt: -2 },
     magia: { kind: 'page', title: 'Magia', art: ICON('magia'), tilt: 3 },
-    deuses: { kind: 'page', title: 'Deuses', art: ICON('deuses'), tilt: -3 },
+    deuses: { kind: 'page', title: 'Deuses e Devoção', short: 'Deuses', art: ICON('deuses'), tilt: -3 },
     roma: { kind: 'page', title: 'Sobre Roma', short: 'Roma', art: ICON('roma'), tilt: 2 },
     domus: { kind: 'page', title: 'Domus Memoriae', short: 'Domus', art: ICON('domus'), tilt: -2 },
     tabularium: { kind: 'win', win: 'tabularium', title: 'Tabularium', art: ICON('tabularium'), tilt: 3 },
-    mapa: { kind: 'route', title: 'Mapas', route: ['roma', 'mapa-acampamento'], art: ICON('mapa'), tilt: -2 },
+    mapa: { kind: 'route', title: 'Mapas', route: EST ? ['casa-do-lobo', 'mapa-acampamento'] : ['roma', 'mapa-acampamento'], art: ICON('mapa'), tilt: -2 },
     minhaficha: { kind: 'win', win: 'ficha', title: 'Minha Ficha', art: ICON('ficha'), tilt: -2 },
     ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, glyph: 'book', tilt: 2 },
     imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
@@ -136,11 +145,29 @@
     return `<button type="button" ${attrs} aria-label="${esc(label)}">${art}<span class="os-ico-label">${esc(label)}</span></button>`;
   }
 
+  /* Com 11 arquivos, os menus individuais nem sempre cabem na barra: os que sobrarem somem
+     (continuam todos no menu "Arquivos", no Tabularium e na busca). */
+  function fitMenus() {
+    const nav = $('#osBarMenus');
+    const tools = $('#osBar .os-bar-tools');
+    if (!nav || !tools) return;
+    const items = $$('.os-menu-trigger--app', nav);
+    items.forEach(b => { b.hidden = false; });
+    if (getComputedStyle(nav).display === 'none') return;
+    const limit = () => tools.getBoundingClientRect().left - 12;
+    for (let i = items.length - 1; i >= 0; i--) {
+      const last = items.slice(0, i + 1).filter(b => !b.hidden).pop();
+      if (!last || last.getBoundingClientRect().right <= limit()) break;
+      items[i].hidden = true;
+    }
+  }
+
   function renderShell() {
     // O link do iMessage vem só de IMESSAGE_URL: trocar o canal é editar uma linha.
     $$('.os-bar-btn--msg').forEach(a => { a.href = IMESSAGE_URL; });
-    $('#osIconsLeft').innerHTML = PAGES.map((k, i) => iconHTML(k, i)).join('');
-    $('#osIconsRight').innerHTML = ['minhaficha', 'tabularium', 'mapa', 'ficha', 'imessage', 'musica', 'leiame', 'prefs'].map((k, i) => iconHTML(k, i + 2)).join('');
+    // Esquerda: os arquivos do Guia e os apps de uso do jogador; direita: utilitários.
+    $('#osIconsLeft').innerHTML = [...PAGES, 'musica', 'imessage', 'minhaficha', 'ficha'].map((k, i) => iconHTML(k, i)).join('');
+    $('#osIconsRight').innerHTML = ['leiame', 'tabularium', 'prefs', 'mapa'].map((k, i) => iconHTML(k, i + 2)).join('');
     $('#osHomeGrid').innerHTML = [...PAGES, 'mapa', 'tabularium', 'ficha', 'prefs'].map((k, i) => iconHTML(k, i, { short: true })).join('');
     $('#osDock').innerHTML = ['imessage', 'musica', 'minhaficha', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
     $('#osBarMenus').innerHTML =
@@ -149,6 +176,7 @@
     $('#osTabs').innerHTML = PAGES.map(k => `<button class="os-tab" type="button" data-app="${k}" data-tab="${k}" title="${esc(appTitle(k))}"><img src="${APPS[k].art}" alt="">${esc(shortTitle(k))}</button>`).join('') +
       /* Aba da ficha: abre a Minha Ficha ao lado do Guia (no celular, alterna as telas). */
       `<button class="os-tab os-tab--ficha" type="button" data-action="ficha-beside" title="Minha Ficha ao lado do Guia"><img src="${APPS.minhaficha.art}" alt="">Ficha</button>`;
+    fitMenus();
     $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'tabularium', 'mapa', 'musica', 'imessage', 'leiame'].map(k => APPS[k].kind === 'external'
       ? `<a class="os-spot-app" href="${APPS[k].href}" target="_blank" rel="noopener noreferrer" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}<span class="os-spot-ext">↗</span></a>`
       : `<button class="os-spot-app" type="button" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}</button>`).join('');
@@ -505,8 +533,10 @@
   const engineLink = $('#osEngineLink');
   const parseRoute = hash => {
     if (!hash || !hash.startsWith('#page:')) return null;
-    const [key, ...rest] = hash.slice(6).split(':');
-    return { key: pagesData()[key] ? key : 'sistema', anchor: rest.join(':') || null };
+    const [raw, ...rest] = hash.slice(6).split(':');
+    // Links antigos (#page:sistema:…, #page:roma:…) apontam para a aba nova da seção.
+    const r = EST ? EST.route(raw, rest.join(':') || null) : { key: raw, anchor: rest.join(':') || null };
+    return { key: pagesData()[r.key] ? r.key : HOME, anchor: r.anchor };
   };
   const engineKey = () => (/\bpage-([a-z0-9-]+)/.exec(content.className) || [])[1] || null;
 
@@ -538,6 +568,9 @@
   function onRendered() {
     const key = engineKey();
     try { window.dispatchEvent(new CustomEvent('principia:rendered', { detail: { key } })); } catch {}
+    // Na área de trabalho, o motor renderiza uma página em segundo plano; o título da aba do
+    // navegador continua sendo o do Guia (e nunca o de uma página antiga oculta).
+    if (!WM.isOpen('reader') || EST?.hidden.includes(key)) document.title = 'Guia da Duodécima';
     if (key) setActive(key);
     markZoomable();
     updateSections();
@@ -616,7 +649,8 @@
   }
 
   async function openPage(key, anchor = null, opts = {}) {
-    if (!pagesData()[key]) key = 'sistema';
+    if (EST) ({ key, anchor } = EST.route(key, anchor));
+    if (!pagesData()[key]) key = HOME;
     closeMenus();
     closeSpot();
     const r = WM.get('reader');
@@ -682,7 +716,7 @@
     if (!WM.isOpen('reader') || closingReader) return;
     closingReader = true;
     if (!opts.fromRoute && parseRoute(location.hash)) history.pushState({ os: 'desktop' }, '', location.pathname + location.search);
-    document.title = 'Principia · Guia da Duodécima';
+    document.title = 'Guia da Duodécima';
     $('#sidebar')?.classList.remove('open');
     $('#scrim')?.classList.remove('show');
     await WM.close('reader', { to: iconFor(currentKey) });
@@ -754,6 +788,8 @@
   /* Capítulos do painel "Nesta página": agrupam as seções longas sem mudar a ordem nem os links.
      A chave é o id da primeira seção de cada capítulo. */
   const NAV_CHAPTERS = {
+    personagem: { poderes: 'Quem é', criacao: 'Como funciona', estrangeiros: 'Além de Roma', 'boas-praticas': 'Mesa' },
+    deuses: { panteoes: 'Panteão', afinidade: 'Afinidade & Devoção', triunviros: 'Os grupos' },
     sistema: { poderes: 'Personagem', criacao: 'Mecânicas', hierarquia: 'Roma', familiares: 'Outros sistemas' },
     combate: { rolagens: 'Rolagens e turno', furtividade: 'Situações de combate', condicoes: 'Estados e morte' },
     magia: { introducao: 'Fundamentos', circulos: 'Círculos e conjuração', rituais: 'Práticas arcanas', 'alta-magia': 'Limites' },
@@ -1062,7 +1098,7 @@
     const data = getArchive();
     const sections = data.reduce((n, f) => n + f.count, 0);
     const rows = [
-      ['Interface', 'Principia 1.0 · prévia'],
+      ['Interface', '11 arquivos · prévia'],
       ['Guia', 'v2.8.2'],
       ['Regras', core.trim()],
       ['Arquivos', String(data.length)],
@@ -1124,7 +1160,7 @@
     WM.place('reader', { x: left + g * 2, y: top, w: vw - left - g * 3, h });
     const tasks = [];
     if (!WM.isOpen('ficha')) tasks.push(openUtil('ficha', null));
-    if (!WM.isOpen('reader')) tasks.push(openPage(key || engineKey() || 'sistema', anchor || null));
+    if (!WM.isOpen('reader')) tasks.push(openPage(key || engineKey() || HOME, anchor || null));
     else if (key) tasks.push(openPage(key, anchor || null));
     await Promise.all(tasks);
   }
@@ -1480,14 +1516,14 @@
       else if (action === 'reboot') reboot();
       else if (action === 'reset-windows') WM.reset();
       else if (action === 'ficha-beside') tileFichaGuia();
-      else if (action === 'to-guia') openPage(engineKey() || 'sistema');
+      else if (action === 'to-guia') openPage(engineKey() || HOME);
       return;
     }
     const skip = t.closest('.skip-link');
     if (skip) {
       e.preventDefault();
       e.stopPropagation();
-      if (!WM.isOpen('reader')) openPage(engineKey() || 'sistema');
+      if (!WM.isOpen('reader')) openPage(engineKey() || HOME);
       setTimeout(() => content.focus({ preventScroll: true }), 400);
       return;
     }
@@ -1552,7 +1588,9 @@
 
   /* ---------- Redimensionamento ---------- */
   let resizeT = 0;
-  window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { WM.relayout(); closeMenus(); }, 120); });
+  window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { WM.relayout(); closeMenus(); fitMenus(); }, 120); });
+  // As fontes da barra mudam a largura dos menus quando terminam de carregar.
+  document.fonts?.ready?.then(fitMenus);
   mqMobile.addEventListener?.('change', () => { WM.relayout(); updateRunning(); });
 
   /* ---------- Atualizações do Core e camadas ---------- */
@@ -1560,11 +1598,17 @@
     window.DUODECIMA_CORE_READY,
     window.DUODECIMA_GUIDE_STABILIZATION_READY,
     window.DUODECIMA_GUIDE_RULES_READY,
-    window.DUODECIMA_GUIDE_TALENTS_READY
+    window.DUODECIMA_GUIDE_TALENTS_READY,
+    window.PRINCIPIA_ESTRUTURA_READY
   ]).then(() => {
     invalidateArchive();
     if (WM.isOpen('tabularium')) renderTabularium();
     if (WM.isOpen('sobre')) renderAbout();
+  });
+  // A montagem das abas pode acontecer de novo se alguma camada atualizar o conteúdo depois.
+  window.addEventListener('principia:estrutura', () => {
+    invalidateArchive();
+    if (WM.isOpen('tabularium')) renderTabularium();
   });
 
   /* ==========================================================================
@@ -1660,7 +1704,7 @@
     const [rawKey, ...rest] = h.slice(6).split(':');
     const rawAnchor = rest.join(':') || null;
     if (!rawKey || rawKey === initial.key) return;
-    await Promise.allSettled([window.DUODECIMA_CORE_READY, window.DUODECIMA_GUIDE_RULES_READY]);
+    await Promise.allSettled([window.DUODECIMA_CORE_READY, window.DUODECIMA_GUIDE_RULES_READY, window.PRINCIPIA_ESTRUTURA_READY]);
     await wait(60);
     if (!pagesData()[rawKey]) return;
     const stillOnFallback = engineKey() === initial.key && (location.hash || '').startsWith('#page:' + initial.key);
@@ -1674,7 +1718,7 @@
     const initial = parseRoute(P.initialHash);
     // Sem rota na URL, o terminal abre na área de trabalho (o motor já renderizou em segundo plano).
     if (!initial && parseRoute(location.hash)) history.replaceState(history.state, '', location.pathname + location.search);
-    if (!initial) document.title = 'Principia · Guia da Duodécima';
+    if (!initial) document.title = 'Guia da Duodécima';
     const key = engineKey();
     if (key) setActive(key);
     checkRender();
