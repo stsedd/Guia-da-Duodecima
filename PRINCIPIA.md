@@ -47,6 +47,12 @@ Na `principia.html`, as 13 folhas legadas do `index.html` foram substituídas po
 
 O app Música e as playlists do Spotify foram removidos por decisão da Staff (2026-11-24), para não depender de conta pessoal no Spotify. Não há mais nenhum script ou link do Spotify no Guia.
 
+## Contas, Tabula Famae e Praetorium
+
+Login com o Discord (membro ou visitante, sem ler cargos), personagens com fama lançada pelo link da mensagem no Discord, ranking público com título automático e painel da Staff. O banco fica no Supabase (plano Free) e todas as permissões estão nele. O passo a passo de ativação, as regras de fama e a parte de segurança estão em [ONLINE.md](ONLINE.md). Sem configuração, o site segue em modo visitante.
+
+A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os ícones); no lugar fica o título da página aberta.
+
 ## Correções
 
 - **Notas de acúmulo dos talentos:** a ponte do Core (`core-bridge-v24.js`) reconstrói a seção de talentos; quando terminava depois da camada de estabilização, apagava as notas "Único · só pode ser adquirido uma vez". `guide-stabilization-v251.js` agora espera o `DUODECIMA_CORE_READY` antes de aplicar os ajustes (uma linha). O `index.html` recebe a mesma correção quando o arquivo sair do cache; a `principia.html` usa `?v=2.6.12`.
@@ -66,6 +72,9 @@ O app Música e as playlists do Spotify foram removidos por decisão da Staff (2
 | `principia/principia.js` | Área de trabalho, janelas, menus, busca, Tabularium, tela do celular e inicialização. |
 | `principia/principia.css` | Visual da interface e ajustes do conteúdo dentro das janelas. |
 | `principia/principia-ficha.js` | App Minha Ficha: importa o JSON da Ficha Oficial e mostra o personagem ao lado do Guia. |
+| `principia/principia-online.js` + `principia-online.css` | Minha Conta, Tabula Famae, Praetorium e trava da Minha Ficha para visitantes. |
+| `principia/online-config.js` | Endereço e chave pública do Supabase (vazio = modo visitante). |
+| `supabase/schema.sql` | Banco: tabelas, RLS, regras de fama e títulos, auditoria. |
 | `principia/manifest.webmanifest` | Permite adicionar a Principia à tela inicial do celular. |
 | `assets/principia/` | Papel de parede SPQR, ícones dos apps (recortes dos banners da legião) e marcas LEG·XII. |
 

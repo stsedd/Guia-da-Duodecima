@@ -1,0 +1,51 @@
+name: Supabase · manter ativo
+
+# Projetos gratuitos do Supabase pausam depois de uma semana sem uso.
+# Uma vez por dia, este fluxo chama a função "manter_ativo" do banco (só grava a hora do sinal).
+# Usa o endereço e a chave PÚBLICA que já estão em principia/online-config.js: não precisa de segredo.
+
+on:
+  schedule:
+    - cron: '17 9 * * *'   # todo dia, 06:17 no horário de Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-manter-ativo
+  cancel-in-progress: false
+
+jobs:
+  sinal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ler a configuração pública
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: principia/online-config.js
+          sparse-checkout-cone-mode: false
+
+      - name: Chamar o banco
+        run: |
+          URL=$(sed -n "s/.*supabaseUrl: *'\([^']*\)'.*/\1/p" principia/online-config.js | head -1)
+          KEY=$(sed -n "s/.*supabaseKey: *'\([^']*\)'.*/\1/p" principia/online-config.js | head -1)
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::notice::As contas ainda não foram configuradas em principia/online-config.js. Nada a fazer por enquanto."
+            exit 0
+          fi
+          AUTH=()
+          case "$KEY" in eyJ*) AUTH=(-H "Authorization: Bearer $KEY");; esac
+          for tentativa in 1 2 3; do
+            CODE=$(curl -sS -o resposta.json -w '%{http_code}' -X POST "$URL/rest/v1/rpc/manter_ativo" \
+              -H "apikey: $KEY" "${AUTH[@]}" -H 'Content-Type: application/json' -d '{}') || CODE=000
+            if [ "$CODE" = "200" ]; then
+              echo "Banco ativo. Último sinal: $(cat resposta.json)"
+              exit 0
+            fi
+            echo "Tentativa $tentativa: HTTP $CODE $(head -c 300 resposta.json 2>/dev/null)"
+            sleep 20
+          done
+          echo "::error::O Supabase não respondeu. Se o projeto aparecer como pausado no painel (supabase.com/dashboard), clique em Restore."
+          exit 1

@@ -70,7 +70,10 @@
     open: '<path d="M14 4.5h5.5V10M19.5 4.5 12 12"/><path d="M18.5 14v4.5a1 1 0 0 1-1 1h-12a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1H10"/>',
     book: '<path d="M4.5 5.5A2 2 0 0 1 6.5 3.5h12v15h-12a2 2 0 0 0-2 2z"/><path d="M4.5 20.5a2 2 0 0 1 2-2h12v2h-12"/>',
     close: '<path d="m7 7 10 10M17 7 7 17"/>',
-    phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/>'
+    phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/>',
+    user: '<circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.2-3.6 3.9-5.4 7-5.4s5.8 1.8 7 5.4"/>',
+    laurel: '<path d="M8 4.5h8v4.2a4 4 0 0 1-8 0z"/><path d="M8 6H5.5v1.2a3 3 0 0 0 3 3M16 6h2.5v1.2a3 3 0 0 1-3 3"/><path d="M12 12.7v3.3M8.5 19.5h7M9.6 19.5l.7-3.5h3.4l.7 3.5"/>',
+    shield: '<path d="M12 3.5 5 6v5.5c0 4.2 2.9 7.5 7 9 4.1-1.5 7-4.8 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>'
   };
   const svg = (name, cls = 'os-svg') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${SVG[name] || ''}</svg>`;
 
@@ -105,6 +108,9 @@
     leiame: { kind: 'win', win: 'leiame', title: 'Leia-me', glyph: 'note', tilt: -3 },
     prefs: { kind: 'win', win: 'prefs', title: 'Preferências', short: 'Ajustes', glyph: 'gear', tilt: 2 },
     sobre: { kind: 'win', win: 'sobre', title: 'Sobre', glyph: 'info', tilt: 0 },
+    conta: { kind: 'win', win: 'conta', title: 'Minha Conta', short: 'Conta', glyph: 'user', tilt: 2 },
+    famae: { kind: 'win', win: 'famae', title: 'Tabula Famae', short: 'Famae', glyph: 'laurel', tilt: -2 },
+    praetorium: { kind: 'win', win: 'praetorium', title: 'Praetorium', glyph: 'shield', tilt: 3 },
     buscar: { kind: 'action', action: 'search', title: 'Buscar', glyph: 'search', tilt: 0 }
   };
   const pagesData = () => window.GUIA_CONTENT || {};
@@ -164,14 +170,14 @@
     $$('.os-bar-btn--msg').forEach(a => { a.href = IMESSAGE_URL; });
     // Esquerda: os arquivos do Guia e os apps de uso do jogador; direita: utilitários.
     $('#osIconsLeft').innerHTML = [...PAGES, 'imessage', 'minhaficha', 'ficha'].map((k, i) => iconHTML(k, i)).join('');
-    $('#osIconsRight').innerHTML = ['leiame', 'tabularium', 'prefs', 'mapa'].map((k, i) => iconHTML(k, i + 2)).join('');
-    $('#osHomeGrid').innerHTML = [...PAGES, 'mapa', 'tabularium', 'ficha', 'prefs'].map((k, i) => iconHTML(k, i, { short: true })).join('');
-    $('#osDock').innerHTML = ['imessage', 'minhaficha', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
+    $('#osIconsRight').innerHTML = ['leiame', 'tabularium', 'famae', 'prefs', 'mapa', 'praetorium'].map((k, i) => iconHTML(k, i + 2)).join('');
+    $('#osHomeGrid').innerHTML = [...PAGES, 'conta', 'mapa', 'tabularium', 'ficha', 'prefs', 'praetorium'].map((k, i) => iconHTML(k, i, { short: true })).join('');
+    $('#osDock').innerHTML = ['imessage', 'minhaficha', 'famae', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
     $('#osBarMenus').innerHTML =
       `<button class="os-menu-trigger os-menu-trigger--all" type="button" data-menu="all" aria-haspopup="menu" aria-expanded="false">Arquivos</button>` +
       PAGES.map(k => `<button class="os-menu-trigger os-menu-trigger--app" type="button" data-menu="app:${k}" aria-haspopup="menu" aria-expanded="false">${esc(shortTitle(k))}</button>`).join('');
     fitMenus();
-    $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'tabularium', 'mapa', 'imessage', 'leiame'].map(k => APPS[k].kind === 'external'
+    $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'famae', 'conta', 'tabularium', 'mapa', 'imessage', 'leiame', 'praetorium'].map(k => APPS[k].kind === 'external'
       ? `<a class="os-spot-app" href="${APPS[k].href}" target="_blank" rel="noopener noreferrer" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}<span class="os-spot-ext">↗</span></a>`
       : `<button class="os-spot-app" type="button" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}</button>`).join('');
   }
@@ -232,7 +238,7 @@
   const WM = (() => {
     const wins = {};
     let z = 200;
-    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], ficha: [360, 420] };
+    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], ficha: [360, 420], conta: [360, 400], famae: [380, 420], praetorium: [560, 440] };
     let saved = {};
     try { saved = JSON.parse(store.get('principia_wins', '{}')) || {}; } catch { saved = {}; }
     const barH = () => isMobile() ? 0 : ($('#osBar')?.offsetHeight || 40);
@@ -244,8 +250,8 @@
         const w = Math.min(1300, vw - 236);
         return { x: Math.round((vw - w) / 2), y: bar + g, w, h: vh - bar - g * 2 };
       }
-      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], ficha: [600, 860], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
-      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, ficha: -120 }[id] || 0;
+      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], ficha: [600, 860], conta: [560, 760], famae: [760, 800], praetorium: [1080, 820], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
+      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, ficha: -120, conta: -60, famae: 40, praetorium: 0 }[id] || 0;
       const [w0, h0] = sizes[id] || [620, 480];
       const w = Math.round(Math.min(w0, vw - g * 2)), h = Math.round(Math.min(h0, vh - bar - g * 2));
       return { x: Math.round((vw - w) / 2 + shift), y: Math.round(bar + Math.max(g, (vh - bar - h) / 2 - 10) + shift * .35), w, h };
@@ -1166,7 +1172,7 @@
     return openPage(key, anchor);
   }
 
-  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'ficha']) {
+  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'ficha', 'conta', 'famae', 'praetorium']) {
     const w = WM.get(id);
     if (!w) continue;
     w.onState = () => updateRunning();
