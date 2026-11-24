@@ -618,7 +618,7 @@
       else if (a?.kind === 'win') on = WM.isOpen(a.win);
       ic.classList.toggle('is-running', on);
     });
-    $('#osReaderTabs [data-app]').forEach(b => {
+    $$('#osReaderTabs [data-app]').forEach(b => {
       const active = b.dataset.app === currentKey;
       b.classList.toggle('is-current', active);
       if (active) b.setAttribute('aria-current', 'page');
@@ -1294,9 +1294,21 @@
 
   /* Clima real da região da legião (Nazzano, Itália), independente do fuso do visitante. */
   const weather = $('#osWeather');
+  const weatherButton = weather?.querySelector('button');
+  const weatherConditionEl = weather?.querySelector('.os-weather-condition');
+  const weatherUpdatedEl = weather?.querySelector('.os-weather-updated');
+  if (weatherButton) {
+    const setWeatherOpen = open => {
+      weather.classList.toggle('is-expanded', open);
+      weatherButton.setAttribute('aria-expanded', String(open));
+    };
+    weatherButton.addEventListener('click', () => setWeatherOpen(!weather.classList.contains('is-expanded')));
+    document.addEventListener('click', e => { if (!weather.contains(e.target)) setWeatherOpen(false); });
+    weather.addEventListener('keydown', e => { if (e.key === 'Escape') { setWeatherOpen(false); weatherButton.blur(); } });
+  }
   const weatherURL = 'https://api.open-meteo.com/v1/forecast?latitude=42.23&longitude=12.60&current=temperature_2m,weather_code,is_day&timezone=Europe%2FRome';
   function weatherCondition(code, day) {
-    if (code === 0) return [day ? '☀' : '☾', 'Céu limpo'];
+    if (code === 0) return [day ? '☀' : '☾', day ? 'Ensolarado' : 'Céu limpo'];
     if (code === 1 || code === 2) return [day ? '⛅' : '☁', 'Parcialmente nublado'];
     if (code === 3) return ['☁', 'Nublado'];
     if (code === 45 || code === 48) return ['≋', 'Neblina'];
@@ -1321,13 +1333,18 @@
       weather.querySelector('.os-weather-icon').textContent = symbol;
       weather.querySelector('.os-weather-temp').textContent = temp;
       weather.title = 'Nazzano, Itália · ' + description + ' · ' + temp + ' · dados: ' + String(current.time || '').replace('T', ' ') + ' (hora local) · Open-Meteo';
-      weather.setAttribute('aria-label', weather.title);
+      weatherButton.setAttribute('aria-label', weather.title);
+      weatherConditionEl.textContent = description;
+      weatherUpdatedEl.textContent = 'Atualizado às ' + (String(current.time || '').split('T')[1] || '—') + ' · hora local';
+      weatherUpdatedEl.dataset.last = weatherUpdatedEl.textContent;
       weather.dataset.updated = 'true';
       weather.classList.remove('is-stale');
     } catch (_) {
       weather.classList.add('is-stale');
       const label = weather.dataset.updated ? 'Nazzano · última leitura disponível (atualização indisponível)' : 'Clima de Nazzano indisponível';
-      weather.setAttribute('aria-label', label + (weather.dataset.updated ? ' · ' + weather.querySelector('.os-weather-temp').textContent : ''));
+      weatherButton.setAttribute('aria-label', label + (weather.dataset.updated ? ' · ' + weather.querySelector('.os-weather-temp').textContent : ''));
+      if (!weather.dataset.updated) weatherConditionEl.textContent = 'Clima indisponível';
+      weatherUpdatedEl.textContent = weather.dataset.updated ? (weatherUpdatedEl.dataset.last || '') + ' · sem atualização' : 'Tente novamente mais tarde';
       weather.title = weather.dataset.updated ? label + ' · ' + weather.title.replace(/^Nazzano · última leitura disponível \(atualização indisponível\) · /, '') : label;
     } finally {
       clearTimeout(timer);

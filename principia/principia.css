@@ -798,3 +798,15 @@ html[data-motion="reduce"] .os-reader .content .os-reveal{opacity:1;transform:no
 .os-weather.is-stale{opacity:.65}
 @media(max-width:759px){.os-weather{gap:3px;padding:0 3px;font-size:11px}.os-weather-place{display:none}.os-weather-icon{font-size:14px}.os-reader-tabs{order:0;padding:4px 6px 0}.os-reader-tab{min-height:34px;padding:4px 9px}}
 @media print{.os-reader-tabs{display:none!important}}
+
+/* Detalhes meteorológicos: não altera a largura da barra nem a navegação. */
+.os-weather-wrap{position:relative;flex:none}
+.os-weather-wrap .os-weather{border:0;background:transparent;color:inherit;cursor:pointer;border-radius:7px;height:28px}
+.os-weather-wrap .os-weather:hover,.os-weather-wrap.is-expanded .os-weather{background:var(--os-bar-hover)}
+.os-weather-wrap .os-weather:focus-visible{outline:2px solid var(--os-focus)}
+.os-weather-details{position:absolute;top:100%;right:0;z-index:1;display:none;min-width:180px;max-width:240px;padding:12px 14px;border:1px solid var(--os-win-line);border-radius:12px;background:var(--os-win-bg);color:var(--os-win-ink);box-shadow:var(--os-win-shadow);font:500 12px/1.4 var(--os-font-ui);white-space:normal;gap:4px}
+.os-weather-details b{font-weight:700}
+.os-weather-details small{font-size:10px;color:var(--os-win-muted)}
+.os-weather-wrap.is-expanded .os-weather-details{display:grid}
+@media(hover:hover){.os-weather-wrap:hover .os-weather-details{display:grid}}
+@media(max-width:759px){.os-weather-wrap .os-weather{height:24px}.os-weather-details{right:-20px}}
