@@ -146,7 +146,9 @@
     $('#osBarMenus').innerHTML =
       `<button class="os-menu-trigger os-menu-trigger--all" type="button" data-menu="all" aria-haspopup="menu" aria-expanded="false">Arquivos</button>` +
       PAGES.map(k => `<button class="os-menu-trigger os-menu-trigger--app" type="button" data-menu="app:${k}" aria-haspopup="menu" aria-expanded="false">${esc(shortTitle(k))}</button>`).join('');
-    $('#osTabs').innerHTML = PAGES.map(k => `<button class="os-tab" type="button" data-app="${k}" data-tab="${k}" title="${esc(appTitle(k))}"><img src="${APPS[k].art}" alt="">${esc(shortTitle(k))}</button>`).join('');
+    $('#osTabs').innerHTML = PAGES.map(k => `<button class="os-tab" type="button" data-app="${k}" data-tab="${k}" title="${esc(appTitle(k))}"><img src="${APPS[k].art}" alt="">${esc(shortTitle(k))}</button>`).join('') +
+      /* Aba da ficha: abre a Minha Ficha ao lado do Guia (no celular, alterna as telas). */
+      `<button class="os-tab os-tab--ficha" type="button" data-action="ficha-beside" title="Minha Ficha ao lado do Guia"><img src="${APPS.minhaficha.art}" alt="">Ficha</button>`;
     $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'tabularium', 'mapa', 'musica', 'imessage', 'leiame'].map(k => APPS[k].kind === 'external'
       ? `<a class="os-spot-app" href="${APPS[k].href}" target="_blank" rel="noopener noreferrer" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}<span class="os-spot-ext">↗</span></a>`
       : `<button class="os-spot-app" type="button" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}</button>`).join('');
@@ -535,6 +537,7 @@
 
   function onRendered() {
     const key = engineKey();
+    try { window.dispatchEvent(new CustomEvent('principia:rendered', { detail: { key } })); } catch {}
     if (key) setActive(key);
     markZoomable();
     updateSections();
@@ -568,7 +571,7 @@
   }
 
   function markZoomable() {
-    const skip = '.section-banner-img,.opening-visual,.pantheon-art,.rules-banner img,.rules-page-banner img,.system-hero-media img,.guide-page-hero img,.section-visual img,summary img,a img,button img';
+    const skip = '.section-banner-img,.opening-visual,.pantheon-art,.rules-banner img,.rules-page-banner img,.system-hero-media img,.guide-page-hero img,.section-visual img,[aria-hidden="true"] img,summary img,a img,button img';
     for (const img of content.querySelectorAll('img')) {
       if (img.matches(skip)) continue;
       img.classList.add('os-zoomable');
@@ -1709,6 +1712,7 @@
     esc, svg, norm, store, WM, isMobile, reduced, toast,
     openPage, openUtil, openBeside: openBesideFicha, tile: tileFichaGuia, canTile,
     engineKey: () => engineKey(),
+    chapters: () => NAV_CHAPTERS,
     deitySlugs: () => findFolder('deuses')?.coreSlugs || new Map(),
     music: { play: playSpotify, parse: parseSpotify }
   };

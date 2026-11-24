@@ -10,18 +10,21 @@ A proposta convive com o site atual: `index.html` continua intacto e a nova vers
 - **Links diretos.** O formato `#page:deuses:deus-vulcano` continua valendo; basta trocar `index.html` por `principia.html` no endereço. Na Principia, links para o Combate (`#page:combate:cond-cego`) também funcionam na primeira carga — veja "Correções" abaixo.
 - **Arquivos existentes.** A camada nova só adiciona arquivos, com uma exceção pequena em `guide-stabilization-v251.js` (ver "Correções").
 
-## Design system (v2.0)
+## Design system v3 "pôster"
 
-Na `principia.html`, as 13 folhas legadas do `index.html` foram substituídas por uma folha única, `principia/guia-ds.css`. O HTML do conteúdo é o mesmo; só a apresentação muda. O `index.html` continua com as folhas antigas e não foi tocado.
+Na `principia.html`, as 13 folhas legadas do `index.html` foram substituídas por uma folha única, `principia/guia-ds.css`, e a camada `principia/principia-guia.js` monta capas e banners a cada página. O HTML do conteúdo é o mesmo (texto, âncoras e acordeões idênticos aos do `index.html`); só a apresentação muda. O `index.html` continua com as folhas antigas e não foi tocado.
 
-- **Tokens:** cores (preto, vermelhos profundos, bordô, roxo, rosa queimado e dourado, com versão Dia), tipografia (Playfair Display nos títulos, Inter no texto, Cinzel nos rótulos romanos, JetBrains Mono em números e fórmulas), escala de espaço de 4 a 72 px e raios. As cores dos atributos (FOR, DES, CON, INT, FÉ, CAR) e dos tipos de talento seguem o mesmo código da Ficha.
-- **Cor por arquivo:** vermelho em Sistema e Combate, dourado em Crafting, Deuses e Domus, roxo em Magia e rosa em Sobre Roma.
-- **Colagem editorial:** as aberturas usam a arte existente como recorte colado (borda de papel, leve rotação, fita adesiva) com o cartão de título sobreposto; as faixas de seção ganham borda rasgada e o título sobe sobre a imagem; retratos de Figuras Importantes viram fotos coladas; a Domus Memoriae ganha moldura dourada.
-- **Carimbo de seção:** a palavra-chave de cada seção (antes escondida, como "BASE" ou "VITAL") aparece como selo romano ao lado do título.
-- **Botões unificados:** primário (Abrir criador, Domus), secundário (Expandir todas, Recolher todas, Abrir no Google Maps), filtros em pílula (panteões), cartões de navegação numerados (índices do Sistema, Crafting e Roma), cartões-link (estrangeiros, crafting, panteão) e botão de copiar link que aparece ao passar o mouse.
-- **Dados comparáveis:** materiais da forja alinhados linha a linha (subgrid), círculos de magia em uma régua de 9, tabelas com cabeçalho fixo de estilo e números em mono, estacas 0–15 / 16–29 / 30+ com cores progressivas.
+- **Direção:** pôster editorial em preto, vermelho e papel, inspirado nas referências enviadas e no branding da legião. Títulos gigantes condensados (Anton), rótulos largos em caixa-alta (Archivo expandida), texto em Inter, números grandes, poucas caixas e muitas linhas.
+- **Capitular gótica:** a primeira letra dos textos narrativos (aberturas, introdução da Magia, situação de Roma, quem era cada deus, biografias da Domus) usa UnifrakturMaguntia em um quadro vermelho, como nos manuscritos medievais.
+- **Capas:** cada arquivo abre com o banner original em alta resolução, de ponta a ponta da janela, e o título gigante logo abaixo. Roma usa a arte SPQR em 1920×1080 ocupando a tela; Deuses abre com o friso dos seis panteões; o Sistema escreve "SISTEMA" sobre a borda do banner.
+- **Banners:** os banners das seções foram trocados pelos originais em 1920 px e passaram a ir de borda a borda, sem moldura nem corte. Faixas que existiam mas não eram usadas entraram em Economia, Forja, Magia (introdução e círculos) e Roma (trama, retorno à Itália e devoção). No Combate só fica a capa: os banners secundários saíram para o texto fluir.
+- **Capítulos em faixas:** os capítulos alternam fundo preto e papel (no tema Dia, ao contrário), e cada capítulo começa com o nome dele em letreiro vazado gigante que desliza devagar.
+- **Domus Memoriae:** os quadros viraram recortes PNG sobre o fundo, sem moldura, com o numeral romano do rebento gigante atrás.
+- **Lideranças e panteões:** retratos em preto e branco que ganham cor ao passar o mouse; panteões em mosaico de pôsteres.
+- **Aba Ficha:** a barra de abas do Guia ganhou a aba **Ficha**, que abre a Minha Ficha ao lado do Guia.
+- **Arquivos de arte:** `assets/principia/hq/` guarda os WebP gerados a partir dos originais (`b-*` banners, `a-*` artes quadradas sem a moldura vermelha, `c-*` recortes da Domus, `cover-roma`, `m-influencia`). O mapeamento fica no topo de `principia/principia-guia.js`.
 - **Layout pela janela, não pela tela:** as grades usam *container queries*, então se ajustam também quando o Guia divide a tela com a Minha Ficha.
-- **Movimento:** entrada das seções, acordeões com abertura animada (`::details-content`), paralaxe leve nas faixas (só com `animation-timeline` nativo) e microinterações nos cartões. Tudo some com "reduzir movimento".
+- **Movimento:** letreiro dos capítulos, capa que se dissolve ao rolar, acordeões com abertura animada e linhas que acendem em vermelho. Tudo some com "reduzir movimento".
 - **Camadas injetadas:** `guide-stabilization-v251.js` e `lineage-core-v25.js` injetavam CSS com `!important`. A `principia.html` declara `<style>` vazios com os mesmos ids, e as camadas pulam a injeção; o design system cobre esses blocos.
 - **Painel "Nesta página":** as seções longas ganham capítulos (Sistema: Personagem, Mecânicas, Roma, Outros sistemas; Combate, Magia e Sobre Roma com agrupamentos próprios). A ordem e os links não mudam; os capítulos ficam em `NAV_CHAPTERS`, no `principia/principia.js`.
 - **Ícones da área de trabalho:** não foram alterados; aguardam os PNGs dedicados.
@@ -43,7 +46,9 @@ O app Música usa o player oficial do Spotify. Quando o navegador não tem uma s
 | Arquivo | Função |
 | --- | --- |
 | `principia.html` | Entrada: carrega os mesmos JS do `index.html`, o design system e a camada Principia. |
-| `principia/guia-ds.css` | Design system do conteúdo do Guia (substitui as 13 folhas legadas na Principia). |
+| `principia/guia-ds.css` | Design system "pôster" do conteúdo do Guia (substitui as 13 folhas legadas na Principia). |
+| `principia/principia-guia.js` | Capas, banners em alta, artes e faixas de capítulo aplicadas a cada página. |
+| `assets/principia/hq/` | Banners e artes em alta resolução gerados a partir dos originais. |
 | `principia/principia-early.js` | Carrega antes do motor e faz a rolagem e o histórico funcionarem dentro da janela. |
 | `principia/principia.js` | Área de trabalho, janelas, menus, busca, Tabularium, tela do celular e inicialização. |
 | `principia/principia.css` | Visual da interface e ajustes do conteúdo dentro das janelas. |
