@@ -122,7 +122,7 @@
     for (const img of content.querySelectorAll('img[src]')) {
       if (img.closest('.pg-cover,.pg-band,.pg-art')) continue;
       const to = SWAP[base(img.getAttribute('src'))];
-      if (!to) continue;
+      if (!to || img.getAttribute('src') === hq(to)) continue;
       img.src = hq(to);
       img.removeAttribute('srcset');
       img.dataset.pgHq = '1';
@@ -258,7 +258,7 @@
     queued = true;
     requestAnimationFrame(() => { queued = false; decorate(); });
   };
-  window.addEventListener('principia:rendered', decorate);
+  window.addEventListener('principia:rendered', queue);
   /* As camadas do motor ainda inserem banners depois da renderização: troca de novo quando isso acontece. */
   new MutationObserver(muts => {
     for (const m of muts) {

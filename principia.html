@@ -47,7 +47,7 @@
   <style id="guide-stabilization-v251-styles"></style>
   <style id="lineage-core-v25-styles"></style>
   <!-- Camada Principia (interface de terminal). -->
-  <link rel="stylesheet" href="principia/principia.css?v=2.2.2">
+  <link rel="stylesheet" href="principia/principia.css?v=2.2.3">
   <link rel="stylesheet" href="principia/principia-online.css?v=1.0.0">
 </head>
 <body class="os-body">
@@ -90,6 +90,7 @@
       <i class="os-mark" aria-hidden="true"></i><b>GUIA DA DUODÉCIMA</b>
     </button>
     <div class="os-bar-spacer"></div>
+    <button class="os-minimized-count" id="osMinimizedCount" type="button" data-menu="minimized" aria-haspopup="menu" aria-expanded="false" hidden></button>
     <div class="os-bar-tools">
       <a class="os-cta" href="https://stsedd.github.io/ficha-oficial-duodecima-rpg/" target="_blank" rel="noopener noreferrer" title="Abrir a Ficha Oficial em nova aba">Criar ficha <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
       <a class="os-bar-btn os-bar-btn--msg" href="https://discord.com/channels/1498461819902234624/1498486495668080761" target="_blank" rel="noopener noreferrer" title="iMessage: abre o canal no Discord">
@@ -205,6 +206,18 @@
     <div class="os-resize" data-resize aria-hidden="true"></div>
   </section>
 
+  <section class="os-win os-util os-notes" data-win="notes" role="dialog" aria-modal="false" aria-labelledby="osNotesTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="osNotesTitle">Notae</b><small>Bloco de notas pessoal</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-notes-body"><label for="osNotesText">Minhas anotações</label><textarea id="osNotesText" placeholder="Escreva aqui…" maxlength="50000"></textarea><small id="osNotesStatus" role="status">Salvo apenas neste navegador.</small></div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
   <section class="os-win os-util os-readme" data-win="leiame" role="dialog" aria-modal="false" aria-labelledby="osReadmeTitle">
     <div class="os-titlebar" data-drag>
       <span class="os-win-seal" aria-hidden="true"></span>
@@ -446,13 +459,13 @@
 <script src="guide-editorial-v273.js?v=2.7.8"></script>
 
 <!-- Camada Principia: área de trabalho, janelas, busca e celular. -->
-<script src="principia/principia.js?v=3.3.2"></script>
+<script src="principia/principia.js?v=3.3.3"></script>
 <!-- Minha Ficha (prévia de teste): lê o JSON exportado pela Ficha Oficial, sem alterá-la. -->
 <script src="principia/principia-ficha.js?v=2.1.0"></script>
 <!-- Contas (login com Discord + Supabase), Tabula Famae e Praetorium. Sem configuração, tudo segue em modo visitante. -->
 <script src="principia/online-config.js?v=1.0.0"></script>
 <script src="principia/principia-online.js?v=1.0.0"></script>
 <!-- Guia em formato pôster: capas, banners em alta e artes decorativas a cada página. -->
-<script src="principia/principia-guia.js?v=1.1.1"></script>
+<script src="principia/principia-guia.js?v=1.1.2"></script>
 </body>
 </html>

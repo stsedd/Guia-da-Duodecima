@@ -105,6 +105,7 @@
     minhaficha: { kind: 'win', win: 'ficha', title: 'Minha Ficha', art: ICON('ficha'), tilt: -2 },
     ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, glyph: 'book', tilt: 2 },
     imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
+    notes: { kind: 'win', win: 'notes', title: 'Notae · Bloco de notas', glyph: 'note', tilt: 0 },
     leiame: { kind: 'win', win: 'leiame', title: 'Leia-me', glyph: 'note', tilt: -3 },
     prefs: { kind: 'win', win: 'prefs', title: 'Preferências', short: 'Ajustes', glyph: 'gear', tilt: 2 },
     sobre: { kind: 'win', win: 'sobre', title: 'Sobre', glyph: 'info', tilt: 0 },
@@ -157,7 +158,7 @@
     $('#osHomeGrid').innerHTML = [...PAGES, 'conta', 'mapa', 'tabularium', 'ficha', 'prefs', 'praetorium'].map((k, i) => iconHTML(k, i, { short: true })).join('');
     $('#osDock').innerHTML = ['imessage', 'minhaficha', 'famae', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
     $('#osReaderTabs').innerHTML = PAGES.map(k => `<button class="os-reader-tab" type="button" data-app="${k}" title="${esc(appTitle(k))}">${miniArt(k)}<span>${esc(shortTitle(k))}</span></button>`).join('');
-    $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'famae', 'conta', 'tabularium', 'mapa', 'imessage', 'leiame', 'praetorium'].map(k => APPS[k].kind === 'external'
+    $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'famae', 'conta', 'tabularium', 'mapa', 'imessage', 'leiame', 'notes', 'praetorium'].map(k => APPS[k].kind === 'external'
       ? `<a class="os-spot-app" href="${APPS[k].href}" target="_blank" rel="noopener noreferrer" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}<span class="os-spot-ext">↗</span></a>`
       : `<button class="os-spot-app" type="button" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}</button>`).join('');
   }
@@ -289,6 +290,8 @@
       const w = wins[id];
       if (!w) return;
       const wasOpen = w.open;
+      const wasMinimized = w.minimized;
+      w.minimized = false;
       w.open = true;
       if (opts.from) w.from = opts.from;
       apply(w);
@@ -296,7 +299,7 @@
       w.el.removeAttribute('aria-hidden');
       front(id);
       w.onState?.(true);
-      if (wasOpen || reduced()) return;
+      if (wasOpen || wasMinimized || reduced()) return;
       const to = w.el.getBoundingClientRect();
       const from = rectOf(opts.from);
       const radius = getComputedStyle(w.el).borderRadius;
@@ -321,6 +324,7 @@
       const w = wins[id];
       if (!w || !w.open) return;
       w.open = false;
+      w.minimized = false;
       w.onState?.(false);
       if (!reduced()) {
         const fromR = w.el.getBoundingClientRect();
@@ -348,6 +352,18 @@
       if (w.open) return;
       w.el.classList.remove('is-open', 'is-front');
       w.el.setAttribute('aria-hidden', 'true');
+      const t = topmost();
+      if (t) front(t.id);
+    }
+
+    function minimize(id) {
+      const w = wins[id];
+      if (!w || !w.open) return;
+      w.open = false;
+      w.minimized = true;
+      w.el.classList.remove('is-open', 'is-front');
+      w.el.setAttribute('aria-hidden', 'true');
+      w.onState?.(false);
       const t = topmost();
       if (t) front(t.id);
     }
@@ -452,7 +468,7 @@
 
     function register(el) {
       const id = el.dataset.win;
-      const w = wins[id] = { id, el, open: false, max: false, rect: null, from: null, custom: false };
+      const w = wins[id] = { id, el, open: false, minimized: false, max: false, rect: null, from: null, custom: false };
       if (saved[id]) { w.custom = !!(saved[id].custom && saved[id].rect); w.rect = w.custom ? saved[id].rect : null; w.max = !!saved[id].max; }
       el.setAttribute('aria-hidden', 'true');
       apply(w);
@@ -462,6 +478,7 @@
         e.stopPropagation();
         const act = b.dataset.winAction;
         if (act === 'max') return toggleMax(id);
+        if (act === 'min') return minimize(id);
         if (w.onClose) return w.onClose(act);
         close(id);
       }));
@@ -496,7 +513,7 @@
       store.del('principia_wins');
       for (const w of Object.values(wins)) { w.rect = null; w.max = false; w.custom = false; apply(w); }
     }
-    return { wins, register, open, close, toggleMax, front, topmost, relayout, reset, place, metrics, get: id => wins[id], isOpen: id => !!wins[id]?.open };
+    return { wins, register, open, close, minimize, toggleMax, front, topmost, relayout, reset, place, metrics, get: id => wins[id], isOpen: id => !!wins[id]?.open };
   })();
 
   $$('.os-win[data-win]').forEach(el => WM.register(el));
@@ -608,14 +625,23 @@
     updateRunning();
   }
 
+  const windowLabel = w => w.id === 'reader' ? (appTitle(currentKey || HOME)) : ({tabularium:'Tabularium', notes:'Notae', ficha:'Minha Ficha', prefs:'Preferências', leiame:'Leia-me', sobre:'Sobre', viewer:'Imagem', conta:'Minha Conta', famae:'Tabula Famae', praetorium:'Praetorium'}[w.id] || w.id);
   function updateRunning() {
+    const minimized = Object.values(WM.wins).filter(w => w.minimized);
+    const counter = $('#osMinimizedCount');
+    if (counter) {
+      counter.hidden = !minimized.length;
+      counter.textContent = '▱ ' + minimized.length;
+      counter.title = minimized.length + ' janela(s) minimizada(s)';
+      counter.setAttribute('aria-label', counter.title);
+    }
     const readerOpen = WM.isOpen('reader');
     $$('.os-ico[data-app]').forEach(ic => {
       const id = ic.dataset.app;
       const a = APPS[id];
       let on = false;
-      if (a?.kind === 'page') on = readerOpen && currentKey === id;
-      else if (a?.kind === 'win') on = WM.isOpen(a.win);
+      if (a?.kind === 'page') on = (readerOpen || WM.get('reader')?.minimized) && currentKey === id;
+      else if (a?.kind === 'win') on = WM.isOpen(a.win) || !!WM.get(a.win)?.minimized;
       ic.classList.toggle('is-running', on);
     });
     $$('#osReaderTabs [data-app]').forEach(b => {
@@ -637,12 +663,17 @@
     return $$(sel).find(el => el.offsetParent !== null) || null;
   }
 
+  const readingPositions = new Map();
   async function openPage(key, anchor = null, opts = {}) {
     if (EST) ({ key, anchor } = EST.route(key, anchor));
     if (!pagesData()[key]) key = HOME;
+    const previousKey = engineKey();
+    if (previousKey && previousKey !== key && (WM.isOpen('reader') || WM.get('reader')?.minimized)) readingPositions.set(previousKey, scroller.scrollTop);
+    const restoreReading = () => { if (!anchor && previousKey !== key && readingPositions.has(key)) { const y = readingPositions.get(key); requestAnimationFrame(() => { if (engineKey() === key) scroller.scrollTop = y; }); } };
     closeMenus();
     closeSpot();
     const r = WM.get('reader');
+    if (r.minimized && engineKey() === key && !anchor) { await WM.open('reader'); return; }
     if (!r.open) {
       opening = true;
       afterRenderBusy = true;
@@ -651,7 +682,7 @@
       setActive(key);
       if (willRender && !reduced()) reader.classList.add('is-loading');
       const anim = WM.open('reader', { from: opts.from || iconFor(key) });
-      if (willRender && !reduced()) await wait(isMobile() ? 230 : 280);
+      // Renderiza enquanto a janela abre, sem atraso artificial adicional.
       if (needsRender) {
         if (willRender) engineGo(key, anchor);
         else { history.pushState({ key, anchor: null, scrollY: scroller.scrollTop }, '', `#page:${key}`); document.title = `${appTitle(key)} · Guia da Duodécima`; }
@@ -664,6 +695,7 @@
       opening = false;
       updateRunning();
       if (anchor) scrollToAnchorSoon(anchor);
+      else restoreReading();
       return;
     }
     WM.front('reader');
@@ -672,7 +704,7 @@
     if (sameKey && anchor) { engineGo(key, anchor); return; }
     opening = true;
     afterRenderBusy = true;
-    if (!reduced()) { scroller.classList.add('is-switching'); await wait(140); }
+    if (!reduced()) { scroller.classList.add('is-switching'); }
     engineGo(key, anchor);
     checkRender();
     scroller.classList.remove('is-switching');
@@ -680,6 +712,7 @@
     enterContent();
     opening = false;
     if (anchor) scrollToAnchorSoon(anchor);
+    else restoreReading();
   }
 
   /* Garante que a âncora fique visível depois que a janela abre (o motor pode ainda estar
@@ -914,6 +947,7 @@
         <button class="os-dd-item" type="button" role="menuitem" data-app="sobre">${svg('info')}Sobre este terminal</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="prefs">${svg('gear')}Preferências…</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="leiame">${svg('note')}Leia-me</button>
+        <button class="os-dd-item" type="button" role="menuitem" data-app="notes">${svg('note')}Notae · Bloco de notas</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="tabularium">${svg('folder')}Tabularium</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="minhaficha"><img src="${APPS.minhaficha.art}" alt="">Minha Ficha<em>teste</em></button>
         <a class="os-dd-item" role="menuitem" href="${IMESSAGE_URL}" target="_blank" rel="noopener noreferrer">${svg('phone')}iMessage<em>Discord</em></a>
@@ -923,10 +957,17 @@
         <div class="os-dd-sep" role="separator"></div>
         <a class="os-dd-item" role="menuitem" href="${FICHA_URL}" target="_blank" rel="noopener noreferrer">${svg('ext')}Ficha Oficial<em>nova aba</em></a>`;
     }
+    if (name === 'minimized') {
+      return Object.values(WM.wins).filter(w => w.minimized).map(w => `<button class="os-dd-item" type="button" role="menuitem" data-action="restore-window" data-window-id="${esc(w.id)}">${svg('open')}${esc(windowLabel(w))}</button>`).join('');
+    }
     if (name === 'clock') {
       const d = new Date();
       const full = d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      return `<div class="os-dd-cal"><small>CALENDÁRIO ROMANO</small><b>${esc(romanDate(d))} ${roman(d.getFullYear())}</b><p>${esc(full)}<br>ano ${roman(d.getFullYear() + 753)} ab urbe condita</p></div>`;
+      const first = new Date(d.getFullYear(), d.getMonth(), 1).getDay();
+      const count = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+      const month = d.toLocaleDateString('pt-BR', {month:'long',year:'numeric'});
+      const cells = Array.from({length:first}, () => '<span></span>').concat(Array.from({length:count}, (_,i) => `<span${i+1===d.getDate()?' class="is-today" aria-current="date"':''}>${i+1}</span>`)).join('');
+      return `<div class="os-dd-cal"><small>CALENDÁRIO ROMANO</small><b>${esc(romanDate(d))} ${roman(d.getFullYear())}</b><p>${esc(full)}<br>ano ${roman(d.getFullYear() + 753)} ab urbe condita</p><div class="os-cal-month">${esc(month)}</div><div class="os-cal-grid" aria-label="${esc(month)}">${['D','S','T','Q','Q','S','S'].map(x=>'<strong>'+x+'</strong>').join('')}${cells}</div></div>`;
     }
     if (name === 'all') {
       return `<div class="os-dd-label">Arquivos do Guia</div>` +
@@ -966,7 +1007,7 @@
     const r = trigger.getBoundingClientRect();
     dropdown.style.top = Math.round(r.bottom + 6) + 'px';
     const w = dropdown.offsetWidth;
-    const alignRight = name === 'clock';
+    const alignRight = name === 'clock' || name === 'minimized';
     let left = alignRight ? r.right - w : r.left;
     left = Math.max(8, Math.min(left, innerWidth - w - 8));
     dropdown.style.left = left + 'px';
@@ -1122,7 +1163,23 @@
   $('#osPrefBoot').addEventListener('change', e => store.set('principia_boot', e.target.checked ? 'on' : 'off'));
   new MutationObserver(() => { syncPrefs(); if (WM.isOpen('sobre')) renderAbout(); }).observe(html, { attributes: true, attributeFilter: ['data-theme'] });
 
+  const notesText = $('#osNotesText');
+  const notesStatus = $('#osNotesStatus');
+  if (notesText && notesStatus) {
+    notesText.value = store.get('principia_notes_v1', '');
+    let saveTimer;
+    const saveNotes = () => {
+      clearTimeout(saveTimer);
+      try { localStorage.setItem('principia_notes_v1', notesText.value); notesStatus.textContent = 'Salvo neste navegador.'; }
+      catch (_) { notesStatus.textContent = 'Não foi possível salvar. Copie suas anotações antes de sair.'; }
+    };
+    notesText.addEventListener('input', () => { clearTimeout(saveTimer); notesStatus.textContent = 'Salvando…'; saveTimer = setTimeout(saveNotes, 250); });
+    notesText.addEventListener('blur', saveNotes);
+    window.addEventListener('pagehide', saveNotes);
+  }
+
   async function openUtil(win, from) {
+    if (WM.get(win)?.minimized) { await WM.open(win, { from }); return; }
     if (win === 'tabularium') renderTabularium();
     if (win === 'sobre') renderAbout();
     if (win === 'prefs') syncPrefs();
@@ -1162,7 +1219,7 @@
     return openPage(key, anchor);
   }
 
-  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'ficha', 'conta', 'famae', 'praetorium']) {
+  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'ficha', 'conta', 'famae', 'praetorium', 'notes']) {
     const w = WM.get(id);
     if (!w) continue;
     w.onState = () => updateRunning();
@@ -1239,7 +1296,8 @@
       else if (action === 'home') closeReader();
       else if (action === 'back') history.back();
       else if (action === 'forward') history.forward();
-      else if (action === 'desktop') { for (const w of Object.values(WM.wins)) if (w.open && w.id !== 'reader') WM.close(w.id); closeReader(); }
+      else if (action === 'desktop') { for (const w of Object.values(WM.wins)) if (w.open) WM.minimize(w.id); }
+      else if (action === 'restore-window') { const id = act.dataset.windowId; if (WM.get(id)?.minimized) WM.open(id); }
       else if (action === 'reboot') reboot();
       else if (action === 'reset-windows') WM.reset();
       else if (action === 'ficha-beside') tileFichaGuia();
