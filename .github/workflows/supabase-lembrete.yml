@@ -1,0 +1,81 @@
+name: Supabase · lembrete a cada 5 dias
+
+# Abre uma issue marcando o dono do repositório (o GitHub avisa por e-mail e no app)
+# com a situação do banco e das últimas execuções do "manter ativo".
+# Também reativa os fluxos agendados, que o GitHub desliga depois de 60 dias sem atividade no repositório.
+
+on:
+  schedule:
+    - cron: '0 12 1,6,11,16,21,26 * *'   # 09:00 no horário de Brasília, a cada 5 dias
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  actions: write
+
+jobs:
+  lembrete:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      DONO: ${{ github.repository_owner }}
+    steps:
+      - name: Ler a configuração pública
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: principia/online-config.js
+          sparse-checkout-cone-mode: false
+
+      - name: Manter os agendamentos ligados
+        run: |
+          for wf in supabase-manter-ativo.yml supabase-lembrete.yml supabase-backup.yml; do
+            if gh api -X PUT "repos/$REPO/actions/workflows/$wf/enable" >/dev/null 2>&1; then echo "ligado: $wf"; else echo "aviso: não consegui confirmar $wf"; fi
+          done
+
+      - name: Montar o lembrete
+        run: |
+          URL=$(sed -n "s/.*supabaseUrl: *'\([^']*\)'.*/\1/p" principia/online-config.js | head -1)
+          KEY=$(sed -n "s/.*supabaseKey: *'\([^']*\)'.*/\1/p" principia/online-config.js | head -1)
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            BANCO="As contas ainda não foram configuradas (principia/online-config.js está vazio)."
+          else
+            AUTH=()
+            case "$KEY" in eyJ*) AUTH=(-H "Authorization: Bearer $KEY");; esac
+            CODE=$(curl -sS -o sinal.json -w '%{http_code}' "$URL/rest/v1/sinal_vida?select=ultimo,total" -H "apikey: $KEY" "${AUTH[@]}") || CODE=000
+            if [ "$CODE" = "200" ]; then
+              ULTIMO=$(jq -r '.[0].ultimo // "nunca"' sinal.json)
+              TOTAL=$(jq -r '.[0].total // 0' sinal.json)
+              BANCO="Respondendo. Último sinal diário: $ULTIMO (UTC), $TOTAL sinais no total."
+            else
+              BANCO="**Não respondeu (HTTP $CODE).** O projeto pode estar pausado: confira o painel do Supabase."
+            fi
+          fi
+          EXECUCOES=$(gh run list -R "$REPO" --workflow supabase-manter-ativo.yml --limit 5 \
+            --json conclusion,status,createdAt,url \
+            -q '.[] | "- \(.createdAt[0:10]): \(if .conclusion == "success" then "ok" elif .conclusion == "" or .conclusion == null then .status else "**" + .conclusion + "**" end) ([abrir](\(.url)))"' 2>/dev/null)
+          [ -n "$EXECUCOES" ] || EXECUCOES="- Nenhuma execução encontrada ainda."
+          {
+            echo "@$DONO, lembrete de 5 dias para conferir o banco das contas do Guia."
+            echo
+            echo "**Banco:** $BANCO"
+            echo
+            echo "**Últimas execuções do \"manter ativo\":**"
+            echo "$EXECUCOES"
+            echo
+            echo "**O que conferir (1 minuto)**"
+            echo "1. Se alguma execução acima falhou, abra o link e leia a mensagem."
+            echo "2. No painel do Supabase (https://supabase.com/dashboard), o projeto deve aparecer ativo, não \"Paused\". Se estiver pausado, clique em **Restore**."
+            echo "3. Feche esta issue quando estiver tudo certo. O próximo lembrete chega em 5 dias."
+          } > corpo.md
+          cat corpo.md
+
+      - name: Abrir o lembrete
+        run: |
+          gh label create lembrete-supabase -R "$REPO" --color B60205 --description "Lembrete automático do Supabase" >/dev/null 2>&1 || true
+          for n in $(gh issue list -R "$REPO" --label lembrete-supabase --state open --json number -q '.[].number'); do
+            gh issue close "$n" -R "$REPO" --comment "Substituído pelo lembrete mais recente." >/dev/null
+          done
+          gh issue create -R "$REPO" --title "Lembrete: conferir o Supabase ($(date -u +%d/%m))" --label lembrete-supabase --body-file corpo.md

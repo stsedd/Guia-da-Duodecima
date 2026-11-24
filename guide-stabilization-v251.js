@@ -255,6 +255,9 @@
     installStyles();
     let extras={magic:MAGIC_FALLBACK};
     try{extras=await loadExtras()}catch(err){console.warn('[Guia] Extras estruturados do Core indisponíveis; aplicando regras mínimas de estabilização.',err)}
+    // A ponte do Core reconstrói seções (ex.: talentos); os ajustes só entram depois dela,
+    // senão a reconstrução apaga as notas de acúmulo inseridas aqui.
+    await Promise.resolve(window.DUODECIMA_CORE_READY).catch(()=>null);
     patchContent(extras);
     if(window.DUODECIMA_CORE_SERVED_FROM_SNAPSHOT&&window.DUODECIMA_CORE_STATE){
       window.DUODECIMA_CORE_STATE.status='fallback';

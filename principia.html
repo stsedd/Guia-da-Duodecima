@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="pt-BR" class="os-html">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#070707" id="themeColorMeta">
+  <meta name="description" content="Guia da Duodécima — o arquivo da Legio XII Fulminata: personagem, combate, Cursus Honorum, crafting, familiares, magia, deuses, Roma e Domus Memoriae.">
+  <title>Guia da Duodécima</title>
+  <link rel="icon" href="assets/principia/brand/favicon-48.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/principia/brand/icon-180.png">
+  <link rel="manifest" href="principia/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Guia da Duodécima">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <script>
+  (function(){
+    var d=document.documentElement;
+    try{
+      var saved=localStorage.getItem('guia_theme');
+      var theme=saved==='light'?'light':'dark';
+      d.dataset.theme=theme;
+      d.style.colorScheme=theme;
+      var meta=document.querySelector('meta[name="theme-color"]');
+      if(meta) meta.setAttribute('content',theme==='light'?'#f4efe8':'#070707');
+    }catch(_){d.dataset.theme='dark';}
+    var boot='full';
+    try{
+      if(localStorage.getItem('principia_boot')==='off') boot='short';
+      if(sessionStorage.getItem('principia_booted')==='1') boot='short';
+      var wall=localStorage.getItem('principia_wall');
+      if(wall) d.dataset.wall=wall;
+      var motion=localStorage.getItem('principia_motion');
+      if(motion==='reduce'||(!motion&&window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)) d.dataset.motion='reduce';
+    }catch(_){}
+    if((location.hash||'').indexOf('#page:')===0) boot='short';
+    d.dataset.boot=boot;
+  })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wdth,wght@62..125,400..900&family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=UnifrakturMaguntia&display=swap">
+  <!-- Design system do Guia: uma folha única no lugar das 13 camadas legadas do index.html.
+       O HTML do conteúdo continua vindo do mesmo motor; só a apresentação muda. -->
+  <link rel="stylesheet" href="principia/guia-ds.css?v=3.2.0">
+  <!-- Duas camadas do motor injetam CSS próprio; estes marcadores (vazios) fazem com que elas
+       pulem a injeção, porque o design system já cobre esses blocos. -->
+  <style id="guide-stabilization-v251-styles"></style>
+  <style id="lineage-core-v25-styles"></style>
+  <!-- Camada Principia (interface de terminal). -->
+  <link rel="stylesheet" href="principia/principia.css?v=2.2.0">
+  <link rel="stylesheet" href="principia/principia-online.css?v=1.0.0">
+</head>
+<body class="os-body">
+<a class="skip-link" href="#content">Pular para o conteúdo</a>
+
+<!-- ============ INICIALIZAÇÃO ============ -->
+<div class="os-boot" id="osBoot" role="status" aria-live="polite" aria-label="Iniciando o Guia da Duodécima">
+  <div class="os-boot-screen">
+    <div class="os-boot-center">
+      <img class="os-boot-mark" src="assets/principia/brand/mark-white-512.webp" alt="" width="190" height="190" decoding="async" fetchpriority="high">
+      <div class="os-boot-title">GUIA DA DUODÉCIMA</div>
+      <div class="os-boot-sub">LEGIO XII FULMINATA</div>
+    </div>
+    <div class="os-boot-foot">
+      <div class="os-boot-log" id="osBootLog" aria-hidden="true">
+        <p style="--d:.5s"><b>GUIA DA DUODÉCIMA</b> · terminal de consulta da legio xii fulminata</p>
+        <p style="--d:.75s">guia da duodécima · interface principia 1.0</p>
+        <p style="--d:1s">&gt; energizando terminal <i>...............</i> <em>ok</em></p>
+        <p style="--d:1.2s">&gt; verificando selo da legião <i>.........</i> <em>ok</em></p>
+      </div>
+      <div class="os-boot-meter">
+        <div class="os-boot-bar"><i id="osBootBar"></i></div>
+        <span class="os-boot-status" id="osBootStatus">abrindo os arquivos do guia…</span>
+        <span class="os-boot-skip">toque ou pressione qualquer tecla para pular</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ÁREA DE TRABALHO ============ -->
+<div class="os-desktop" id="osDesktop">
+  <div class="os-wall" aria-hidden="true">
+    <div class="os-wall-art" id="osWallArt"></div>
+    <div class="os-wall-grain"></div>
+    <div class="os-wall-vignette"></div>
+  </div>
+
+  <header class="os-bar" id="osBar">
+    <button class="os-bar-logo" type="button" data-menu="principia" aria-haspopup="menu" aria-expanded="false" title="Menu do Guia da Duodécima">
+      <i class="os-mark" aria-hidden="true"></i><b>GUIA DA DUODÉCIMA</b>
+    </button>
+    <nav class="os-bar-menus" id="osBarMenus" aria-label="Arquivos do Guia"></nav>
+    <div class="os-bar-spacer"></div>
+    <div class="os-bar-tools">
+      <a class="os-cta" href="https://stsedd.github.io/ficha-oficial-duodecima-rpg/" target="_blank" rel="noopener noreferrer" title="Abrir a Ficha Oficial em nova aba">Criar ficha <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      <a class="os-bar-btn os-bar-btn--msg" href="https://discord.com/channels/1498461819902234624/1498486495668080761" target="_blank" rel="noopener noreferrer" title="iMessage: abre o canal no Discord">
+        <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/></svg><b>iMessage</b>
+      </a>
+      <button class="os-bar-btn os-bar-btn--search" type="button" data-action="search" title="Buscar (Ctrl/⌘ K)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><span class="os-vh">Buscar</span><kbd>⌘K</kbd></button>
+      <div class="core-status" id="coreStatus" title="Sincronizando com o Duodécima Core"><i></i><span>CORE · CARREGANDO</span></div>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" title="Alternar tema claro e escuro"><span aria-hidden="true">☾</span><b>Escuro</b></button>
+      <button class="os-clock" id="osClock" type="button" data-menu="clock" aria-haspopup="dialog" aria-expanded="false">--:--</button>
+    </div>
+  </header>
+
+  <nav class="os-icons os-icons--left" id="osIconsLeft" aria-label="Arquivos do Guia"></nav>
+  <nav class="os-icons os-icons--right" id="osIconsRight" aria-label="Utilitários"></nav>
+
+  <!-- Tela inicial (celular) -->
+  <section class="os-home" id="osHome" aria-label="Tela inicial">
+    <div class="os-home-hero">
+      <small>LEGIO XII FULMINATA</small>
+      <h1>Guia da Duodécima</h1>
+      <p id="osHomeDate">Legio XII Fulminata</p>
+    </div>
+    <button class="os-home-search" type="button" data-action="search"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>Buscar regra, deus, habilidade…</button>
+    <div class="os-home-hint"><button type="button" data-app="leiame">Primeira vez aqui? Leia-me</button></div>
+    <nav class="os-home-grid" id="osHomeGrid" aria-label="Apps"></nav>
+  </section>
+  <nav class="os-dock" id="osDock" aria-label="Dock"></nav>
+
+  <!-- ============ JANELA DO ARQUIVO (conteúdo do Guia) ============ -->
+  <main class="os-win os-reader" id="osReader" data-win="reader" aria-label="Arquivo do Guia">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title os-reader-title"><b id="osReaderTitle">Guia da Duodécima</b></div>
+      <span class="os-drag-space" aria-hidden="true"></span>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--max" type="button" data-win-action="max" aria-label="Maximizar" title="Maximizar"><svg class="os-svg is-max-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="2"/></svg><svg class="os-svg is-restore" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="8.5" width="10.5" height="10.5" rx="2"/><path d="M8.5 8.5V6.8A1.8 1.8 0 0 1 10.3 5H17a2 2 0 0 1 2 2v6.7a1.8 1.8 0 0 1-1.8 1.8h-1.7"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-toolbar">
+      <button class="os-tbtn os-tbtn--home" type="button" data-action="home" aria-label="Tela inicial" title="Tela inicial"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6"/></svg></button>
+      <button class="os-tbtn os-tbtn--back" type="button" data-action="back" aria-label="Voltar" title="Voltar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6"/></svg></button>
+      <button class="os-tbtn os-tbtn--fwd" type="button" data-action="forward" aria-label="Avançar" title="Avançar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button class="os-tbtn" id="sidebarCollapse" type="button" aria-label="Mostrar ou ocultar o painel de seções" title="Painel de seções">‹</button>
+      <div class="os-crumbs" id="osCrumbs">
+        <i class="os-mark" aria-hidden="true"></i>
+        <span class="os-crumb-root">GUIA</span><span class="os-crumb-sep" aria-hidden="true">/</span>
+        <span id="pageEyebrow">ARCHIVVM</span>
+        <h1 id="pageTitle">Sistema</h1>
+        <span class="os-crumb-sep" aria-hidden="true">/</span>
+        <span class="os-crumb-sec" id="osCrumbSection"></span>
+      </div>
+      <button class="os-tbtn os-tbtn--ficha" type="button" data-action="ficha-beside" aria-label="Abrir Minha Ficha ao lado do Guia" title="Minha Ficha ao lado do Guia"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 10h4M14 13.5h3"/></svg><span class="os-tbtn-label">Ficha</span></button>
+      <button class="os-tbtn os-tbtn--copy" type="button" id="osCopyLink" data-copy-anchor="" aria-label="Copiar link da seção atual" title="Copiar link da seção atual"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+      <button class="os-tbtn" type="button" data-action="search" aria-label="Buscar" title="Buscar (Ctrl/⌘ K)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button>
+      <button class="os-tbtn" id="menuBtn" type="button" aria-label="Seções desta página" aria-expanded="false"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Seções</button>
+      <div class="os-progress" aria-hidden="true"><i></i></div>
+    </div>
+    <div class="os-reader-body">
+      <aside class="os-side" id="sidebar" aria-label="Nesta página">
+        <span class="os-side-handle" aria-hidden="true"></span>
+        <div class="os-side-title">Nesta página <span id="osSideCount"></span></div>
+        <nav class="os-secnav" id="sectionNav" aria-label="Seções da página"></nav>
+        <a class="os-side-cta" href="https://stsedd.github.io/ficha-oficial-duodecima-rpg/" target="_blank" rel="noopener noreferrer" aria-label="Crie sua ficha aqui (abre em nova aba)">
+          <span>FICHA OFICIAL</span><strong>Crie sua ficha aqui</strong><small>Monte e acompanhe seu personagem ↗</small>
+        </a>
+      </aside>
+      <div class="os-scroller" id="osScroller">
+        <div class="core-fallback-notice" id="coreFallbackNotice" hidden role="status"><strong>Conteúdo local em uso.</strong><span>Algumas atualizações recentes podem não estar disponíveis enquanto o Core estiver indisponível.</span></div>
+        <div class="mobile-section-jump" id="mobileSectionJump" hidden>
+          <label for="mobileSectionSelect">Nesta página</label>
+          <select id="mobileSectionSelect" aria-label="Ir para seção da página"></select>
+        </div>
+        <div class="content" id="content" tabindex="-1"></div>
+        <footer class="os-footer"><span>LEGIO XII FULMINATA</span><b>Guia da Duodécima</b><small>Revisão editorial e visual · v2.8.2 · 11 arquivos</small></footer>
+      </div>
+      <button class="os-totop" id="toTop" type="button" aria-label="Voltar ao topo" title="Voltar ao topo"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg></button>
+      <div class="os-scrim" id="scrim"></div>
+      <div class="os-splash" id="osSplash" aria-hidden="true"><img id="osSplashImg" src="assets/principia/icons/sistema.webp" alt=""><b id="osSplashTitle">Sistema</b><small>ABRINDO ARQUIVO</small><div class="os-splash-bar"><i></i></div></div>
+    </div>
+    <div class="os-statusbar" aria-hidden="true">
+      <span id="osSbCore">CORE</span>
+      <span id="osSbSections"></span>
+      <span class="os-sb-right" id="osSbProgress">0% lido</span>
+    </div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </main>
+
+  <!-- ============ JANELAS UTILITÁRIAS ============ -->
+  <section class="os-win os-util" data-win="tabularium" role="dialog" aria-modal="false" aria-labelledby="osTabTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="osTabTitle">Tabularium</b><small>Todos os arquivos do Guia</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--max" type="button" data-win-action="max" aria-label="Maximizar" title="Maximizar"><svg class="os-svg is-max-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="2"/></svg><svg class="os-svg is-restore" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="8.5" width="10.5" height="10.5" rx="2"/><path d="M8.5 8.5V6.8A1.8 1.8 0 0 1 10.3 5H17a2 2 0 0 1 2 2v6.7a1.8 1.8 0 0 1-1.8 1.8h-1.7"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-tab-layout">
+      <nav class="os-tree" id="osTree" aria-label="Pastas"></nav>
+      <div class="os-files-wrap">
+        <div class="os-files-bar">
+          <div class="os-files-path" id="osFilesPath"></div>
+          <input class="os-filter" id="osFilter" type="search" placeholder="Filtrar arquivos…" aria-label="Filtrar arquivos" autocomplete="off">
+        </div>
+        <div class="os-files" id="osFiles" role="list"></div>
+      </div>
+    </div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <section class="os-win os-util os-readme" data-win="leiame" role="dialog" aria-modal="false" aria-labelledby="osReadmeTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="osReadmeTitle">Leia-me</b><small>leia-me.txt</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body">
+      <article class="os-paper">
+        <h2>Bem-vindo ao Guia da Duodécima.</h2>
+        <p>Este terminal reúne todo o Guia da Duodécima – personagem, combate, Cursus Honorum, crafting, familiares, magia, deuses, Roma e a Domus Memoriae – organizado como os arquivos de um computador da legião.</p>
+        <h3>Como navegar</h3>
+        <ul>
+          <li>Abra um arquivo pelos ícones da área de trabalho ou pelos menus da barra superior; cada menu já lista as seções daquele arquivo.</li>
+          <li><kbd>Ctrl</kbd> <kbd>K</kbd> (ou <kbd>⌘</kbd> <kbd>K</kbd> no Mac) abre a busca em qualquer tela.</li>
+          <li>O <strong>Tabularium</strong> mostra o Guia inteiro como pastas e documentos.</li>
+          <li>Cada seção tem link próprio: copie e mande direto no Discord.</li>
+          <li>No celular, a tela inicial funciona como um aparelho: toque no app e use <strong>Seções</strong> para pular dentro da página.</li>
+          <li>O selo no canto da tela é a sua <strong>conta</strong>: entre com o Discord da Duodécima para cadastrar personagens, lançar fama e usar a ficha. Sem login, você navega como visitante.</li>
+          <li>A <strong>Tabula Famae</strong> mostra o ranking de fama da Legião, com o título de cada personagem.</li>
+        </ul>
+        <h3>Indicador CORE</h3>
+        <p>O selo na barra superior mostra de onde vieram as regras: <strong>CORE</strong> quando a sincronização com o Duodécima Core funcionou, <strong>SNAPSHOT</strong> quando o Guia está usando a cópia local.</p>
+        <div class="os-sign"><i aria-hidden="true"></i>LEGIO XII FULMINATA</div>
+      </article>
+    </div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <section class="os-win os-util" data-win="prefs" role="dialog" aria-modal="false" aria-labelledby="osPrefsTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="osPrefsTitle">Preferências</b><small>Aparência e comportamento</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body">
+      <div class="os-pref">
+        <section>
+          <h3>Aparência</h3>
+          <div class="os-seg" role="group" aria-label="Tema">
+            <button type="button" data-theme-set="dark" aria-pressed="true">☾ Noite</button>
+            <button type="button" data-theme-set="light" aria-pressed="false">☀ Dia</button>
+          </div>
+        </section>
+        <section>
+          <h3>Papel de parede</h3>
+          <div class="os-walls" role="group" aria-label="Papel de parede">
+            <button type="button" data-wall-set="spqr" aria-pressed="true"><i style="background-image:url('assets/principia/wallpaper-spqr.webp')"></i>SPQR</button>
+            <button type="button" data-wall-set="lacre" aria-pressed="false"><i style="background:url('assets/principia/brand/mark-white-128.webp') center/34% no-repeat,radial-gradient(circle at 50% 40%,#c8101f,#a50009 45%,#4e0007)"></i>Lacre</button>
+            <button type="button" data-wall-set="purpura" aria-pressed="false"><i style="background:url('assets/principia/brand/mark-white-128.webp') center/34% no-repeat,radial-gradient(circle at 50% 40%,#9b45e2,#7c20cb 45%,#36096a)"></i>Púrpura</button>
+            <button type="button" data-wall-set="onix" aria-pressed="false"><i style="background:url('assets/principia/brand/mark-red-512.webp') center/34% no-repeat,radial-gradient(circle at 50% 40%,#2e2023,#140d0f 50%,#050304)"></i>Ônix</button>
+          </div>
+        </section>
+        <section>
+          <h3>Comportamento</h3>
+          <label class="os-switch"><span>Reduzir animações</span><input type="checkbox" id="osPrefMotion"></label>
+          <label class="os-switch"><span>Mostrar a inicialização ao abrir o terminal</span><input type="checkbox" id="osPrefBoot"></label>
+        </section>
+        <section>
+          <h3>Janelas</h3>
+          <button class="os-btn" type="button" data-action="reset-windows">Restaurar posição das janelas</button>
+        </section>
+      </div>
+    </div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <section class="os-win os-util os-ficha" data-win="ficha" role="dialog" aria-modal="false" aria-labelledby="osFichaTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="osFichaTitle">Minha Ficha</b><small id="osFichaSub">Prévia de teste</small></div>
+      <button class="os-wbtn os-wbtn--text os-ficha-guia" type="button" data-action="to-guia" title="Ir para o Guia">Guia</button>
+      <button class="os-wbtn os-wbtn--text os-ficha-tile" type="button" data-action="ficha-beside" title="Ficha e Guia lado a lado"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M11 4.5v15"/></svg><span>Lado a lado</span></button>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--max" type="button" data-win-action="max" aria-label="Maximizar" title="Maximizar"><svg class="os-svg is-max-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="2"/></svg><svg class="os-svg is-restore" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="8.5" width="10.5" height="10.5" rx="2"/><path d="M8.5 8.5V6.8A1.8 1.8 0 0 1 10.3 5H17a2 2 0 0 1 2 2v6.7a1.8 1.8 0 0 1-1.8 1.8h-1.7"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body os-ficha-body" id="osFichaBody"></div>
+    <input type="file" id="osFichaFile" accept=".json,application/json" multiple hidden>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <section class="os-win os-util on-win on-conta" data-win="conta" role="dialog" aria-modal="false" aria-labelledby="onContaTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="onContaTitle">Minha Conta</b><small>Discord · personagens · fama</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--max" type="button" data-win-action="max" aria-label="Maximizar" title="Maximizar"><svg class="os-svg is-max-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="2"/></svg><svg class="os-svg is-restore" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="8.5" width="10.5" height="10.5" rx="2"/><path d="M8.5 8.5V6.8A1.8 1.8 0 0 1 10.3 5H17a2 2 0 0 1 2 2v6.7a1.8 1.8 0 0 1-1.8 1.8h-1.7"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body on-body" id="onContaBody"></div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <section class="os-win os-util on-win on-famae" data-win="famae" role="dialog" aria-modal="false" aria-labelledby="onFamaeTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="onFamaeTitle">Tabula Famae</b><small>Ranking de fama</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--max" type="button" data-win-action="max" aria-label="Maximizar" title="Maximizar"><svg class="os-svg is-max-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="2"/></svg><svg class="os-svg is-restore" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="8.5" width="10.5" height="10.5" rx="2"/><path d="M8.5 8.5V6.8A1.8 1.8 0 0 1 10.3 5H17a2 2 0 0 1 2 2v6.7a1.8 1.8 0 0 1-1.8 1.8h-1.7"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body on-body" id="onFamaeBody"></div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <section class="os-win os-util on-win on-adm" data-win="praetorium" role="dialog" aria-modal="false" aria-labelledby="onAdmTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="onAdmTitle">Praetorium</b><small>Área da Staff</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+        <button class="os-wbtn os-wbtn--max" type="button" data-win-action="max" aria-label="Maximizar" title="Maximizar"><svg class="os-svg is-max-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="2"/></svg><svg class="os-svg is-restore" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="8.5" width="10.5" height="10.5" rx="2"/><path d="M8.5 8.5V6.8A1.8 1.8 0 0 1 10.3 5H17a2 2 0 0 1 2 2v6.7a1.8 1.8 0 0 1-1.8 1.8h-1.7"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body on-body" id="onAdmBody"></div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <section class="os-win os-util" data-win="sobre" role="dialog" aria-modal="false" aria-labelledby="osAboutTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="osAboutTitle">Sobre este terminal</b></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body">
+      <div class="os-about">
+        <div class="os-about-mark" aria-hidden="true"></div>
+        <h2>Guia da Duodécima</h2>
+        <p>LEGIO XII FULMINATA</p>
+        <dl id="osAboutList"></dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="os-win os-util os-viewer" data-win="viewer" role="dialog" aria-modal="false" aria-labelledby="osViewerTitle">
+    <div class="os-titlebar" data-drag>
+      <span class="os-win-seal" aria-hidden="true"></span>
+      <div class="os-win-title"><b id="osViewerTitle">Imagem</b><small>Clique para ampliar</small></div>
+      <div class="os-winctl">
+        <button class="os-wbtn os-wbtn--max" type="button" data-win-action="max" aria-label="Maximizar" title="Maximizar"><svg class="os-svg is-max-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="2"/></svg><svg class="os-svg is-restore" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="8.5" width="10.5" height="10.5" rx="2"/><path d="M8.5 8.5V6.8A1.8 1.8 0 0 1 10.3 5H17a2 2 0 0 1 2 2v6.7a1.8 1.8 0 0 1-1.8 1.8h-1.7"/></svg></button>
+        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="os-win-body" id="osViewerBody"><img id="osViewerImg" alt=""></div>
+    <div class="os-resize" data-resize aria-hidden="true"></div>
+  </section>
+
+  <!-- ============ BUSCA ============ -->
+  <div class="os-spot" id="osSpot" aria-hidden="true">
+    <div class="os-spot-panel" role="dialog" aria-modal="true" aria-label="Buscar no Guia">
+      <div class="search-wrap">
+        <div class="os-spot-field">
+          <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+          <input id="globalSearch" type="search" placeholder="Buscar regra, deus, habilidade…" autocomplete="off" spellcheck="false" aria-controls="searchResults" aria-expanded="false" aria-autocomplete="list">
+          <kbd>Esc</kbd>
+          <button class="os-spot-cancel" type="button" data-action="close-search">Cancelar</button>
+        </div>
+        <div class="os-spot-suggest" id="osSpotSuggest">
+          <h4>Abrir arquivo</h4>
+          <div class="os-spot-apps" id="osSpotApps"></div>
+        </div>
+        <div class="search-results" id="searchResults" role="listbox" hidden></div>
+      </div>
+      <div class="os-spot-foot"><span><kbd>↑</kbd><kbd>↓</kbd>navegar</span><span><kbd>Enter</kbd>abrir</span><span><kbd>Esc</kbd>fechar</span></div>
+    </div>
+  </div>
+
+  <div class="os-dropdown" id="osDropdown" role="menu" hidden></div>
+  <div class="os-flash" id="osFlash" aria-hidden="true"></div>
+
+  <!-- Ponte com o motor do Guia: navegação programática sem alterar app-v24.js. -->
+  <div class="os-engine" aria-hidden="true"><a id="osEngineLink" href="#page:sistema" data-os-engine tabindex="-1">.</a></div>
+</div>
+
+<script src="principia/principia-early.js?v=1.1.0"></script>
+
+<!-- O conteúdo local e a navegação sobem primeiro; integrações remotas nunca bloqueiam a interface. -->
+<script src="content-v24.js?v=2.7.10"></script>
+<script src="guide-trajetorias-v281.js?v=2.8.1"></script>
+<script src="guide-magic-complete-v280.js?v=2.8.0"></script>
+<script src="guide-vulcano-v280.js?v=2.8.0"></script>
+<script src="guide-domus-v275.js?v=2.8.2"></script>
+<!-- Guia da Duodécima: monta as 11 abas a partir das páginas do motor (só nesta versão). -->
+<script src="principia/guia-textos.js?v=1.0.0"></script>
+<script src="principia/principia-estrutura.js?v=1.1.0"></script>
+<script src="app-v24.js?v=2.7.8"></script>
+<script src="guide-visual-v253.js?v=2.6.11"></script>
+
+<!-- O Core e as camadas editoriais enriquecem a cópia local em segundo plano. -->
+<script src="core-fetch-policy-v251.js?v=2.8.0"></script>
+<script src="core-bridge-v24.js?v=2.8.0"></script>
+<script src="lineage-core-v25.js?v=2.6.11"></script>
+<script src="lineage-label-fix-v265.js?v=2.6.11"></script>
+<script src="guide-stabilization-v251.js?v=2.6.12"></script>
+<script src="guide-rules-v26.js?v=2.6.11"></script>
+<script src="guide-talents-v2611.js?v=2.6.11"></script>
+<script>
+(function(){
+  let decorated=false;
+  const finishEnhancement=()=>{
+    if(decorated)return;
+    decorated=true;
+    const combatLayout=document.createElement('script');
+    combatLayout.src='guide-layout-v261.js?v=2.6.11';
+    combatLayout.onload=()=>{
+      window.dispatchEvent(new PopStateEvent('popstate',{state:history.state}));
+    };
+    document.body.appendChild(combatLayout);
+  };
+
+  Promise.allSettled([
+    window.DUODECIMA_CORE_READY,
+    window.DUODECIMA_LINEAGE_GUIDE_READY,
+    window.DUODECIMA_LINEAGE_LABEL_FIX_READY,
+    window.DUODECIMA_GUIDE_STABILIZATION_READY,
+    window.DUODECIMA_GUIDE_RULES_READY,
+    window.DUODECIMA_GUIDE_TALENTS_READY
+  ]).finally(finishEnhancement);
+
+  setTimeout(finishEnhancement,6000);
+})();
+</script>
+<script src="guide-nazzano-integrated.js?v=2.8.2"></script>
+<script src="guide-editorial-v273.js?v=2.7.8"></script>
+
+<!-- Camada Principia: área de trabalho, janelas, busca e celular. -->
+<script src="principia/principia.js?v=3.3.0"></script>
+<!-- Minha Ficha (prévia de teste): lê o JSON exportado pela Ficha Oficial, sem alterá-la. -->
+<script src="principia/principia-ficha.js?v=2.1.0"></script>
+<!-- Contas (login com Discord + Supabase), Tabula Famae e Praetorium. Sem configuração, tudo segue em modo visitante. -->
+<script src="principia/online-config.js?v=1.0.0"></script>
+<script src="principia/principia-online.js?v=1.0.0"></script>
+<!-- Guia em formato pôster: capas, banners em alta e artes decorativas a cada página. -->
+<script src="principia/principia-guia.js?v=1.1.0"></script>
+</body>
+</html>

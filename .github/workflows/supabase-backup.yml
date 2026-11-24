@@ -1,0 +1,61 @@
+name: Supabase · backup semanal (opcional)
+
+# O plano gratuito do Supabase não guarda backups. Este fluxo exporta o banco uma vez por semana,
+# criptografa com uma senha sua e guarda como artefato da execução por 90 dias.
+# Fica desligado até você criar dois segredos no repositório (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL     → a "connection string" do Session pooler (Supabase → Connect)
+#   BACKUP_PASSPHRASE   → uma senha longa só para os backups (guarde no seu gerenciador de senhas)
+# Para abrir um backup: gpg -d duodecima-AAAA-MM-DD.tar.gz.gpg > backup.tar.gz
+
+on:
+  schedule:
+    - cron: '40 6 * * 0'   # domingo, 03:40 no horário de Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Conferir os segredos
+        id: cfg
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::notice::Backup desligado: crie os segredos SUPABASE_DB_URL e BACKUP_PASSPHRASE (veja ONLINE.md)."
+            echo "ativo=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "ativo=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Instalar a CLI do Supabase
+        if: steps.cfg.outputs.ativo == '1'
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Exportar e criptografar
+        if: steps.cfg.outputs.ativo == '1'
+        run: |
+          mkdir backup
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/data.sql --use-copy --data-only
+          tar czf backup.tar.gz backup
+          gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+            --passphrase "$BACKUP_PASSPHRASE" -o "duodecima-$(date -u +%Y-%m-%d).tar.gz.gpg" backup.tar.gz
+          rm -rf backup backup.tar.gz
+          ls -la duodecima-*.tar.gz.gpg
+
+      - name: Guardar o arquivo criptografado
+        if: steps.cfg.outputs.ativo == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-supabase
+          path: duodecima-*.tar.gz.gpg
+          retention-days: 90
