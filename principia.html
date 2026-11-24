@@ -47,7 +47,7 @@
   <style id="guide-stabilization-v251-styles"></style>
   <style id="lineage-core-v25-styles"></style>
   <!-- Camada Principia (interface de terminal). -->
-  <link rel="stylesheet" href="principia/principia.css?v=2.1.0">
+  <link rel="stylesheet" href="principia/principia.css?v=2.2.0">
 </head>
 <body class="os-body">
 <a class="skip-link" href="#content">Pular para o conteúdo</a>
@@ -92,17 +92,6 @@
     <div class="os-bar-spacer"></div>
     <div class="os-bar-tools">
       <a class="os-cta" href="https://stsedd.github.io/ficha-oficial-duodecima-rpg/" target="_blank" rel="noopener noreferrer" title="Abrir a Ficha Oficial em nova aba">Criar ficha <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
-      <div class="os-np" id="osNp" hidden>
-        <button class="os-np-open" type="button" data-app="musica" title="Abrir Música">
-          <span class="os-eq" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="os-np-label" id="osNpLabel"></span>
-          <span class="os-np-preview" id="osNpPreview" hidden title="O Spotify está tocando prévias de 30 segundos">Prévia</span>
-        </button>
-        <button class="os-np-toggle" type="button" id="osNpToggle" aria-label="Tocar" title="Tocar">
-          <svg class="os-svg os-np-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
-          <svg class="os-svg os-np-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.5v13M15.5 5.5v13"/></svg>
-        </button>
-      </div>
       <a class="os-bar-btn os-bar-btn--msg" href="https://discord.com/channels/1498461819902234624/1498486495668080761" target="_blank" rel="noopener noreferrer" title="iMessage: abre o canal no Discord">
         <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/></svg><b>iMessage</b>
       </a>
@@ -133,7 +122,7 @@
   <main class="os-win os-reader" id="osReader" data-win="reader" aria-label="Arquivo do Guia">
     <div class="os-titlebar" data-drag>
       <span class="os-win-seal" aria-hidden="true"></span>
-      <nav class="os-tabs" id="osTabs" aria-label="Arquivos abertos"></nav>
+      <div class="os-win-title os-reader-title"><b id="osReaderTitle">Guia da Duodécima</b></div>
       <span class="os-drag-space" aria-hidden="true"></span>
       <div class="os-winctl">
         <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
@@ -301,51 +290,6 @@
     <div class="os-resize" data-resize aria-hidden="true"></div>
   </section>
 
-  <section class="os-win os-util os-music" data-win="musica" role="dialog" aria-modal="false" aria-labelledby="osMusicTitle">
-    <div class="os-titlebar" data-drag>
-      <span class="os-win-seal" aria-hidden="true"></span>
-      <div class="os-win-title"><b id="osMusicTitle">Música</b><small>Playlists do Spotify</small></div>
-      <div class="os-winctl">
-        <button class="os-wbtn os-wbtn--min" type="button" data-win-action="min" aria-label="Minimizar" title="Minimizar (a música continua)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
-        <button class="os-wbtn os-wbtn--close" type="button" data-win-action="close" aria-label="Fechar" title="Fechar (a música continua)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
-      </div>
-    </div>
-    <div class="os-win-body">
-      <div class="os-music-wrap">
-        <form class="os-music-form" id="osMusicForm" novalidate>
-          <label class="os-music-field">
-            <span>Link do Spotify</span>
-            <input id="osMusicUrl" type="url" inputmode="url" placeholder="https://open.spotify.com/playlist/…" autocomplete="off" spellcheck="false">
-          </label>
-          <div class="os-music-row">
-            <label class="os-music-field">
-              <span>Nome <em>(opcional)</em></span>
-              <input id="osMusicLabel" type="text" placeholder="Ex.: playlist da Skye" maxlength="60" autocomplete="off">
-            </label>
-            <button class="os-btn os-btn--primary" type="submit">Adicionar</button>
-          </div>
-          <p class="os-music-msg" id="osMusicMsg" role="status" aria-live="polite"></p>
-        </form>
-        <div class="os-music-player" id="osMusicPlayer" hidden><div id="osMusicEmbed"></div></div>
-        <div class="os-music-preview" id="osMusicPreview" role="status" hidden>
-          <b><span class="os-music-preview-tag">Prévia</span> O Spotify está tocando só 30 segundos de cada faixa.</b>
-          <p>Isso não é um erro do Guia: o player oficial do Spotify só libera as faixas completas para quem está conectado ao Spotify neste navegador. Sem essa sessão, ele toca uma prévia e pula para a próxima música.</p>
-          <ul>
-            <li>Entre na sua conta em open.spotify.com neste mesmo navegador e recarregue o Guia.</li>
-            <li>No celular, o caminho mais confiável é abrir a playlist no app do Spotify.</li>
-          </ul>
-          <div class="os-music-preview-actions">
-            <a class="os-btn os-btn--primary" id="osMusicOpenApp" href="https://open.spotify.com/" target="_blank" rel="noopener noreferrer">Abrir no Spotify</a>
-            <a class="os-btn" href="https://accounts.spotify.com/login" target="_blank" rel="noopener noreferrer">Entrar no Spotify</a>
-          </div>
-        </div>
-        <div class="os-music-list" id="osMusicList" role="list" aria-label="Playlists salvas"></div>
-        <p class="os-music-note">O player é o oficial do Spotify. Com a sua conta do Spotify conectada neste navegador, ele toca as faixas completas; sem ela, toca prévias de 30 segundos e o Guia avisa com o selo <b>Prévia</b>. Os links ficam salvos só neste navegador. Fechar a janela não para a música: use o botão de pausa na barra superior.</p>
-      </div>
-    </div>
-    <div class="os-resize" data-resize aria-hidden="true"></div>
-  </section>
-
   <section class="os-win os-util" data-win="sobre" role="dialog" aria-modal="false" aria-labelledby="osAboutTitle">
     <div class="os-titlebar" data-drag>
       <span class="os-win-seal" aria-hidden="true"></span>
@@ -456,9 +400,9 @@
 <script src="guide-editorial-v273.js?v=2.7.8"></script>
 
 <!-- Camada Principia: área de trabalho, janelas, busca e celular. -->
-<script src="principia/principia.js?v=3.1.0"></script>
+<script src="principia/principia.js?v=3.2.1"></script>
 <!-- Minha Ficha (prévia de teste): lê o JSON exportado pela Ficha Oficial, sem alterá-la. -->
-<script src="principia/principia-ficha.js?v=2.0.1"></script>
+<script src="principia/principia-ficha.js?v=2.1.0"></script>
 <!-- Guia em formato pôster: capas, banners em alta e artes decorativas a cada página. -->
 <script src="principia/principia-guia.js?v=1.1.0"></script>
 </body>

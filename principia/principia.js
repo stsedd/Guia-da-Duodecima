@@ -70,8 +70,7 @@
     open: '<path d="M14 4.5h5.5V10M19.5 4.5 12 12"/><path d="M18.5 14v4.5a1 1 0 0 1-1 1h-12a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1H10"/>',
     book: '<path d="M4.5 5.5A2 2 0 0 1 6.5 3.5h12v15h-12a2 2 0 0 0-2 2z"/><path d="M4.5 20.5a2 2 0 0 1 2-2h12v2h-12"/>',
     close: '<path d="m7 7 10 10M17 7 7 17"/>',
-    phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/>',
-    music: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.6"/><path d="M12 3.5a8.5 8.5 0 0 1 8.5 8.5"/>'
+    phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/>'
   };
   const svg = (name, cls = 'os-svg') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${SVG[name] || ''}</svg>`;
 
@@ -103,7 +102,6 @@
     minhaficha: { kind: 'win', win: 'ficha', title: 'Minha Ficha', art: ICON('ficha'), tilt: -2 },
     ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, glyph: 'book', tilt: 2 },
     imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
-    musica: { kind: 'win', win: 'musica', title: 'Música', custom: 'vinyl', glyph: 'music', tilt: 3 },
     leiame: { kind: 'win', win: 'leiame', title: 'Leia-me', glyph: 'note', tilt: -3 },
     prefs: { kind: 'win', win: 'prefs', title: 'Preferências', short: 'Ajustes', glyph: 'gear', tilt: 2 },
     sobre: { kind: 'win', win: 'sobre', title: 'Sobre', glyph: 'info', tilt: 0 },
@@ -126,7 +124,6 @@
   function artHTML(a) {
     const ext = a.kind === 'external' ? `<span class="os-ico-ext">${svg('ext')}</span>` : '';
     if (a.custom === 'phone') return `<span class="os-ico-art os-ico-art--phone">${PHONE_ART}${ext}</span>`;
-    if (a.custom === 'vinyl') return `<span class="os-ico-art os-ico-art--vinyl"><i class="os-vinyl"></i>${ext}</span>`;
     if (a.art) return `<span class="os-ico-art" style="background-image:url('${a.art}')">${ext}</span>`;
     return `<span class="os-ico-art os-ico-art--glyph">${svg(a.glyph)}${ext}</span>`;
   }
@@ -166,18 +163,15 @@
     // O link do iMessage vem só de IMESSAGE_URL: trocar o canal é editar uma linha.
     $$('.os-bar-btn--msg').forEach(a => { a.href = IMESSAGE_URL; });
     // Esquerda: os arquivos do Guia e os apps de uso do jogador; direita: utilitários.
-    $('#osIconsLeft').innerHTML = [...PAGES, 'musica', 'imessage', 'minhaficha', 'ficha'].map((k, i) => iconHTML(k, i)).join('');
+    $('#osIconsLeft').innerHTML = [...PAGES, 'imessage', 'minhaficha', 'ficha'].map((k, i) => iconHTML(k, i)).join('');
     $('#osIconsRight').innerHTML = ['leiame', 'tabularium', 'prefs', 'mapa'].map((k, i) => iconHTML(k, i + 2)).join('');
     $('#osHomeGrid').innerHTML = [...PAGES, 'mapa', 'tabularium', 'ficha', 'prefs'].map((k, i) => iconHTML(k, i, { short: true })).join('');
-    $('#osDock').innerHTML = ['imessage', 'musica', 'minhaficha', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
+    $('#osDock').innerHTML = ['imessage', 'minhaficha', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
     $('#osBarMenus').innerHTML =
       `<button class="os-menu-trigger os-menu-trigger--all" type="button" data-menu="all" aria-haspopup="menu" aria-expanded="false">Arquivos</button>` +
       PAGES.map(k => `<button class="os-menu-trigger os-menu-trigger--app" type="button" data-menu="app:${k}" aria-haspopup="menu" aria-expanded="false">${esc(shortTitle(k))}</button>`).join('');
-    $('#osTabs').innerHTML = PAGES.map(k => `<button class="os-tab" type="button" data-app="${k}" data-tab="${k}" title="${esc(appTitle(k))}"><img src="${APPS[k].art}" alt="">${esc(shortTitle(k))}</button>`).join('') +
-      /* Aba da ficha: abre a Minha Ficha ao lado do Guia (no celular, alterna as telas). */
-      `<button class="os-tab os-tab--ficha" type="button" data-action="ficha-beside" title="Minha Ficha ao lado do Guia"><img src="${APPS.minhaficha.art}" alt="">Ficha</button>`;
     fitMenus();
-    $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'tabularium', 'mapa', 'musica', 'imessage', 'leiame'].map(k => APPS[k].kind === 'external'
+    $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'tabularium', 'mapa', 'imessage', 'leiame'].map(k => APPS[k].kind === 'external'
       ? `<a class="os-spot-app" href="${APPS[k].href}" target="_blank" rel="noopener noreferrer" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}<span class="os-spot-ext">↗</span></a>`
       : `<button class="os-spot-app" type="button" data-app="${k}">${miniArt(k)}${esc(appTitle(k))}</button>`).join('');
   }
@@ -238,7 +232,7 @@
   const WM = (() => {
     const wins = {};
     let z = 200;
-    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], musica: [340, 420], ficha: [360, 420] };
+    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], ficha: [360, 420] };
     let saved = {};
     try { saved = JSON.parse(store.get('principia_wins', '{}')) || {}; } catch { saved = {}; }
     const barH = () => isMobile() ? 0 : ($('#osBar')?.offsetHeight || 40);
@@ -250,8 +244,8 @@
         const w = Math.min(1300, vw - 236);
         return { x: Math.round((vw - w) / 2), y: bar + g, w, h: vh - bar - g * 2 };
       }
-      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], musica: [480, 760], ficha: [600, 860], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
-      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, musica: 150, ficha: -120 }[id] || 0;
+      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], ficha: [600, 860], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
+      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, ficha: -120 }[id] || 0;
       const [w0, h0] = sizes[id] || [620, 480];
       const w = Math.round(Math.min(w0, vw - g * 2)), h = Math.round(Math.min(h0, vh - bar - g * 2));
       return { x: Math.round((vw - w) / 2 + shift), y: Math.round(bar + Math.max(g, (vh - bar - h) / 2 - 10) + shift * .35), w, h };
@@ -392,7 +386,7 @@
     function setupDrag(w, handle) {
       handle.addEventListener('pointerdown', e => {
         if (e.button !== 0 || isMobile()) return;
-        if (e.target.closest('button,a,input,select,textarea,.os-tab')) return;
+        if (e.target.closest('button,a,input,select,textarea')) return;
         front(w.id);
         const sx = e.clientX, sy = e.clientY;
         let r0 = null, moved = false, frame = 0;
@@ -433,7 +427,7 @@
         handle.addEventListener('pointercancel', onUp);
       });
       handle.addEventListener('dblclick', e => {
-        if (e.target.closest('button,a,input,.os-tab')) return;
+        if (e.target.closest('button,a,input')) return;
         if (w.el.querySelector('[data-win-action="max"]')) toggleMax(w.id);
       });
     }
@@ -561,7 +555,10 @@
   const queueRenderCheck = () => {
     if (renderQueued) return;
     renderQueued = true;
-    requestAnimationFrame(() => { renderQueued = false; checkRender(); });
+    // rAF não roda em abas em segundo plano: o timer garante a checagem mesmo assim.
+    const run = () => { if (!renderQueued) return; renderQueued = false; checkRender(); };
+    requestAnimationFrame(run);
+    setTimeout(run, 120);
   };
   new MutationObserver(queueRenderCheck).observe(content, { childList: true });
 
@@ -619,11 +616,7 @@
   function setActive(key) {
     if (!key) return;
     currentKey = key;
-    $$('#osTabs .os-tab').forEach(t => {
-      const on = t.dataset.tab === key;
-      t.toggleAttribute('aria-current', on);
-      if (on) { t.setAttribute('aria-current', 'page'); if (!isMobile()) t.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }); }
-    });
+    $('#osReaderTitle').textContent = EST?.hidden.includes(key) ? 'Guia da Duodécima' : appTitle(key);
     $$('#osBarMenus [data-menu^="app:"]').forEach(b => b.classList.toggle('is-current', WM.isOpen('reader') && b.dataset.menu === 'app:' + key));
     $('#osSplashImg').src = APPS[key]?.art || ICON('sistema');
     $('#osSplashTitle').textContent = appTitle(key);
@@ -927,7 +920,6 @@
         <button class="os-dd-item" type="button" role="menuitem" data-app="leiame">${svg('note')}Leia-me</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="tabularium">${svg('folder')}Tabularium</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="minhaficha"><img src="${APPS.minhaficha.art}" alt="">Minha Ficha<em>teste</em></button>
-        <button class="os-dd-item" type="button" role="menuitem" data-app="musica">${svg('music')}Música</button>
         <a class="os-dd-item" role="menuitem" href="${IMESSAGE_URL}" target="_blank" rel="noopener noreferrer">${svg('phone')}iMessage<em>Discord</em></a>
         <div class="os-dd-sep" role="separator"></div>
         <button class="os-dd-item" type="button" role="menuitem" data-action="desktop">${svg('desktop')}Mostrar área de trabalho</button>
@@ -1139,11 +1131,9 @@
     if (win === 'sobre') renderAbout();
     if (win === 'prefs') syncPrefs();
     if (win === 'leiame') store.set('principia_seen', '1');
-    if (win === 'musica') { renderMusic(); const it = currentTrack(); if (it) playerFor(it); }
     try { P.hooks?.[win]?.open?.(); } catch (err) { console.warn('[Principia]', err); }
     await WM.open(win, { from });
     updateRunning();
-    if (win === 'musica' && !music.items.length && !isMobile()) musicEls.url.focus({ preventScroll: true });
   }
   /* Ficha e Guia lado a lado (desktop). No celular, as duas ficam em tela cheia e alternam. */
   const canTile = () => !isMobile() && innerWidth >= 1000;
@@ -1176,268 +1166,10 @@
     return openPage(key, anchor);
   }
 
-  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'musica', 'ficha']) {
+  for (const id of ['tabularium', 'leiame', 'prefs', 'sobre', 'viewer', 'ficha']) {
     const w = WM.get(id);
     if (!w) continue;
     w.onState = () => updateRunning();
-  }
-
-  /* ==========================================================================
-     Música — player oficial do Spotify
-     A janela pode ser fechada ou minimizada sem parar a música: o player continua
-     carregado (apenas oculto) enquanto a página estiver aberta.
-     ========================================================================== */
-  const MUSIC_KEY = 'principia_music';
-  const MUSIC_TYPES = { playlist: 'Playlist', album: 'Álbum', track: 'Música', artist: 'Artista', episode: 'Episódio', show: 'Podcast' };
-  const SPOTIFY_RE = /(?:open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[a-z]{2})?\/)?(?:embed\/)?|spotify:)(playlist|album|track|artist|episode|show)[/:]([A-Za-z0-9]{22})/i;
-  const musicEls = {
-    form: $('#osMusicForm'), url: $('#osMusicUrl'), label: $('#osMusicLabel'), msg: $('#osMusicMsg'),
-    list: $('#osMusicList'), player: $('#osMusicPlayer'), host: $('#osMusicEmbed'),
-    np: $('#osNp'), npLabel: $('#osNpLabel'), npToggle: $('#osNpToggle'), npPreview: $('#osNpPreview'),
-    preview: $('#osMusicPreview'), openApp: $('#osMusicOpenApp')
-  };
-  const music = { items: [], current: null, controller: null, frame: null, pending: null, apiPromise: null, playing: false, loadedUri: null, wanted: null, preview: false };
-  /* Prévias do Spotify duram 30 s. Faixas reais tão curtas são raras, então uma duração
-     de até 31 s é tratada como prévia, e qualquer faixa mais longa desfaz o aviso. */
-  const PREVIEW_MAX_MS = 31000;
-  const trackKey = it => `${it.type}:${it.sid}`;
-  const trackUri = it => `spotify:${it.type}:${it.sid}`;
-  const trackLabel = it => it.label || MUSIC_TYPES[it.type] || 'Spotify';
-  const currentTrack = () => music.items.find(it => trackKey(it) === music.current) || null;
-  try {
-    const saved = JSON.parse(store.get(MUSIC_KEY, 'null'));
-    if (saved && Array.isArray(saved.items)) {
-      music.items = saved.items
-        .filter(it => it && MUSIC_TYPES[it.type] && /^[A-Za-z0-9]{22}$/.test(it.sid))
-        .slice(0, 40)
-        .map(it => ({ type: it.type, sid: it.sid, label: String(it.label || '').slice(0, 60) }));
-      music.current = music.items.some(it => trackKey(it) === saved.current) ? saved.current : null;
-    }
-  } catch {}
-  const saveMusic = () => store.set(MUSIC_KEY, JSON.stringify({ items: music.items, current: music.current }));
-
-  function parseSpotify(text) {
-    const s = String(text || '').trim();
-    if (!s) return { error: 'Cole o link de uma playlist, álbum ou música do Spotify.' };
-    if (/spotify\.link\//i.test(s)) return { error: 'Esse é um link curto (spotify.link). Abra-o no navegador e copie o endereço completo, que começa com open.spotify.com.' };
-    const m = SPOTIFY_RE.exec(s);
-    if (!m) return { error: 'Não reconheci esse link. No Spotify, use Compartilhar → Copiar link (open.spotify.com/…).' };
-    return { type: m[1].toLowerCase(), sid: m[2] };
-  }
-
-  function setPlaying(on) {
-    music.playing = !!on;
-    html.dataset.music = music.current ? (on ? 'playing' : 'paused') : 'off';
-    const label = on ? (music.preview ? 'Pausar (prévia de 30 s)' : 'Pausar') : 'Tocar no player do Spotify';
-    musicEls.npToggle.setAttribute('aria-label', label);
-    musicEls.npToggle.title = label;
-  }
-
-  /* Nunca apresenta prévia como reprodução completa: selo na barra e explicação na janela. */
-  function setPreview(on) {
-    on = !!on && !!currentTrack();
-    if (music.preview === on) return;
-    music.preview = on;
-    musicEls.npPreview.hidden = !on;
-    musicEls.preview.hidden = !on;
-    setPlaying(music.playing);
-  }
-  function onPlaybackUpdate(e) {
-    const d = (e && e.data) || {};
-    setPlaying(!d.isPaused);
-    const it = currentTrack();
-    if (it && it.type !== 'episode' && it.type !== 'show' && d.duration > 0) setPreview(d.duration <= PREVIEW_MAX_MS);
-  }
-
-  function loadSpotifyApi() {
-    if (music.apiPromise) return music.apiPromise;
-    music.apiPromise = new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('tempo esgotado')), 9000);
-      const previous = window.onSpotifyIframeApiReady;
-      window.onSpotifyIframeApiReady = api => {
-        clearTimeout(timer);
-        resolve(api);
-        if (typeof previous === 'function') { try { previous(api); } catch {} }
-      };
-      const s = document.createElement('script');
-      s.src = 'https://open.spotify.com/embed/iframe-api/v1';
-      s.async = true;
-      s.onerror = () => { clearTimeout(timer); reject(new Error('falha ao carregar')); };
-      document.head.append(s);
-    });
-    return music.apiPromise;
-  }
-
-  /* Sem a API (bloqueada por extensão, por exemplo), usa o embed simples do Spotify. */
-  function mountFallbackFrame(it) {
-    const f = document.createElement('iframe');
-    f.title = 'Player do Spotify';
-    f.width = '100%';
-    f.height = '352';
-    f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-    f.src = `https://open.spotify.com/embed/${it.type}/${it.sid}?utm_source=generator&theme=0`;
-    f.dataset.uri = trackUri(it);
-    musicEls.host.replaceChildren(f);
-    music.frame = f;
-  }
-
-  /* O player é criado uma única vez; depois só troca o que está carregado.
-     O play é sempre do próprio player do Spotify: o play disparado por código pode
-     cair no modo de prévia mesmo para quem está conectado. */
-  async function playerFor(it) {
-    if (!it) return;
-    musicEls.player.hidden = false;
-    musicEls.openApp.href = `https://open.spotify.com/${it.type}/${it.sid}`;
-    music.wanted = { it };
-    if (music.controller) {
-      const uri = trackUri(it);
-      if (music.loadedUri !== uri) { music.controller.loadUri(uri); music.loadedUri = uri; setPreview(false); }
-      return;
-    }
-    if (music.frame) {
-      if (music.frame.dataset.uri !== trackUri(it)) mountFallbackFrame(it);
-      return;
-    }
-    if (music.pending) return music.pending;
-    music.pending = (async () => {
-      try {
-        const api = await loadSpotifyApi();
-        const el = document.createElement('div');
-        musicEls.host.replaceChildren(el);
-        const first = music.wanted.it;
-        await new Promise(resolve => {
-          api.createController(el, { uri: trackUri(first), width: '100%', height: 352 }, ctrl => {
-            music.controller = ctrl;
-            music.loadedUri = trackUri(first);
-            ctrl.addListener('playback_update', onPlaybackUpdate);
-            ctrl.addListener('ready', () => resolve());
-            setTimeout(resolve, 5000);
-          });
-        });
-        const want = music.wanted;
-        if (want && trackUri(want.it) !== music.loadedUri) { music.controller.loadUri(trackUri(want.it)); music.loadedUri = trackUri(want.it); }
-      } catch (err) {
-        console.warn('[Principia] API do Spotify indisponível; usando o player simples.', err);
-        mountFallbackFrame(music.wanted.it);
-      } finally {
-        music.pending = null;
-      }
-    })();
-    return music.pending;
-  }
-
-  function renderMusic() {
-    const cur = music.current;
-    musicEls.list.innerHTML = music.items.length
-      ? `<h4>Salvas neste navegador</h4>` + music.items.map(it => {
-        const k = trackKey(it);
-        const name = trackLabel(it);
-        return `<div class="os-track${k === cur ? ' is-current' : ''}" role="listitem">
-          <button class="os-track-main" type="button" data-music-play="${esc(k)}" aria-label="Tocar ${esc(name)}">
-            <span class="os-track-disc" aria-hidden="true"></span>
-            <span class="os-track-text"><b>${esc(name)}</b><small>${esc(MUSIC_TYPES[it.type])}${k === cur ? ' · selecionada' : ''}</small></span>
-          </button>
-          <a class="os-track-btn" href="https://open.spotify.com/${it.type}/${it.sid}" target="_blank" rel="noopener noreferrer" title="Abrir no Spotify" aria-label="Abrir ${esc(name)} no Spotify">${svg('ext')}</a>
-          <button class="os-track-btn" type="button" data-music-del="${esc(k)}" title="Remover" aria-label="Remover ${esc(name)}">${svg('close')}</button>
-        </div>`;
-      }).join('')
-      : `<p class="os-music-empty">Nenhuma playlist salva ainda. Cole acima o link da playlist do seu personagem para ouvir enquanto navega pelo Guia.</p>`;
-    updateNowPlaying();
-  }
-
-  function updateNowPlaying() {
-    const it = currentTrack();
-    musicEls.np.hidden = !it;
-    if (it) {
-      musicEls.npLabel.textContent = trackLabel(it);
-      musicEls.openApp.href = `https://open.spotify.com/${it.type}/${it.sid}`;
-    } else {
-      musicEls.player.hidden = true;
-      setPreview(false);
-    }
-    setPlaying(it ? music.playing : false);
-  }
-
-  musicEls.form.addEventListener('submit', e => {
-    e.preventDefault();
-    const parsed = parseSpotify(musicEls.url.value);
-    const msg = musicEls.msg;
-    if (parsed.error) {
-      msg.textContent = parsed.error;
-      msg.classList.add('is-error');
-      musicEls.url.focus();
-      return;
-    }
-    const label = musicEls.label.value.trim().slice(0, 60);
-    const k = trackKey(parsed);
-    const existing = music.items.find(it => trackKey(it) === k);
-    if (existing) { if (label) existing.label = label; }
-    else music.items.unshift({ type: parsed.type, sid: parsed.sid, label });
-    music.items = music.items.slice(0, 40);
-    music.current = k;
-    saveMusic();
-    musicEls.form.reset();
-    msg.classList.remove('is-error');
-    msg.textContent = existing ? 'Esse link já estava salvo; carreguei de novo no player.' : 'Salvo neste navegador. Aperte o play no player do Spotify abaixo.';
-    renderMusic();
-    playerFor(currentTrack());
-  });
-
-  musicEls.list.addEventListener('click', e => {
-    const play = e.target.closest('[data-music-play]');
-    if (play) {
-      music.current = play.dataset.musicPlay;
-      saveMusic();
-      renderMusic();
-      playerFor(currentTrack());
-      musicEls.msg.classList.remove('is-error');
-      musicEls.msg.textContent = 'Carregada no player. Aperte o play do Spotify para ouvir.';
-      return;
-    }
-    const del = e.target.closest('[data-music-del]');
-    if (del) {
-      const k = del.dataset.musicDel;
-      music.items = music.items.filter(it => trackKey(it) !== k);
-      if (music.current === k) {
-        music.current = null;
-        try { music.controller?.pause(); } catch {}
-        if (music.frame) { music.frame.remove(); music.frame = null; }
-        music.playing = false;
-      }
-      saveMusic();
-      renderMusic();
-    }
-  });
-
-  musicEls.npToggle.addEventListener('click', async e => {
-    e.preventDefault();
-    e.stopPropagation();
-    const it = currentTrack();
-    if (!it) return;
-    /* Pausar pela barra é seguro; para tocar, a pessoa usa o play do próprio player. */
-    if (music.controller && music.playing) { try { music.controller.pause(); } catch {} return; }
-    openUtil('musica', null);
-    await playerFor(it);
-    musicEls.msg.classList.remove('is-error');
-    musicEls.msg.textContent = 'Aperte o play no player do Spotify para continuar.';
-  });
-
-  /* Toca um link do Spotify vindo de outro app (ex.: a playlist salva na ficha). */
-  function playSpotify(link, label) {
-    const parsed = parseSpotify(link);
-    if (parsed.error) return { error: parsed.error };
-    const k = trackKey(parsed);
-    let it = music.items.find(x => trackKey(x) === k);
-    if (!it) { it = { type: parsed.type, sid: parsed.sid, label: String(label || '').slice(0, 60) }; music.items.unshift(it); music.items = music.items.slice(0, 40); }
-    else if (label && !it.label) it.label = String(label).slice(0, 60);
-    music.current = k;
-    saveMusic();
-    renderMusic();
-    openUtil('musica', null);
-    playerFor(it);
-    musicEls.msg.classList.remove('is-error');
-    musicEls.msg.textContent = 'Carregada no player. Aperte o play do Spotify para ouvir.';
-    return { ok: true, label: trackLabel(it) };
   }
 
   /* Aviso rápido no canto da tela (mesmo visual das notificações do Guia). */
@@ -1450,7 +1182,6 @@
     el._t = setTimeout(() => el.classList.remove('show'), 2400);
   }
 
-  updateNowPlaying();
 
   /* ==========================================================================
      Cliques globais (fase de captura, antes do motor)
@@ -1698,19 +1429,23 @@
   /* Páginas registradas só depois do Core (ex.: Combate, criada por guide-rules-v26.js):
      o motor não as reconhece na primeira leitura do link e cai no Sistema. Quando a página
      passa a existir, e se a pessoa ainda não navegou, a Principia abre o destino original. */
-  async function resumeLatePage(initial) {
+  async function resumeLatePage() {
     const h = P.initialHash || '';
     if (!h.startsWith('#page:')) return;
     const [rawKey, ...rest] = h.slice(6).split(':');
-    const rawAnchor = rest.join(':') || null;
-    if (!rawKey || rawKey === initial.key) return;
+    if (!rawKey) return;
+    const target = EST ? EST.route(rawKey, rest.join(':') || null) : { key: rawKey, anchor: rest.join(':') || null };
+    const startKey = engineKey();
+    if (startKey === target.key) return;
     await Promise.allSettled([window.DUODECIMA_CORE_READY, window.DUODECIMA_GUIDE_RULES_READY, window.PRINCIPIA_ESTRUTURA_READY]);
     await wait(60);
-    if (!pagesData()[rawKey]) return;
-    const stillOnFallback = engineKey() === initial.key && (location.hash || '').startsWith('#page:' + initial.key);
-    if (!stillOnFallback) return;
-    engineGo(rawKey, rawAnchor);
-    if (rawAnchor) scrollToAnchorSoon(rawAnchor);
+    const cur = engineKey();
+    if (cur === target.key || !pagesData()[target.key]) return;
+    // Só corrige se a pessoa ainda não navegou: o motor segue na página de reserva (ou na aba nova dela).
+    const fallbacks = [startKey, HOME, 'sistema', EST?.route?.(startKey)?.key].filter(Boolean);
+    if (!fallbacks.includes(cur)) return;
+    engineGo(target.key, target.anchor);
+    if (target.anchor) scrollToAnchorSoon(target.anchor);
   }
 
   async function init() {
@@ -1733,7 +1468,7 @@
       updateRunning();
       enterContent();
       if (initial.anchor) scrollToAnchorSoon(initial.anchor);
-      resumeLatePage(initial);
+      resumeLatePage();
       return;
     }
     if (!store.get('principia_seen') && !isMobile() && innerWidth >= 1100) {
@@ -1757,8 +1492,7 @@
     openPage, openUtil, openBeside: openBesideFicha, tile: tileFichaGuia, canTile,
     engineKey: () => engineKey(),
     chapters: () => NAV_CHAPTERS,
-    deitySlugs: () => findFolder('deuses')?.coreSlugs || new Map(),
-    music: { play: playSpotify, parse: parseSpotify }
+    deitySlugs: () => findFolder('deuses')?.coreSlugs || new Map()
   };
   window.dispatchEvent(new CustomEvent('principia:ready'));
 })();

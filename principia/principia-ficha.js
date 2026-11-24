@@ -401,7 +401,7 @@
     }
 
     /* ---------- Estado da janela ---------- */
-    const F = { list: [], currentId: store.get('principia_ficha_atual', ''), tab: store.get('principia_ficha_aba', 'geral'), model: null, modelError: null, editingPlaylist: false, loaded: false };
+    const F = { list: [], currentId: store.get('principia_ficha_atual', ''), tab: store.get('principia_ficha_aba', 'geral'), model: null, modelError: null, loaded: false };
     const current = () => F.list.find(r => r.id === F.currentId) || F.list[0] || null;
     const safeImg = url => typeof url === 'string' && (/^data:image\/(png|jpe?g|webp|gif|avif);base64,/i.test(url) || /^https:\/\//i.test(url)) ? url : '';
     const rule = (page, anchor, label, cls = 'fx-rule') => `<button type="button" class="${cls}" data-fx-rule="${esc(page)}|${esc(anchor || '')}" title="Abrir a regra no Guia">${esc(label)} <span aria-hidden="true">→</span></button>`;
@@ -430,13 +430,6 @@
         `BP ${signed(v.bp)}`,
         v.hasCasting ? `Conjuração ${ATTR_ABBR[v.castAttr] || v.castAttr}` : ''
       ].filter(Boolean).map(c => `<span>${c}</span>`).join('');
-      const pl = rec.playlist;
-      const first = esc(d.name.split(' ')[0]);
-      const playlist = F.editingPlaylist
-        ? `<form class="fx-pl-form" data-fx-pl-form><input type="url" inputmode="url" name="link" placeholder="Link da playlist no Spotify" value="${esc(pl?.link || '')}" aria-label="Link da playlist do personagem no Spotify" autocomplete="off" spellcheck="false"><button class="os-btn" type="submit">Salvar</button><button class="os-btn os-btn--ghost" type="button" data-fx-pl-cancel>Cancelar</button></form>`
-        : pl
-          ? `<div class="fx-pl"><button type="button" class="fx-pl-play" data-fx-play>${svg('music')}<span>Tocar a playlist de ${first}</span></button><button type="button" class="fx-pl-edit" data-fx-pl-edit title="Trocar a playlist" aria-label="Trocar a playlist">${svg('note')}</button></div>`
-          : `<div class="fx-pl"><button type="button" class="fx-pl-add" data-fx-pl-edit>${svg('music')}<span>Adicionar a playlist de ${first}</span></button></div>`;
       return `
         <header class="fx-hero">
           <div class="fx-banner">${banner ? `<img src="${esc(banner)}" alt="" style="object-position:${bx}% ${by}%;transform:scale(${bs});transform-origin:${bx}% ${by}%">` : ''}</div>
@@ -449,7 +442,6 @@
             </div>
           </div>
           <div class="fx-chips">${chips}</div>
-          ${playlist}
         </header>`;
     }
 
@@ -608,8 +600,7 @@
         try { data = JSON.parse(await file.text()); } catch { toast(`Não consegui ler ${file.name}: o JSON está corrompido.`); continue; }
         if (!data || typeof data !== 'object' || Array.isArray(data) || !(data.baseAttributes || data.godId || data.originType)) { toast(`${file.name} não parece uma ficha da Duodécima.`); continue; }
         const id = fichaId(data);
-        const prev = F.list.find(r => r.id === id);
-        const rec = { id, name: String(data.name || 'Personagem sem nome').slice(0, 80), importedAt: new Date().toISOString(), data, playlist: prev?.playlist || null };
+        const rec = { id, name: String(data.name || 'Personagem sem nome').slice(0, 80), importedAt: new Date().toISOString(), data };
         await dbPut(rec);
         last = rec; count++;
       }
@@ -628,23 +619,7 @@
 
     bodyEl.addEventListener('change', e => {
       const sel = e.target.closest('[data-fx-select]');
-      if (sel) { F.currentId = sel.value; F.editingPlaylist = false; store.set('principia_ficha_atual', sel.value); render(); bodyEl.scrollTop = 0; }
-    });
-    bodyEl.addEventListener('submit', async e => {
-      const form = e.target.closest('[data-fx-pl-form]');
-      if (!form) return;
-      e.preventDefault();
-      const rec = current();
-      const link = form.elements.link.value.trim();
-      if (!rec) return;
-      if (!link) { rec.playlist = null; F.editingPlaylist = false; await dbPut(rec); render(); return; }
-      const parsed = A.music.parse(link);
-      if (parsed.error) { toast(parsed.error); form.elements.link.focus(); return; }
-      rec.playlist = { link };
-      F.editingPlaylist = false;
-      await dbPut(rec);
-      render();
-      toast('Playlist salva nesta ficha.');
+      if (sel) { F.currentId = sel.value; store.set('principia_ficha_atual', sel.value); render(); bodyEl.scrollTop = 0; }
     });
     bodyEl.addEventListener('click', async e => {
       const t = e.target;
@@ -654,15 +629,6 @@
       const ruleBtn = t.closest('[data-fx-rule]');
       if (ruleBtn) { const [page, anchor] = ruleBtn.dataset.fxRule.split('|'); A.openBeside(page, anchor || null); return; }
       if (t.closest('[data-fx-retry]')) { F.modelError = null; render(); ensureModel(); return; }
-      if (t.closest('[data-fx-pl-edit]')) { F.editingPlaylist = true; render(); bodyEl.querySelector('[data-fx-pl-form] input')?.focus(); return; }
-      if (t.closest('[data-fx-pl-cancel]')) { F.editingPlaylist = false; render(); return; }
-      if (t.closest('[data-fx-play]')) {
-        const rec = current();
-        if (!rec?.playlist?.link) return;
-        const res = A.music.play(rec.playlist.link, rec.name);
-        toast(res.error ? res.error : `Playlist de ${rec.name} carregada no app Música. Aperte o play do Spotify.`);
-        return;
-      }
       if (t.closest('[data-fx-remove]')) {
         const rec = current();
         if (!rec) return;
