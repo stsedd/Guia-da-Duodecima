@@ -170,15 +170,55 @@
 
   /* Um tema por modo em todas as abas (pedido da Staff): sem faixas alternadas de papel.
      Os capítulos continuam abrindo com o letreiro, agora nas cores do tema. */
+  const chapterObserver = 'IntersectionObserver' in window
+    ? new IntersectionObserver(entries => {
+        for (const entry of entries) entry.target.classList.toggle('is-visible', entry.isIntersecting);
+      }, { root: document.getElementById('osScroller') })
+    : null;
+  const observedChapters = new Set();
   function tones(k) {
-    const sections = topSections();
-    sections.forEach(s => s.classList.remove('pg-paper', 'pg-chapter-start'));
-    const chapters = (P.api?.chapters?.() || {})[k];
-    if (!chapters) return;
-    for (const s of sections) {
-      if (!chapters[s.id]) continue;
-      s.classList.add('pg-chapter-start');
-      s.dataset.pgChapter = chapters[s.id];
+    const chapters = (P.api?.chapters?.() || {})[k] || {};
+    for (const el of observedChapters) {
+      if (!el.isConnected || !content.contains(el)) {
+        chapterObserver?.unobserve(el);
+        observedChapters.delete(el);
+      }
+    }
+    for (const s of topSections()) {
+      const label = chapters[s.id];
+      s.classList.remove('pg-paper');
+      s.classList.toggle('pg-chapter-start', !!label);
+      let marquee = s.querySelector(':scope > .pg-chapter-marquee');
+      if (!label) {
+        if (marquee) { chapterObserver?.unobserve(marquee); observedChapters.delete(marquee); marquee.remove(); }
+        continue;
+      }
+      s.dataset.pgChapter = label;
+      if (!marquee) {
+        marquee = document.createElement('div');
+        marquee.className = 'pg-chapter-marquee';
+        marquee.setAttribute('aria-hidden', 'true');
+      }
+      if (marquee.dataset.label !== label) {
+        marquee.dataset.label = label;
+        const track = document.createElement('div');
+        track.className = 'pg-chapter-track';
+        const group = document.createElement('div');
+        group.className = 'pg-chapter-copy';
+        for (let i = 0; i < 3; i++) {
+          const word = document.createElement('span');
+          word.textContent = label + ' · ';
+          group.append(word);
+        }
+        track.append(group, group.cloneNode(true));
+        marquee.replaceChildren(track);
+      }
+      if (s.firstElementChild !== marquee) s.prepend(marquee);
+      if (!observedChapters.has(marquee)) {
+        observedChapters.add(marquee);
+        if (chapterObserver) chapterObserver.observe(marquee);
+        else marquee.classList.add('is-visible');
+      }
     }
   }
 

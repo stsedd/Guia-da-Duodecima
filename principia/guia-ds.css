@@ -162,12 +162,18 @@ html[data-theme="light"] .os-reader .os-scroller{background:var(--paper)}
 .content>section.section+section.section:not(.deity-detail){border-top:1px solid var(--rule)}
 /* Papel e capítulos sangram até a borda sem mexer na largura do texto */
 .content>section.pg-paper{border-image:linear-gradient(var(--bg) 0 0) fill 0/0/1px 100cqi}
-.content>section.section:has(>:is(.pg-band,.banner-strip:not(:empty),.rules-banner,.section-visual):first-child){padding-top:0}
-.content>section.section>:is(.pg-band,.banner-strip:not(:empty),.rules-banner,.section-visual):first-child{margin-bottom:clamp(40px,5cqi,72px)}
+.content>section.section:has(>:is(.pg-band,.banner-strip:not(:empty),.rules-banner,.section-visual):first-child,>.pg-chapter-marquee:first-child+:is(.pg-band,.banner-strip:not(:empty),.rules-banner,.section-visual)){padding-top:0}
+.content>section.section>:is(.pg-band,.banner-strip:not(:empty),.rules-banner,.section-visual):first-child,.content>section.section>.pg-chapter-marquee:first-child+:is(.pg-band,.banner-strip:not(:empty),.rules-banner,.section-visual){margin-bottom:clamp(40px,5cqi,72px)}
 .content.page-combate>section.section{padding-top:clamp(56px,8cqi,120px)}
 /* Divisor de capítulo: a palavra do capítulo em letreiro gigante vazado */
-.content>section.pg-chapter-start::before{content:attr(data-pg-chapter) "  ·  " attr(data-pg-chapter) "  ·  " attr(data-pg-chapter) "  ·  " attr(data-pg-chapter) / "";display:block;width:100cqi;margin:0 calc(50% - 50cqi) clamp(28px,4cqi,56px);padding-top:clamp(28px,4cqi,56px);overflow:hidden;white-space:nowrap;font:400 clamp(64px,12cqi,200px)/.9 var(--f-cond);text-transform:uppercase;color:transparent;-webkit-text-stroke:1.5px var(--rule-2);animation:pg-marquee 38s linear infinite}
-@keyframes pg-marquee{from{text-indent:0}to{text-indent:-60cqi}}
+.content>section.pg-chapter-start:not(:has(>.pg-chapter-marquee))::before{content:attr(data-pg-chapter) "  ·  " attr(data-pg-chapter) "  ·  " attr(data-pg-chapter) "  ·  " attr(data-pg-chapter) / "";display:block;width:100cqi;margin:0 calc(50% - 50cqi) clamp(28px,4cqi,56px);padding-top:clamp(28px,4cqi,56px);overflow:hidden;white-space:nowrap;font:400 clamp(64px,12cqi,200px)/.9 var(--f-cond);text-transform:uppercase;color:transparent;-webkit-text-stroke:1.5px var(--rule-2)}
+.content>section>.pg-chapter-marquee{display:block;width:100cqi;margin:0 calc(50% - 50cqi) clamp(28px,4cqi,56px);padding-top:clamp(28px,4cqi,56px);overflow:hidden;white-space:nowrap;font:400 clamp(64px,12cqi,200px)/.9 var(--f-cond);text-transform:uppercase;color:transparent;-webkit-text-stroke:1.5px var(--rule-2)}
+.content .pg-chapter-track{display:flex;width:max-content;animation:pg-marquee 55s linear infinite;animation-play-state:paused}
+.content .pg-chapter-marquee.is-visible .pg-chapter-track{animation-play-state:running}
+.content .pg-chapter-copy{display:flex;flex:none;min-width:100cqi;justify-content:space-around}
+.content .pg-chapter-copy>span{flex:none;padding-right:.25em}
+@keyframes pg-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media print{.content .pg-chapter-track{animation:none!important}}
 
 /* Banners das seções: arte inteira, de ponta a ponta, sem moldura */
 .content :is(.pg-band,.banner-strip:not(:empty),.rules-banner,.section-visual){position:relative;display:block;height:auto;padding:0;border:0;border-radius:0;background:var(--ink);overflow:hidden}
