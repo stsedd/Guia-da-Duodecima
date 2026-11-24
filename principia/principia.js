@@ -105,7 +105,7 @@
     minhaficha: { kind: 'win', win: 'ficha', title: 'Minha Ficha', art: ICON('ficha'), tilt: -2 },
     ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, glyph: 'book', tilt: 2 },
     imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
-    notes: { kind: 'win', win: 'notes', title: 'Notae · Bloco de notas', glyph: 'note', tilt: 0 },
+    notes: { kind: 'win', win: 'notes', title: 'Notae · Bloco de notas', short: 'Notae', glyph: 'note', tilt: 0 },
     leiame: { kind: 'win', win: 'leiame', title: 'Leia-me', glyph: 'note', tilt: -3 },
     prefs: { kind: 'win', win: 'prefs', title: 'Preferências', short: 'Ajustes', glyph: 'gear', tilt: 2 },
     sobre: { kind: 'win', win: 'sobre', title: 'Sobre', glyph: 'info', tilt: 0 },
@@ -154,8 +154,8 @@
     $$('.os-bar-btn--msg').forEach(a => { a.href = IMESSAGE_URL; });
     // Esquerda: os arquivos do Guia e os apps de uso do jogador; direita: utilitários.
     $('#osIconsLeft').innerHTML = [...PAGES, 'imessage', 'minhaficha', 'ficha'].map((k, i) => iconHTML(k, i)).join('');
-    $('#osIconsRight').innerHTML = ['leiame', 'tabularium', 'famae', 'prefs', 'mapa', 'praetorium'].map((k, i) => iconHTML(k, i + 2)).join('');
-    $('#osHomeGrid').innerHTML = [...PAGES, 'conta', 'mapa', 'tabularium', 'ficha', 'prefs', 'praetorium'].map((k, i) => iconHTML(k, i, { short: true })).join('');
+    $('#osIconsRight').innerHTML = ['leiame', 'tabularium', 'notes', 'famae', 'prefs', 'mapa', 'praetorium'].map((k, i) => iconHTML(k, i + 2)).join('');
+    $('#osHomeGrid').innerHTML = [...PAGES, 'conta', 'mapa', 'tabularium', 'notes', 'ficha', 'prefs', 'praetorium'].map((k, i) => iconHTML(k, i, { short: true })).join('');
     $('#osDock').innerHTML = ['imessage', 'minhaficha', 'famae', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
     $('#osReaderTabs').innerHTML = PAGES.map(k => `<button class="os-reader-tab" type="button" data-app="${k}" title="${esc(appTitle(k))}">${miniArt(k)}<span>${esc(shortTitle(k))}</span></button>`).join('');
     $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'famae', 'conta', 'tabularium', 'mapa', 'imessage', 'leiame', 'notes', 'praetorium'].map(k => APPS[k].kind === 'external'
@@ -359,6 +359,7 @@
     function minimize(id) {
       const w = wins[id];
       if (!w || !w.open) return;
+      if (id === 'reader') rememberMinimizedPage();
       w.open = false;
       w.minimized = true;
       w.el.classList.remove('is-open', 'is-front');
@@ -625,14 +626,16 @@
     updateRunning();
   }
 
+  const minimizedPages = new Map();
   const windowLabel = w => w.id === 'reader' ? (appTitle(currentKey || HOME)) : ({tabularium:'Tabularium', notes:'Notae', ficha:'Minha Ficha', prefs:'Preferências', leiame:'Leia-me', sobre:'Sobre', viewer:'Imagem', conta:'Minha Conta', famae:'Tabula Famae', praetorium:'Praetorium'}[w.id] || w.id);
   function updateRunning() {
-    const minimized = Object.values(WM.wins).filter(w => w.minimized);
+    const minimized = Object.values(WM.wins).filter(w => w.minimized && w.id !== 'reader');
+    const count = minimized.length + minimizedPages.size;
     const counter = $('#osMinimizedCount');
     if (counter) {
-      counter.hidden = !minimized.length;
-      counter.textContent = '▱ ' + minimized.length;
-      counter.title = minimized.length + ' janela(s) minimizada(s)';
+      counter.hidden = !count;
+      counter.textContent = '▱ ' + count;
+      counter.title = count + ' janela(s) minimizada(s)';
       counter.setAttribute('aria-label', counter.title);
     }
     const readerOpen = WM.isOpen('reader');
@@ -640,7 +643,7 @@
       const id = ic.dataset.app;
       const a = APPS[id];
       let on = false;
-      if (a?.kind === 'page') on = (readerOpen || WM.get('reader')?.minimized) && currentKey === id;
+      if (a?.kind === 'page') on = (readerOpen && currentKey === id) || minimizedPages.has(id);
       else if (a?.kind === 'win') on = WM.isOpen(a.win) || !!WM.get(a.win)?.minimized;
       ic.classList.toggle('is-running', on);
     });
@@ -664,16 +667,32 @@
   }
 
   const readingPositions = new Map();
+  function rememberMinimizedPage() {
+    const key = engineKey();
+    if (!key) return;
+    const route = parseRoute(location.hash);
+    const position = scroller.scrollTop;
+    readingPositions.set(key, position);
+    minimizedPages.set(key, { anchor: route?.key === key ? route.anchor : null, position });
+  }
+  function restoreMinimizedPage(key) {
+    const saved = minimizedPages.get(key);
+    if (!saved) return;
+    return openPage(key, null);
+  }
   async function openPage(key, anchor = null, opts = {}) {
     if (EST) ({ key, anchor } = EST.route(key, anchor));
     if (!pagesData()[key]) key = HOME;
     const previousKey = engineKey();
+    const savedPage = minimizedPages.get(key);
+    minimizedPages.delete(key);
+    if (savedPage) readingPositions.set(key, savedPage.position);
     if (previousKey && previousKey !== key && (WM.isOpen('reader') || WM.get('reader')?.minimized)) readingPositions.set(previousKey, scroller.scrollTop);
-    const restoreReading = () => { if (!anchor && previousKey !== key && readingPositions.has(key)) { const y = readingPositions.get(key); requestAnimationFrame(() => { if (engineKey() === key) scroller.scrollTop = y; }); } };
+    const restoreReading = () => { if (!anchor && (previousKey !== key || savedPage) && readingPositions.has(key)) { const y = readingPositions.get(key); requestAnimationFrame(() => { if (engineKey() === key) scroller.scrollTop = y; }); } };
     closeMenus();
     closeSpot();
     const r = WM.get('reader');
-    if (r.minimized && engineKey() === key && !anchor) { await WM.open('reader'); return; }
+    if (r.minimized && engineKey() === key && !anchor) { await WM.open('reader'); restoreReading(); return; }
     if (!r.open) {
       opening = true;
       afterRenderBusy = true;
@@ -752,7 +771,7 @@
   function onRoute() {
     const r = parseRoute(location.hash);
     if (r) {
-      if (!WM.isOpen('reader') && !opening) {
+      if (!WM.isOpen('reader') && !opening && !WM.get('reader')?.minimized) {
         setActive(r.key);
         WM.open('reader', { from: null }).then(() => { updateRunning(); if (r.anchor) scrollToAnchorSoon(r.anchor); });
         enterContent();
@@ -958,7 +977,7 @@
         <a class="os-dd-item" role="menuitem" href="${FICHA_URL}" target="_blank" rel="noopener noreferrer">${svg('ext')}Ficha Oficial<em>nova aba</em></a>`;
     }
     if (name === 'minimized') {
-      return Object.values(WM.wins).filter(w => w.minimized).map(w => `<button class="os-dd-item" type="button" role="menuitem" data-action="restore-window" data-window-id="${esc(w.id)}">${svg('open')}${esc(windowLabel(w))}</button>`).join('');
+      return [...minimizedPages.keys()].map(key => `<button class="os-dd-item" type="button" role="menuitem" data-action="restore-page" data-page-key="${esc(key)}">${svg('open')}${esc(appTitle(key))}</button>`).join('') + Object.values(WM.wins).filter(w => w.minimized && w.id !== 'reader').map(w => `<button class="os-dd-item" type="button" role="menuitem" data-action="restore-window" data-window-id="${esc(w.id)}">${svg('open')}${esc(windowLabel(w))}</button>`).join('');
     }
     if (name === 'clock') {
       const d = new Date();
@@ -1297,6 +1316,7 @@
       else if (action === 'back') history.back();
       else if (action === 'forward') history.forward();
       else if (action === 'desktop') { for (const w of Object.values(WM.wins)) if (w.open) WM.minimize(w.id); }
+      else if (action === 'restore-page') restoreMinimizedPage(act.dataset.pageKey);
       else if (action === 'restore-window') { const id = act.dataset.windowId; if (WM.get(id)?.minimized) WM.open(id); }
       else if (action === 'reboot') reboot();
       else if (action === 'reset-windows') WM.reset();
@@ -1525,8 +1545,11 @@
   }
 
   async function reboot() {
+    minimizedPages.clear();
     for (const w of Object.values(WM.wins)) if (w.open && w.id !== 'reader') WM.close(w.id);
     await closeReader();
+    for (const w of Object.values(WM.wins)) w.minimized = false;
+    updateRunning();
     if (!bootEl) return;
     desktop.classList.remove('is-ready');
     html.dataset.boot = store.get('principia_boot', 'on') === 'off' ? 'short' : 'full';

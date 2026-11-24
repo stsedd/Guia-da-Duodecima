@@ -827,3 +827,8 @@ html[data-motion="reduce"] .os-reader .content .os-reveal{opacity:1;transform:no
 .os-cal-grid strong{color:var(--os-win-muted);font-size:10px}
 .os-cal-grid .is-today{background:var(--os-red);color:#fff;font-weight:700}
 @media(max-width:759px){.os-minimized-count{height:24px;padding:0 4px;color:#fff}.os-notes .os-wbtn--min{display:grid}.os-notes-body{padding:14px}}
+
+/* Moldura única para todos os aplicativos atuais e futuros; preserva rotação e motion. */
+.os-icons,.os-home-grid,.os-dock{--os-app-icon-size:64px;--os-app-icon-radius:15px}
+.os-ico>.os-ico-art{box-sizing:border-box;flex:0 0 var(--os-app-icon-size,64px);width:var(--os-app-icon-size,64px);height:var(--os-app-icon-size,64px);min-width:var(--os-app-icon-size,64px);min-height:var(--os-app-icon-size,64px);max-width:var(--os-app-icon-size,64px);max-height:var(--os-app-icon-size,64px);aspect-ratio:1/1;border-radius:var(--os-app-icon-radius,15px);border-width:3px;background-size:cover}
+.os-ico>.os-ico-art--phone>svg{width:42px;height:42px}
