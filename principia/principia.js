@@ -748,7 +748,35 @@
       if (label && label !== a.textContent.trim()) { a.title = a.textContent.trim(); a.textContent = label; }
     }
   }
-  new MutationObserver(() => { relabelSectionNav(); updateCrumb(); }).observe($('#sectionNav'), { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+  /* Capítulos do painel "Nesta página": agrupam as seções longas sem mudar a ordem nem os links.
+     A chave é o id da primeira seção de cada capítulo. */
+  const NAV_CHAPTERS = {
+    sistema: { poderes: 'Personagem', criacao: 'Mecânicas', hierarquia: 'Roma', familiares: 'Outros sistemas' },
+    combate: { rolagens: 'Rolagens e turno', furtividade: 'Situações de combate', condicoes: 'Estados e morte' },
+    magia: { introducao: 'Fundamentos', circulos: 'Círculos e conjuração', rituais: 'Práticas arcanas', 'alta-magia': 'Limites' },
+    roma: { 'situacao-atual-roma': 'Agora', 'casa-lobo': 'Trajetória', 'mapa-acampamento': 'O Acampamento', estrangeiros: 'Além de Roma', liderancas: 'Roma hoje', 'juramentos-orcus': 'Religio' }
+  };
+  function groupSectionNav() {
+    const nav = $('#sectionNav');
+    const map = NAV_CHAPTERS[engineKey()];
+    const links = $$('#sectionNav a[data-section-id]');
+    const stamp = engineKey() + ':' + links.length;
+    const wanted = !!map && links.length >= 6;
+    if (nav.dataset.osGroups === stamp && (!wanted || nav.querySelector('.os-secnav-group'))) return;
+    nav.querySelectorAll('.os-secnav-group').forEach(g => g.remove());
+    nav.dataset.osGroups = stamp;
+    if (!wanted) return;
+    for (const a of links) {
+      const label = map[a.dataset.sectionId];
+      if (!label) continue;
+      const g = document.createElement('div');
+      g.className = 'os-secnav-group';
+      g.setAttribute('role', 'presentation');
+      g.textContent = label;
+      a.before(g);
+    }
+  }
+  new MutationObserver(() => { relabelSectionNav(); groupSectionNav(); updateCrumb(); }).observe($('#sectionNav'), { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
 
   function updateSections() {
     const n = $$('#sectionNav a[data-section-id]').length;
@@ -1072,7 +1100,7 @@
     if (win === 'sobre') renderAbout();
     if (win === 'prefs') syncPrefs();
     if (win === 'leiame') store.set('principia_seen', '1');
-    if (win === 'musica') { renderMusic(); const it = currentTrack(); if (it) playerFor(it, false); }
+    if (win === 'musica') { renderMusic(); const it = currentTrack(); if (it) playerFor(it); }
     try { P.hooks?.[win]?.open?.(); } catch (err) { console.warn('[Principia]', err); }
     await WM.open(win, { from });
     updateRunning();
@@ -1126,9 +1154,13 @@
   const musicEls = {
     form: $('#osMusicForm'), url: $('#osMusicUrl'), label: $('#osMusicLabel'), msg: $('#osMusicMsg'),
     list: $('#osMusicList'), player: $('#osMusicPlayer'), host: $('#osMusicEmbed'),
-    np: $('#osNp'), npLabel: $('#osNpLabel'), npToggle: $('#osNpToggle')
+    np: $('#osNp'), npLabel: $('#osNpLabel'), npToggle: $('#osNpToggle'), npPreview: $('#osNpPreview'),
+    preview: $('#osMusicPreview'), openApp: $('#osMusicOpenApp')
   };
-  const music = { items: [], current: null, controller: null, frame: null, pending: null, apiPromise: null, playing: false, loadedUri: null, wanted: null };
+  const music = { items: [], current: null, controller: null, frame: null, pending: null, apiPromise: null, playing: false, loadedUri: null, wanted: null, preview: false };
+  /* Prévias do Spotify duram 30 s. Faixas reais tão curtas são raras, então uma duração
+     de até 31 s é tratada como prévia, e qualquer faixa mais longa desfaz o aviso. */
+  const PREVIEW_MAX_MS = 31000;
   const trackKey = it => `${it.type}:${it.sid}`;
   const trackUri = it => `spotify:${it.type}:${it.sid}`;
   const trackLabel = it => it.label || MUSIC_TYPES[it.type] || 'Spotify';
@@ -1157,9 +1189,25 @@
   function setPlaying(on) {
     music.playing = !!on;
     html.dataset.music = music.current ? (on ? 'playing' : 'paused') : 'off';
-    const label = on ? 'Pausar' : 'Tocar';
+    const label = on ? (music.preview ? 'Pausar (prévia de 30 s)' : 'Pausar') : 'Tocar no player do Spotify';
     musicEls.npToggle.setAttribute('aria-label', label);
     musicEls.npToggle.title = label;
+  }
+
+  /* Nunca apresenta prévia como reprodução completa: selo na barra e explicação na janela. */
+  function setPreview(on) {
+    on = !!on && !!currentTrack();
+    if (music.preview === on) return;
+    music.preview = on;
+    musicEls.npPreview.hidden = !on;
+    musicEls.preview.hidden = !on;
+    setPlaying(music.playing);
+  }
+  function onPlaybackUpdate(e) {
+    const d = (e && e.data) || {};
+    setPlaying(!d.isPaused);
+    const it = currentTrack();
+    if (it && it.type !== 'episode' && it.type !== 'show' && d.duration > 0) setPreview(d.duration <= PREVIEW_MAX_MS);
   }
 
   function loadSpotifyApi() {
@@ -1194,15 +1242,17 @@
     music.frame = f;
   }
 
-  /* O player é criado uma única vez; depois só troca o que está tocando. */
-  async function playerFor(it, autoplay) {
+  /* O player é criado uma única vez; depois só troca o que está carregado.
+     O play é sempre do próprio player do Spotify: o play disparado por código pode
+     cair no modo de prévia mesmo para quem está conectado. */
+  async function playerFor(it) {
     if (!it) return;
     musicEls.player.hidden = false;
-    music.wanted = { it, autoplay };
+    musicEls.openApp.href = `https://open.spotify.com/${it.type}/${it.sid}`;
+    music.wanted = { it };
     if (music.controller) {
       const uri = trackUri(it);
-      if (music.loadedUri !== uri) { music.controller.loadUri(uri); music.loadedUri = uri; }
-      if (autoplay) setTimeout(() => { try { music.controller.play(); } catch {} }, music.loadedUri === uri ? 0 : 600);
+      if (music.loadedUri !== uri) { music.controller.loadUri(uri); music.loadedUri = uri; setPreview(false); }
       return;
     }
     if (music.frame) {
@@ -1220,14 +1270,13 @@
           api.createController(el, { uri: trackUri(first), width: '100%', height: 352 }, ctrl => {
             music.controller = ctrl;
             music.loadedUri = trackUri(first);
-            ctrl.addListener('playback_update', e => setPlaying(!(e && e.data && e.data.isPaused)));
+            ctrl.addListener('playback_update', onPlaybackUpdate);
             ctrl.addListener('ready', () => resolve());
             setTimeout(resolve, 5000);
           });
         });
         const want = music.wanted;
         if (want && trackUri(want.it) !== music.loadedUri) { music.controller.loadUri(trackUri(want.it)); music.loadedUri = trackUri(want.it); }
-        if (want && want.autoplay) { try { music.controller.play(); } catch {} }
       } catch (err) {
         console.warn('[Principia] API do Spotify indisponível; usando o player simples.', err);
         mountFallbackFrame(music.wanted.it);
@@ -1260,8 +1309,13 @@
   function updateNowPlaying() {
     const it = currentTrack();
     musicEls.np.hidden = !it;
-    if (it) musicEls.npLabel.textContent = trackLabel(it);
-    if (!it) musicEls.player.hidden = true;
+    if (it) {
+      musicEls.npLabel.textContent = trackLabel(it);
+      musicEls.openApp.href = `https://open.spotify.com/${it.type}/${it.sid}`;
+    } else {
+      musicEls.player.hidden = true;
+      setPreview(false);
+    }
     setPlaying(it ? music.playing : false);
   }
 
@@ -1285,9 +1339,9 @@
     saveMusic();
     musicEls.form.reset();
     msg.classList.remove('is-error');
-    msg.textContent = existing ? 'Esse link já estava salvo; selecionei de novo.' : 'Salvo neste navegador. Aperte o play no player abaixo.';
+    msg.textContent = existing ? 'Esse link já estava salvo; carreguei de novo no player.' : 'Salvo neste navegador. Aperte o play no player do Spotify abaixo.';
     renderMusic();
-    playerFor(currentTrack(), true);
+    playerFor(currentTrack());
   });
 
   musicEls.list.addEventListener('click', e => {
@@ -1296,7 +1350,9 @@
       music.current = play.dataset.musicPlay;
       saveMusic();
       renderMusic();
-      playerFor(currentTrack(), true);
+      playerFor(currentTrack());
+      musicEls.msg.classList.remove('is-error');
+      musicEls.msg.textContent = 'Carregada no player. Aperte o play do Spotify para ouvir.';
       return;
     }
     const del = e.target.closest('[data-music-del]');
@@ -1319,9 +1375,12 @@
     e.stopPropagation();
     const it = currentTrack();
     if (!it) return;
-    if (music.controller) { try { music.controller.togglePlay(); } catch {} return; }
-    if (music.frame) { openUtil('musica', null); return; }
-    await playerFor(it, true);
+    /* Pausar pela barra é seguro; para tocar, a pessoa usa o play do próprio player. */
+    if (music.controller && music.playing) { try { music.controller.pause(); } catch {} return; }
+    openUtil('musica', null);
+    await playerFor(it);
+    musicEls.msg.classList.remove('is-error');
+    musicEls.msg.textContent = 'Aperte o play no player do Spotify para continuar.';
   });
 
   /* Toca um link do Spotify vindo de outro app (ex.: a playlist salva na ficha). */
@@ -1335,7 +1394,10 @@
     music.current = k;
     saveMusic();
     renderMusic();
-    playerFor(it, true);
+    openUtil('musica', null);
+    playerFor(it);
+    musicEls.msg.classList.remove('is-error');
+    musicEls.msg.textContent = 'Carregada no player. Aperte o play do Spotify para ouvir.';
     return { ok: true, label: trackLabel(it) };
   }
 
@@ -1586,6 +1648,24 @@
     endBoot();
   }
 
+  /* Páginas registradas só depois do Core (ex.: Combate, criada por guide-rules-v26.js):
+     o motor não as reconhece na primeira leitura do link e cai no Sistema. Quando a página
+     passa a existir, e se a pessoa ainda não navegou, a Principia abre o destino original. */
+  async function resumeLatePage(initial) {
+    const h = P.initialHash || '';
+    if (!h.startsWith('#page:')) return;
+    const [rawKey, ...rest] = h.slice(6).split(':');
+    const rawAnchor = rest.join(':') || null;
+    if (!rawKey || rawKey === initial.key) return;
+    await Promise.allSettled([window.DUODECIMA_CORE_READY, window.DUODECIMA_GUIDE_RULES_READY]);
+    await wait(60);
+    if (!pagesData()[rawKey]) return;
+    const stillOnFallback = engineKey() === initial.key && (location.hash || '').startsWith('#page:' + initial.key);
+    if (!stillOnFallback) return;
+    engineGo(rawKey, rawAnchor);
+    if (rawAnchor) scrollToAnchorSoon(rawAnchor);
+  }
+
   async function init() {
     renderShell();
     const initial = parseRoute(P.initialHash);
@@ -1606,6 +1686,7 @@
       updateRunning();
       enterContent();
       if (initial.anchor) scrollToAnchorSoon(initial.anchor);
+      resumeLatePage(initial);
       return;
     }
     if (!store.get('principia_seen') && !isMobile() && innerWidth >= 1100) {

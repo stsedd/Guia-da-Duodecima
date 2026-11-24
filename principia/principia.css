@@ -291,6 +291,10 @@ html[data-theme="light"] .os-side-title span{color:#8a6528}
 .os-secnav a.active::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:3px;background:var(--os-red-hi);box-shadow:0 0 8px rgba(211,17,42,.55)}
 .os-secnav a.active::after{color:var(--os-red-hi);opacity:1}
 .os-secnav .sidebar-divider{height:1px;margin:8px 10px;background:var(--os-win-line)}
+.os-secnav .os-secnav-group{display:flex;align-items:center;gap:8px;margin:12px 0 3px;padding:0 10px;font:600 9px/1.2 var(--os-font-roman);letter-spacing:.2em;text-transform:uppercase;color:var(--os-gold)}
+.os-secnav .os-secnav-group::after{content:"";flex:1;height:1px;background:var(--os-win-line)}
+.os-secnav .os-secnav-group:first-child{margin-top:2px}
+html[data-theme="light"] .os-secnav .os-secnav-group{color:#8a6528}
 .os-side-cta{position:relative;display:block;margin-top:auto;padding:14px 14px 13px;border-radius:12px;text-decoration:none;color:#fff;background:linear-gradient(150deg,#c0101f,#7a0008 70%);box-shadow:0 10px 24px rgba(120,0,10,.28);overflow:hidden;transition:transform .25s var(--os-spring)}
 .os-side-cta::after{content:"";position:absolute;right:-26px;bottom:-30px;width:110px;height:110px;background:url('../assets/principia/brand/mark-white-128.webp') center/contain no-repeat;opacity:.13;transform:rotate(-12deg)}
 .os-side-cta:hover{transform:translateY(-2px)}
@@ -607,6 +611,18 @@ html[data-music="playing"] .os-track.is-current .os-track-disc{animation:os-spin
 .os-track-btn .os-svg{width:16px;height:16px}
 .os-music-empty{margin:0;padding:18px 14px;border-radius:12px;border:1px dashed var(--os-win-line);text-align:center;font:500 13px/1.5 var(--os-font-ui);color:var(--os-win-muted)}
 .os-music-note{margin:0;font:500 11.5px/1.5 var(--os-font-ui);color:var(--os-win-muted)}
+/* Aviso de prévia: aparece quando o player do Spotify entrega faixas de 30 segundos */
+.os-music-preview{display:grid;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(224,161,69,.45);background:rgba(224,161,69,.09);font:500 12.5px/1.5 var(--os-font-ui);color:var(--os-win-ink)}
+.os-music-preview[hidden]{display:none}
+.os-music-preview b{font-weight:700}
+.os-music-preview p{margin:0;color:var(--os-win-muted)}
+.os-music-preview ul{margin:0;padding-left:18px;color:var(--os-win-muted)}
+.os-music-preview li{margin:2px 0}
+.os-music-preview-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.os-music-preview-actions .os-btn{text-decoration:none}
+.os-music-preview-tag,.os-np-preview{display:inline-block;padding:3px 6px;border-radius:5px;background:#e0a145;color:#1d1406;font:800 9px/1 var(--os-font-ui);letter-spacing:.12em;text-transform:uppercase;vertical-align:1px}
+.os-np-preview[hidden]{display:none}
+.os-np-preview{margin-left:2px;flex:none}
 
 /* Visualizador de imagens */
 .os-viewer .os-win-body{position:relative;background:#0a0708;overflow:hidden;cursor:zoom-in}

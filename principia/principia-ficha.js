@@ -660,7 +660,7 @@
         const rec = current();
         if (!rec?.playlist?.link) return;
         const res = A.music.play(rec.playlist.link, rec.name);
-        toast(res.error ? res.error : `Tocando a playlist de ${rec.name}. Pause pela barra superior.`);
+        toast(res.error ? res.error : `Playlist de ${rec.name} carregada no app Música. Aperte o play do Spotify.`);
         return;
       }
       if (t.closest('[data-fx-remove]')) {

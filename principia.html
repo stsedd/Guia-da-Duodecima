@@ -39,22 +39,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap">
-  <!-- Mesmas folhas de estilo do index.html: o conteúdo do Guia continua idêntico. -->
-  <link rel="stylesheet" href="styles-v24.css?v=2.6.11">
-  <link rel="stylesheet" href="guide-rules-v26.css?v=2.6.11">
-  <link rel="stylesheet" href="guide-layout-v261.css?v=2.6.11">
-  <link rel="stylesheet" href="guide-visual-v253.css?v=2.6.11">
-  <link rel="stylesheet" href="guide-nazzano-integrated.css?v=20261024">
-  <link rel="stylesheet" href="guide-nazzano-v270.css?v=2.7.0-p0">
-  <link rel="stylesheet" href="guide-visual-alignment-v271.css?v=2.7.1">
-  <link rel="stylesheet" href="guide-visual-grid-v272.css?v=2.7.2">
-  <link rel="stylesheet" href="guide-editorial-v273.css?v=2.7.8">
-  <link rel="stylesheet" href="guide-domus-v275.css?v=2.7.10">
-  <link rel="stylesheet" href="guide-integrity-v276.css?v=2.7.8">
-  <link rel="stylesheet" href="guide-magic-v279.css?v=2.7.10">
-  <link rel="stylesheet" href="guide-magic-complete-v280.css?v=2.8.0">
+  <!-- Design system do Guia: uma folha única no lugar das 13 camadas legadas do index.html.
+       O HTML do conteúdo continua vindo do mesmo motor; só a apresentação muda. -->
+  <link rel="stylesheet" href="principia/guia-ds.css?v=2.0.0">
+  <!-- Duas camadas do motor injetam CSS próprio; estes marcadores (vazios) fazem com que elas
+       pulem a injeção, porque o design system já cobre esses blocos. -->
+  <style id="guide-stabilization-v251-styles"></style>
+  <style id="lineage-core-v25-styles"></style>
   <!-- Camada Principia (interface de terminal). -->
-  <link rel="stylesheet" href="principia/principia.css?v=1.0.0">
+  <link rel="stylesheet" href="principia/principia.css?v=2.0.0">
 </head>
 <body class="os-body">
 <a class="skip-link" href="#content">Pular para o conteúdo</a>
@@ -103,6 +96,7 @@
         <button class="os-np-open" type="button" data-app="musica" title="Abrir Música">
           <span class="os-eq" aria-hidden="true"><i></i><i></i><i></i></span>
           <span class="os-np-label" id="osNpLabel"></span>
+          <span class="os-np-preview" id="osNpPreview" hidden title="O Spotify está tocando prévias de 30 segundos">Prévia</span>
         </button>
         <button class="os-np-toggle" type="button" id="osNpToggle" aria-label="Tocar" title="Tocar">
           <svg class="os-svg os-np-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
@@ -333,8 +327,20 @@
           <p class="os-music-msg" id="osMusicMsg" role="status" aria-live="polite"></p>
         </form>
         <div class="os-music-player" id="osMusicPlayer" hidden><div id="osMusicEmbed"></div></div>
+        <div class="os-music-preview" id="osMusicPreview" role="status" hidden>
+          <b><span class="os-music-preview-tag">Prévia</span> O Spotify está tocando só 30 segundos de cada faixa.</b>
+          <p>Isso não é um erro da Principia: o player oficial do Spotify só libera as faixas completas para quem está conectado ao Spotify neste navegador. Sem essa sessão, ele toca uma prévia e pula para a próxima música.</p>
+          <ul>
+            <li>Entre na sua conta em open.spotify.com neste mesmo navegador e recarregue a Principia.</li>
+            <li>No celular, o caminho mais confiável é abrir a playlist no app do Spotify.</li>
+          </ul>
+          <div class="os-music-preview-actions">
+            <a class="os-btn os-btn--primary" id="osMusicOpenApp" href="https://open.spotify.com/" target="_blank" rel="noopener noreferrer">Abrir no Spotify</a>
+            <a class="os-btn" href="https://accounts.spotify.com/login" target="_blank" rel="noopener noreferrer">Entrar no Spotify</a>
+          </div>
+        </div>
         <div class="os-music-list" id="osMusicList" role="list" aria-label="Playlists salvas"></div>
-        <p class="os-music-note">Quem está logado no Spotify neste navegador ouve as faixas completas; sem login, o Spotify toca prévias de 30 segundos. Os links ficam salvos só neste navegador. Fechar a janela não para a música: use o botão de pausa na barra superior.</p>
+        <p class="os-music-note">O player é o oficial do Spotify. Com a sua conta do Spotify conectada neste navegador, ele toca as faixas completas; sem ela, toca prévias de 30 segundos e a Principia avisa com o selo <b>Prévia</b>. Os links ficam salvos só neste navegador. Fechar a janela não para a música: use o botão de pausa na barra superior.</p>
       </div>
     </div>
     <div class="os-resize" data-resize aria-hidden="true"></div>
@@ -414,7 +420,7 @@
 <script src="core-bridge-v24.js?v=2.8.0"></script>
 <script src="lineage-core-v25.js?v=2.6.11"></script>
 <script src="lineage-label-fix-v265.js?v=2.6.11"></script>
-<script src="guide-stabilization-v251.js?v=2.6.11"></script>
+<script src="guide-stabilization-v251.js?v=2.6.12"></script>
 <script src="guide-rules-v26.js?v=2.6.11"></script>
 <script src="guide-talents-v2611.js?v=2.6.11"></script>
 <script>
@@ -447,8 +453,8 @@
 <script src="guide-editorial-v273.js?v=2.7.8"></script>
 
 <!-- Camada Principia: área de trabalho, janelas, busca e celular. -->
-<script src="principia/principia.js?v=1.0.0"></script>
+<script src="principia/principia.js?v=2.0.0"></script>
 <!-- Minha Ficha (prévia de teste): lê o JSON exportado pela Ficha Oficial, sem alterá-la. -->
-<script src="principia/principia-ficha.js?v=1.0.0"></script>
+<script src="principia/principia-ficha.js?v=2.0.0"></script>
 </body>
 </html>
