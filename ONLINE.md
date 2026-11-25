@@ -11,7 +11,8 @@ Tudo de graça: Supabase no plano Free (sem cartão), login pelo Discord e autom
 - Site URL e redirect permitido no Supabase: `https://stsedd.github.io/Guia-da-Duodecima/principia.html`.
 - A validação do link de fama verifica formato, servidor e duplicidade; não lê o conteúdo da mensagem nem atesta o valor lançado.
 - O perfil passa a usar identidade confirmada pela API do Discord, não metadados editáveis do usuário.
-- **Pendente (25/11/2026): rodar de novo o `supabase/schema.sql`** para ligar a ficha na conta (ver "Atualização: ficha na conta" abaixo). Até lá, a Minha Ficha continua salvando só no navegador, sem erro.
+- **Ficha na conta ativada em 25/11/2026** (migração `duodecima_ficha_na_conta`, aplicada pelo conector do Supabase): colunas, versões, função de salvar, bucket privado `fichas` e permissões conferidos no banco real; contas e personagens intactos.
+- Ainda sem Dono: o passo 7 (virar dono) continua pendente.
 
 ## O que já está pronto no site
 
