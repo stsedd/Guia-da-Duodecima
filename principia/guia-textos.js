@@ -4,7 +4,7 @@
    veio (data-fonte, não aparece para o jogador).
 
    Divergências da seção 8 do relatório de auditoria, decididas pela Staff em 25/11/2026:
-   13 · penalidade cumulativa de −2 ao voltar de 0 HP: aguardando confirmação do sentido da resposta;
+   13 · penalidade cumulativa de −2 ao voltar de 0 HP: segue removida, como no Core (frase em Morte & vida);
    14 · Energia em 50%: −1 só nas rolagens de d20 (como no site e no Core);
    15 · custo de ritual: vale a tabela (o exemplo do documento era erro de digitação);
    16 · runas: condutor cristal, cinzas ou água; runa superior com +1d4 ou +1d6 (abaixo);
@@ -195,7 +195,7 @@
   T.push({ page: 'combate', id: 'morte', fonte: M('§1 Morte & vida'), replace: `
 <article class="paper-card feature"><h3>Testes contra a morte</h3>
 <p>Sempre que um semideus começa o turno com 0 de HP, faz um teste especial de resistência contra a morte, para saber se se aproxima dos domínios de Mors e Dis Pater ou se se agarra à vida. Esse teste não está ligado a nenhum atributo: o semideus está nas mãos do Destino e, às vezes, dos aliados, ajudado só por habilidades que aumentem suas chances.</p>
-<p>Role <strong>1d20</strong>: <strong>10 ou mais</strong> é sucesso; abaixo disso, falha. O que conta é o acúmulo: no <strong>terceiro sucesso</strong>, o personagem se estabiliza; na <strong>terceira falha</strong>, morre. Sucessos e falhas não precisam ser seguidos – anote os dois até chegar a três iguais. A contagem zera quando o personagem recupera HP ou se estabiliza.</p></article>
+<p>Role <strong>1d20</strong>: <strong>10 ou mais</strong> é sucesso; abaixo disso, falha. O que conta é o acúmulo: no <strong>terceiro sucesso</strong>, o personagem se estabiliza; na <strong>terceira falha</strong>, morre. Sucessos e falhas não precisam ser seguidos – anote os dois até chegar a três iguais. A contagem zera quando o personagem recupera HP ou se estabiliza. Voltar de 0 HP não deixa <strong>nenhuma penalidade cumulativa</strong> nas rolagens.</p></article>
 <div class="grid two">
 <article class="paper-card"><h3>1 ou 20 natural</h3><p>Um <strong>1</strong> conta como duas falhas. Um <strong>20</strong> devolve 1 HP, e o personagem pode agir no turno.</p></article>
 <article class="paper-card"><h3>Dano com 0 de HP</h3><p>Qualquer dano sofrido com 0 de HP é uma falha automática. Se vier de um acerto crítico, são duas falhas.</p></article>
