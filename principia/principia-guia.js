@@ -97,7 +97,7 @@
     const f = document.createElement('figure');
     f.className = cls;
     f.setAttribute('aria-hidden', 'true');
-    f.innerHTML = `<img src="${src}" alt="" decoding="async" ${extra}>`;
+    f.innerHTML = `<img src="${src}" alt="" loading="lazy" decoding="async" ${extra}>`;
     return f;
   }
 
@@ -113,8 +113,8 @@
     el.setAttribute('aria-hidden', 'true');
     if (c.title) el.dataset.title = c.title;
     el.innerHTML = c.frieze
-      ? c.frieze.map(n => `<img src="${hq(n)}" alt="" decoding="async">`).join('')
-      : `<img src="${hq(c.img)}" alt="" decoding="async" fetchpriority="high">`;
+      ? c.frieze.map(n => `<img src="${hq(n)}" alt="" loading="lazy" decoding="async">`).join('')
+      : `<img src="${hq(c.img)}" alt="" loading="lazy" decoding="async" fetchpriority="high">`;
     content.prepend(el);
   }
 

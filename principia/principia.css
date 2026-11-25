@@ -771,3 +771,7 @@ html[data-motion="reduce"] .os-reader .content .os-reveal{opacity:1;transform:no
 /* Desempenho: sem desfoque de fundo nos nomes dos ícones (a paralaxe do papel de parede obrigava o
    navegador a refazer ~20 desfoques a cada movimento do mouse); fundo sólido com a mesma leitura. */
 .os-icons .os-ico-label{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(28,6,9,.64)}
+/* Barra de cima: o selo do Core vira só um ponto de status (verde = Core; amarelo = cópia local);
+   o detalhe fica no título do selo e na janela Sobre. */
+.os-bar .core-status{padding:0 7px!important;gap:0;border-color:transparent!important;background:transparent!important}
+.os-bar .core-status span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

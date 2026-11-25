@@ -435,3 +435,7 @@ html[data-theme="light"] .os-ficha{--fg-gold:#a77a1e;--fg-ok:#2f8a46;--fg-warn:#
 @media (prefers-reduced-motion:reduce){
   .fg *,.fg *::before,.fg *::after,.fg-drawer,.fg-dialog-box{animation:none!important;transition:none!important}
 }
+/* Aviso para guardar a ficha na conta (uma vez por ficha) */
+.fg-aviso-conta{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;padding:10px 16px;border-bottom:1px solid var(--os-win-line);background:color-mix(in srgb,var(--fg-accent) 9%,var(--os-win-bg));font:500 13px/1.4 Inter,sans-serif}
+.fg-aviso-conta>span:first-child{flex:1;min-width:220px}
+.fg-aviso-conta-acoes{display:flex;gap:6px}

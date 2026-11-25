@@ -87,7 +87,11 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
 ## Recursos
 
 - **Inicialização:** tela de terminal com a marca da legião e um registro real do carregamento (arquivos, versão do Core, registros de busca). Toque ou qualquer tecla pula. Roda completa uma vez por sessão; links diretos abrem com a versão curta.
-- **Área de trabalho:** ícones dos 7 arquivos à esquerda e utilitários à direita (Tabularium, Mapas, Ficha Oficial, Leia-me, Preferências), papel de parede com paralaxe e relógio com a data no calendário romano.
+- **Área de trabalho:** ícones dos 7 arquivos à esquerda e utilitários à direita (Tabularium, Notae, Tabula Famae, Mapas, Praetorium), papel de parede com paralaxe e relógio com a data no calendário romano.
+  - A Ficha Oficial saiu da área de trabalho; segue no menu do símbolo como "Ficha Oficial (antiga)".
+  - **Criar ficha**, na barra de cima, abre a Minha Ficha já na criação de personagem.
+  - **Mapas** abre um menu com os três mapas e a página do Acampamento.
+  - Janelas minimizadas viram botões com o nome na barra de baixo. A **Notae** guarda vários cadernos e notas autoadesivas.
 - **Janela do arquivo:** abas para alternar entre as páginas, caminho com a seção atual, painel "Nesta página", barra de progresso de leitura, botão de copiar link da seção e barra de status com o selo do Core. Pode ser movida, redimensionada, maximizada e minimizada.
 - **Menus da barra superior:** cada menu lista todas as seções do arquivo; o de Deuses lista os grupos do panteão e cada divindade.
 - **Busca:** `Ctrl K`, `⌘ K` ou `/` abrem a busca do Guia em formato Spotlight.
@@ -95,7 +99,7 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
 - **Visualizador de imagens:** mapas e retratos abrem ampliados em janela própria.
 - **Preferências:** tema Noite/Dia (o mesmo do site atual), quatro papéis de parede, reduzir animações e ligar/desligar a inicialização.
 - **iMessage:** ícone de celular na área de trabalho, no dock do celular e na barra superior, que abre o canal do iMessage no Discord. No celular, o link abre direto no app do Discord. O endereço do canal fica só em `IMESSAGE_URL`, no `principia/principia.js`.
-- **Minha Ficha:** a ficha completa dentro da Principia, com o visual novo. Abas **Visão geral** (atributos, rolagens, perícias, mão de cartas, estado, evolução e talentos), **Poderes** (baralho de habilidades com estacas, usos, escolhas e arte própria), **Arsenal** (cartas de armas, armadura, escudo e itens com moldura do metal, biblioteca do Core e bolsa), **Magia**, **Companheiros**, **Roma** e **Diário**, além da criação de personagem passo a passo. As contas são as da Ficha Oficial: o `motor.js` é cópia literal das funções de regra dela, e os números foram conferidos lado a lado (Legado Composto, Legado Direto com Rebento e mortal com magia e exaustão: HP, Energia, Defesa, DT, conjuração, atributos e as 26 perícias iguais). O painel mostra o atributo já com a penalidade de sanidade (o valor das rolagens) e indica a penalidade embaixo; a Ficha Oficial mostra o valor sem ela.
+- **Minha Ficha:** a ficha completa dentro da Principia, com o visual novo. Abas **Visão geral** (atributos, rolagens com botão de copiar para o Discord, perícias, mão de cartas e estado), **Evolução** (pontos de nível e talentos; o selo da aba mostra o que falta distribuir), **Poderes** (baralho de habilidades com estacas, usos, escolhas e arte própria), **Arsenal** (cartas de armas, armadura, escudo e itens com moldura do metal, biblioteca do Core e bolsa), **Magia**, **Companheiros**, **Roma** e **Diário**, além da criação de personagem passo a passo. As contas são as da Ficha Oficial: o `motor.js` é cópia literal das funções de regra dela, e os números foram conferidos lado a lado (Legado Composto, Legado Direto com Rebento e mortal com magia e exaustão: HP, Energia, Defesa, DT, conjuração, atributos e as 26 perícias iguais). O painel mostra o atributo já com a penalidade de sanidade (o valor das rolagens) e indica a penalidade embaixo; a Ficha Oficial mostra o valor sem ela.
   - **JSON antigo:** **Importar JSON**, arrastar o arquivo para a janela ou **Trazer da Ficha Oficial** (lê as fichas salvas no mesmo navegador, sem alterá-las). Arquivos de versões antigas passam pelo `migrate()` da Ficha Oficial e cada campo vai para o lugar certo. **Exportar** gera o mesmo formato, que a Ficha Oficial abre.
   - **Armazenamento:** IndexedDB `guia_fichas_v2` (fichas e até 12 versões por ficha: ao abrir, a cada 15 minutos e antes de substituir ou excluir). As fichas da prévia antiga (`principia_fichas_v1`) são trazidas uma vez, automaticamente.
   - **Ficha na conta** (`principia/ficha/nuvem.js`, detalhes em [ONLINE.md](ONLINE.md)): com o login do Discord, cada ficha pode ficar no personagem da conta e abre em qualquer aparelho.
@@ -104,6 +108,10 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
     - A conta guarda as 20 últimas versões, que aparecem em **Versões salvas**.
     - As imagens vão para o Storage, e a cópia local continua com as imagens embutidas, então o JSON exportado segue igual ao da Ficha Oficial.
     - Sem a atualização do banco, tudo segue só no navegador.
+  - **Nível:** campo com − e + no topo da ficha (o selo no retrato leva até ele), porque o nível muda com frequência no servidor.
+  - **Mão de cartas:** até **5** cartas (`FG.MAO`, em `principia/ficha/ficha.js`; o `motor.js` não muda). Fichas com mais cartas abrem com as 5 primeiras.
+  - **Fama:** com a ficha ligada à conta, a aba Roma mostra a fama da conta (a mesma da Tabula Famae) e lança por ali. A fama que estava só na ficha fica em "Fama antiga desta ficha".
+  - **Ficha só leitura (Staff):** no Praetorium, **Ver ficha** abre a ficha da conta do jogador fora da lista, sem salvar nem enviar nada. **Sair** volta para as fichas da própria pessoa.
   - No computador, **Lado a lado** coloca a ficha à esquerda e o Guia à direita; no celular, os botões **Ficha** e **Guia** alternam entre as duas telas sem perder o lugar. As abas ficam presas abaixo do painel de recursos no computador; no celular só o painel fica preso, e as gavetas viram folhas que sobem de baixo.
 - **Celular:** tela inicial com busca, grade de apps e dock; apps em tela cheia com botão de voltar e gaveta de seções.
 - **Acessibilidade:** respeita "reduzir movimento" do sistema, funciona por teclado (Esc fecha menus e janelas, setas navegam nos menus) e mantém o foco visível.

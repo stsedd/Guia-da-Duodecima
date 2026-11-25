@@ -489,6 +489,9 @@
       ativa: () => !!conta(),
       visivel, ligada, rotulo, aoSalvar, sincronizar, versoes, confirmarExclusao, faltando,
       uid: () => estado()?.session?.user?.id || null,
+      cliente: () => conta(),
+      // Staff: lê a ficha de outro jogador (o banco só deixa a Staff ler fichas alheias).
+      lerFichaDaConta: async pid => { const c = conta(); if (!c) throw new Error('Entre com a conta para abrir a ficha.'); return (await lerFicha(c, pid)).dados; },
       _estado: N
     };
     // A conta mudou (entrou, saiu, virou membro): reconfere tudo.

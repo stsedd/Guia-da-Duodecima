@@ -330,8 +330,12 @@ language plpgsql security definer set search_path = '' as $$
 declare
   guild text := (select valor from public.config where chave = 'discord_guild_id');
 begin
-  new.link_discord := btrim(new.link_discord);
-  if new.link_discord !~ ('^https://(www\.|ptb\.|canary\.)?discord(app)?\.com/channels/' || guild || '/[0-9]{5,25}/[0-9]{5,25}/?$') then
+  new.link_discord := btrim(coalesce(new.link_discord, ''));
+  -- Donos e Staff podem ajustar a fama de qualquer jogador sem uma mensagem do Discord:
+  -- o registro ganha um marcador único "staff:<id>" (o site mostra "ajuste da Staff").
+  if new.link_discord = '' and auth.uid() is not null and public.eh_admin() then
+    new.link_discord := 'staff:' || gen_random_uuid()::text;
+  elsif new.link_discord !~ ('^https://(www\.|ptb\.|canary\.)?discord(app)?\.com/channels/' || guild || '/[0-9]{5,25}/[0-9]{5,25}/?$') then
     raise exception 'Use o link de uma mensagem do servidor da Duodécima (botão direito na mensagem → Copiar link da mensagem).' using errcode = '22023';
   end if;
   -- Canonicaliza host e barra final para detectar links repetidos.

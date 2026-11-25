@@ -29,7 +29,7 @@
   const COORTES = ['Primeira', 'Segunda', 'Terceira', 'Quarta', 'Quinta'];
   const DEGRAUS = [[25, 'conhecido'], [50, 'influente'], [80, 'famoso'], [100, 'rebento']];
   const ORDEM = ['odiado', 'nenhum', 'conhecido', 'influente', 'famoso', 'rebento'];
-  const COLS = 'id,jogador_id,nome,linhagem,panteao,divindade,coorte,publico,fama,titulo,elegivel_rebento,titulo_minimo,rebento_confirmado,criado_em,excluido_em';
+  const COLS = 'id,jogador_id,nome,linhagem,panteao,divindade,coorte,publico,fama,titulo,elegivel_rebento,titulo_minimo,rebento_confirmado,criado_em,excluido_em,ficha_salva_em';
   // Celular: o login tenta abrir o app do Discord (ver entrar()). iPad novo se apresenta como Mac com toque.
   const ANDROID = /Android/i.test(navigator.userAgent);
   const CELULAR = ANDROID || /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -60,6 +60,10 @@
     const nomeDeus = id => (S.deuses || []).find(d => d.id === id)?.nome || id || '';
     const titulo = t => TITULOS[t || 'nenhum'] || TITULOS.nenhum;
     const badge = (t, eleg) => `<span class="on-badge on-badge--${esc(t || 'nenhum')}">${esc(titulo(t))}</span>${eleg ? '<span class="on-badge on-badge--eleg" title="Atingiu 100 de fama: a Staff confirma o título">Elegível a Rebento</span>' : ''}`;
+    // Lançamento de fama: link da mensagem no Discord ou, sem mensagem, "ajuste da Staff".
+    const linkFama = (r, botao) => String(r.link_discord || '').startsWith('staff:')
+      ? `<span class="on-muted">ajuste da Staff</span>`
+      : `<a${botao ? ' class="os-btn os-btn--ghost"' : ''} href="${esc(r.link_discord)}" target="_blank" rel="noopener noreferrer">${botao ? 'Discord' : 'ver no Discord'}</a>`;
     function prole(p) {
       const partes = [];
       if (p.divindade) partes.push(`${p.linhagem === 'legado' ? 'Legado' : 'Prole'} de ${nomeDeus(p.divindade)}`);
@@ -429,7 +433,7 @@
           ${!regs ? `<li class="on-reg">${carregando('Carregando…')}</li>` : regs.length ? regs.map(r => `<li class="on-reg${r.removido_em ? ' is-removido' : ''}">
               <b>${sinal(r.quantidade)}</b>
               <span>${esc(r.motivo)}${r.removido_em ? ` <em>removido${r.motivo_remocao ? ': ' + esc(r.motivo_remocao) : ''}</em>` : ''}</span>
-              <small>${data(r.criado_em)} · <a href="${esc(r.link_discord)}" target="_blank" rel="noopener noreferrer">ver no Discord</a></small>
+              <small>${data(r.criado_em)} · ${linkFama(r)}</small>
               ${!r.removido_em && r.criado_por === uid() ? `<button class="on-x" type="button" data-on="remover-fama" data-reg="${esc(r.id)}" title="Remover este lançamento" aria-label="Remover este lançamento">×</button>` : ''}
             </li>`).join('') : '<li class="on-reg on-muted">Nenhum lançamento ainda.</li>'}
         </ul>
@@ -598,7 +602,7 @@
       renderPraetorium();
     }
     const perfilDe = id => S.adm.perfis.find(p => p.id === id);
-    const arroba = id => { const p = perfilDe(id); return p ? '@' + (p.discord_usuario || p.nome_exibicao) : id ? 'conta excluída' : 'Staff'; };
+    const arroba = id => { const p = perfilDe(id); return p ? (p.discord_usuario || p.nome_exibicao ? '@' + (p.discord_usuario || p.nome_exibicao) : 'jogador sem nome') : id ? 'conta excluída' : 'Staff'; };
     const nomePersonagem = id => S.adm.personagens.find(p => p.id === id)?.nome || 'personagem excluído';
     function renderPraetorium() {
       if (!admBody) return;
@@ -622,7 +626,7 @@
             <span class="on-td on-td--main"><b>${esc(p.nome)}</b><small>${esc(prole(p))} · ${esc(arroba(p.jogador_id))}${p.publico ? '' : ' · oculto da Tabula'}${p.excluido_em ? ' · excluído em ' + data(p.excluido_em) : ''}</small></span>
             <span class="on-td">${badge(p.titulo, p.elegivel_rebento)}${p.titulo_minimo ? `<small class="on-muted">mínimo: ${esc(titulo(p.titulo_minimo))}</small>` : ''}</span>
             <span class="on-td on-td--num">${sinal(p.fama)}</span>
-            <span class="on-td on-td--act">${p.excluido_em ? '<button class="os-btn os-btn--ghost" type="button" data-on="adm-restaurar">Restaurar</button>' : '<button class="os-btn os-btn--ghost" type="button" data-on="adm-editar">Editar</button><button class="os-btn os-btn--ghost on-btn-danger" type="button" data-on="adm-excluir">Excluir</button>'}</span>
+            <span class="on-td on-td--act">${p.ficha_salva_em && !p.excluido_em ? '<button class="os-btn os-btn--ghost" type="button" data-on="adm-ver-ficha" title="Abrir a ficha deste personagem só para leitura">Ver ficha</button>' : ''}${p.excluido_em ? '<button class="os-btn os-btn--ghost" type="button" data-on="adm-restaurar">Restaurar</button>' : '<button class="os-btn os-btn--ghost" type="button" data-on="adm-editar">Editar</button><button class="os-btn os-btn--ghost on-btn-danger" type="button" data-on="adm-excluir">Excluir</button>'}</span>
           </div>`).join('') || '<p class="on-muted">Nenhum personagem.</p>'}</div>`;
     }
     function admFama() {
@@ -632,14 +636,15 @@
           <label class="on-field"><span>Personagem</span><select name="personagem_id" required><option value="">Escolha…</option>${vivos.map(p => `<option value="${esc(p.id)}">${esc(p.nome)}</option>`).join('')}</select></label>
           <label class="on-field on-field--qtd"><span>Fama</span><input name="quantidade" type="number" step="1" min="-500" max="500" required></label>
           <label class="on-field on-field--wide"><span>Motivo</span><input name="motivo" required minlength="3" maxlength="300" autocomplete="off"></label>
-          <label class="on-field on-field--wide"><span>Link da mensagem no Discord</span><input name="link" type="url" required maxlength="200" autocomplete="off"></label>
+          <label class="on-field on-field--wide"><span>Link da mensagem no Discord (opcional para a Staff)</span><input name="link" type="url" maxlength="200" autocomplete="off" placeholder="Sem link: fica como ajuste da Staff"></label>
+          <p class="on-hint">Use fama negativa para retirar. Sem link, o lançamento aparece como <b>ajuste da Staff</b> para o jogador.</p>
           <div class="on-actions"><button class="os-btn os-btn--primary" type="submit">Lançar fama</button></div>
         </form>
         <div class="on-table" role="table">${lista.map(r => `
           <div class="on-tr${r.removido_em ? ' is-removido' : ''}" role="row" data-reg="${esc(r.id)}">
             <span class="on-td on-td--num">${sinal(r.quantidade)}</span>
             <span class="on-td on-td--main"><b>${esc(nomePersonagem(r.personagem_id))}</b><small>${esc(r.motivo)} · ${esc(arroba(r.criado_por))} · ${dataHora(r.criado_em)}${r.removido_em ? ` · removido por ${esc(arroba(r.removido_por))}${r.motivo_remocao ? ': ' + esc(r.motivo_remocao) : ''}` : ''}</small></span>
-            <span class="on-td on-td--act"><a class="os-btn os-btn--ghost" href="${esc(r.link_discord)}" target="_blank" rel="noopener noreferrer">Discord</a>${r.removido_em ? '<button class="os-btn os-btn--ghost" type="button" data-on="adm-restaurar-fama">Restaurar</button>' : '<button class="os-btn os-btn--ghost on-btn-danger" type="button" data-on="adm-remover-fama">Remover</button>'}</span>
+            <span class="on-td on-td--act">${linkFama(r, true)}${r.removido_em ? '<button class="os-btn os-btn--ghost" type="button" data-on="adm-restaurar-fama">Restaurar</button>' : '<button class="os-btn os-btn--ghost on-btn-danger" type="button" data-on="adm-remover-fama">Remover</button>'}</span>
           </div>`).join('') || '<p class="on-muted">Nenhum lançamento.</p>'}</div>`;
     }
     function admJogadores() {
@@ -734,6 +739,16 @@
       if (act === 'adm-novo') { S.adm.novo = true; S.adm.editando = null; return renderPraetorium(); }
       if (act === 'adm-editar') { S.adm.editando = id; S.adm.novo = false; return renderPraetorium(); }
       if (act === 'adm-cancelar') { S.adm.editando = null; S.adm.novo = false; return renderPraetorium(); }
+      if (act === 'adm-ver-ficha') {
+        const p = S.adm.personagens.find(x => x.id === id);
+        try {
+          await A.openUtil('ficha', null);
+          const dados = await window.FichaGuia?.nuvem?.lerFichaDaConta?.(id);
+          if (!dados) throw new Error('Não consegui abrir esta ficha.');
+          await window.FichaGuia.abrirTemporaria(dados, 'de ' + arroba(p?.jogador_id) + ' · só leitura');
+        } catch (err) { toast(msgErro(err)); }
+        return;
+      }
       if (act === 'adm-excluir') { if (confirm('Excluir este personagem? Ele some da Tabula Famae e da conta do jogador; dá para restaurar aqui.')) await feito(() => db.editar(id, { excluido_em: new Date().toISOString() }), 'Personagem excluído.'); return; }
       if (act === 'adm-restaurar') return feito(() => db.editar(id, { excluido_em: null }), 'Personagem restaurado.');
       if (act === 'adm-remover-fama') { const m = prompt('Motivo da remoção (aparece para o jogador):', ''); if (m === null) return; return feito(() => db.remover(reg, m.trim()), 'Lançamento removido.'); }
@@ -750,7 +765,7 @@
     if (fichaHook) P.hooks.ficha = { ...fichaHook, open() { travarFicha(); return fichaHook.open?.(); } };
 
     // Para depuração no console e testes: o estado e as funções de dados.
-    P.online = { ativo: ON, estado: S, db, aplicar, entrar, sair, recarregarMeus: () => (uid() && ehMembro() ? recarregarMeus() : null) };
+    P.online = { ativo: ON, estado: S, db, aplicar, entrar, sair, msgErro, linkFama, recarregarMeus: () => (uid() && ehMembro() ? recarregarMeus() : null) };
     iniciar();
   }
 

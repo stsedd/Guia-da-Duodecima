@@ -104,7 +104,7 @@
     roma: { kind: 'page', title: 'Sobre Roma', short: 'Roma', art: ICON('roma'), tilt: 2 },
     domus: { kind: 'page', title: 'Domus Memoriae', short: 'Domus', art: ICON('domus'), tilt: -2 },
     tabularium: { kind: 'win', win: 'tabularium', title: 'Tabularium', art: ICON('tabularium'), tilt: 3 },
-    mapa: { kind: 'route', title: 'Mapas', route: EST ? ['casa-do-lobo', 'mapa-acampamento'] : ['roma', 'mapa-acampamento'], art: ICON('mapa'), tilt: -2 },
+    mapa: { kind: 'menu', menu: 'mapas', title: 'Mapas', route: EST ? ['casa-do-lobo', 'mapa-acampamento'] : ['roma', 'mapa-acampamento'], art: ICON('mapa'), tilt: -2 },
     minhaficha: { kind: 'win', win: 'ficha', title: 'Minha Ficha', art: ICON('ficha'), tilt: -2 },
     ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, glyph: 'book', tilt: 2 },
     imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
@@ -138,7 +138,7 @@
     return `<span class="os-ico-art os-ico-art--glyph">${svg(a.glyph)}${ext}</span>`;
   }
   /* Versão pequena do ícone (busca e menus). */
-  const miniArt = id => APPS[id].art ? `<img src="${APPS[id].art}" alt="">` : `<span class="os-mini-glyph">${svg(APPS[id].glyph)}</span>`;
+  const miniArt = id => APPS[id].art ? `<img src="${APPS[id].art}" alt="" loading="lazy" decoding="async">` : `<span class="os-mini-glyph">${svg(APPS[id].glyph)}</span>`;
 
   function iconHTML(id, i, opts = {}) {
     const a = APPS[id];
@@ -156,9 +156,9 @@
     // O link do iMessage vem só de IMESSAGE_URL: trocar o canal é editar uma linha.
     $$('.os-bar-btn--msg').forEach(a => { a.href = IMESSAGE_URL; });
     // Esquerda: os arquivos do Guia e os apps de uso do jogador; direita: utilitários.
-    $('#osIconsLeft').innerHTML = [...PAGES, 'imessage', 'minhaficha', 'ficha'].map((k, i) => iconHTML(k, i)).join('');
-    $('#osIconsRight').innerHTML = ['leiame', 'tabularium', 'notes', 'famae', 'prefs', 'mapa', 'praetorium'].map((k, i) => iconHTML(k, i + 2)).join('');
-    $('#osHomeGrid').innerHTML = [...PAGES, 'conta', 'mapa', 'tabularium', 'notes', 'ficha', 'prefs', 'praetorium'].map((k, i) => iconHTML(k, i, { short: true })).join('');
+    $('#osIconsLeft').innerHTML = [...PAGES, 'imessage', 'minhaficha'].map((k, i) => iconHTML(k, i)).join('');
+    $('#osIconsRight').innerHTML = ['tabularium', 'notes', 'famae', 'mapa', 'praetorium'].map((k, i) => iconHTML(k, i + 2)).join('');
+    $('#osHomeGrid').innerHTML = [...PAGES, 'conta', 'mapa', 'tabularium', 'notes', 'prefs', 'praetorium'].map((k, i) => iconHTML(k, i, { short: true })).join('');
     $('#osDock').innerHTML = ['imessage', 'minhaficha', 'famae', 'buscar'].map((k, i) => iconHTML(k, i + 10, { short: true })).join('');
     $('#osReaderTabs').innerHTML = PAGES.map(k => `<button class="os-reader-tab" type="button" data-app="${k}" title="${esc(appTitle(k))}">${miniArt(k)}<span>${esc(shortTitle(k))}</span></button>`).join('');
     $('#osSpotApps').innerHTML = [...PAGES, 'minhaficha', 'famae', 'conta', 'tabularium', 'mapa', 'imessage', 'leiame', 'notes', 'praetorium'].map(k => APPS[k].kind === 'external'
@@ -932,6 +932,15 @@
     viewerBody.scrollTo(0, 0);
     WM.open('viewer', { from: img });
   });
+  // Abre uma imagem qualquer no visualizador (usado pelo menu Mapas).
+  function verImagem(src, titulo) {
+    viewerImg.src = src;
+    viewerImg.alt = titulo || '';
+    $('#osViewerTitle').textContent = titulo || 'Imagem';
+    viewerBody.classList.remove('is-actual');
+    viewerBody.scrollTo(0, 0);
+    WM.open('viewer');
+  }
   viewerBody.addEventListener('click', e => {
     if (e.target !== viewerImg) return;
     const actual = viewerBody.classList.toggle('is-actual');
@@ -996,7 +1005,13 @@
         <button class="os-dd-item" type="button" role="menuitem" data-action="desktop">${svg('desktop')}Mostrar área de trabalho</button>
         <button class="os-dd-item" type="button" role="menuitem" data-action="reboot">${svg('power')}Reiniciar terminal</button>
         <div class="os-dd-sep" role="separator"></div>
-        <a class="os-dd-item" role="menuitem" href="${FICHA_URL}" target="_blank" rel="noopener noreferrer">${svg('ext')}Ficha Oficial<em>nova aba</em></a>`;
+        <a class="os-dd-item" role="menuitem" href="${FICHA_URL}" target="_blank" rel="noopener noreferrer">${svg('ext')}Ficha Oficial (antiga)<em>nova aba</em></a>`;
+    }
+    if (name === 'mapas') {
+      const MAPAS = [['assets/mapa-acampamento.webp', 'Mapa do Acampamento'], ['assets/nazzano/mapa-nazzano.webp', 'Mapa de Nazzano'], ['assets/mapa-panteoes.webp', 'Influência dos panteões']];
+      const r = APPS.mapa.route;
+      return MAPAS.map(([src, t]) => `<button class="os-dd-item" type="button" role="menuitem" data-action="ver-mapa" data-src="${src}" data-titulo="${esc(t)}"><img src="${src}" alt="" loading="lazy" decoding="async">${esc(t)}</button>`).join('') +
+        `<div class="os-dd-sep" role="separator"></div><button class="os-dd-item" type="button" role="menuitem" data-go="${r[0]}|${r[1]}">${svg('open')}O Acampamento no Guia</button>`;
     }
     if (name === 'minimized') {
       return [...minimizedPages.keys()].map(key => `<button class="os-dd-item" type="button" role="menuitem" data-action="restore-page" data-page-key="${esc(key)}">${svg('open')}${esc(appTitle(key))}</button>`).join('') + Object.values(WM.wins).filter(w => w.minimized && w.id !== 'reader').map(w => `<button class="os-dd-item" type="button" role="menuitem" data-action="restore-window" data-window-id="${esc(w.id)}">${svg('open')}${esc(windowLabel(w))}</button>`).join('');
@@ -1168,7 +1183,7 @@
     const data = getArchive();
     const sections = data.reduce((n, f) => n + f.count, 0);
     const rows = [
-      ['Interface', '11 arquivos · prévia'],
+      ['Interface', PAGES.length + ' arquivos'],
       ['Guia', 'v2.8.2'],
       ['Regras', core.trim()],
       ['Arquivos', String(data.length)],
@@ -1216,8 +1231,14 @@
     await WM.open(win, { from });
     updateRunning();
   }
+  /* "Criar ficha" (barra de cima): abre a Minha Ficha já na criação de personagem. */
+  async function criarFicha() {
+    await openUtil('ficha', null);
+    window.FichaGuia?.novaFicha?.();
+  }
+
   /* Ficha e Guia lado a lado (desktop). No celular, as duas ficam em tela cheia e alternam. */
-  const canTile = () => !isMobile() && innerWidth >= 1000;
+  const canTile =() => !isMobile() && innerWidth >= 1000;
   async function tileFichaGuia(key, anchor) {
     if (!canTile()) {
       // Celular/tela estreita: as duas janelas ocupam a tela inteira e alternam.
@@ -1285,6 +1306,9 @@
     }
     if (a.kind === 'win') return openUtil(a.win, el?.classList.contains('os-ico') ? el : null);
     if (a.kind === 'action' && a.action === 'search') return openSpot();
+    // Mapas: menu com os três mapas, cada um no visualizador de imagens.
+    if (a.kind === 'menu' && el?.classList.contains('os-ico')) { setTimeout(() => { el.dataset.menu = a.menu; showMenu(el); }, 0); return; }
+    if (a.kind === 'menu' && a.route) return openPage(a.route[0], a.route[1], { from: el });
   }
 
   window.addEventListener('click', e => {
@@ -1331,6 +1355,8 @@
       else if (action === 'reset-windows') WM.reset();
       else if (action === 'ficha-beside') tileFichaGuia();
       else if (action === 'to-guia') openPage(engineKey() || HOME);
+      else if (action === 'criar-ficha') criarFicha();
+      else if (action === 'ver-mapa') verImagem(act.dataset.src, act.dataset.titulo);
       return;
     }
     const skip = t.closest('.skip-link');

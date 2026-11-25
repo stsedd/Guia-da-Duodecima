@@ -26,7 +26,7 @@
     { id: 'numina', nome: 'Verde dos Numina', c: '#5aa866', dia: '#2f7a3d', ink: '#051207' }
   ];
   const ABAS = [
-    ['geral', 'Visão geral'], ['poderes', 'Poderes'], ['arsenal', 'Arsenal'], ['magia', 'Magia'],
+    ['geral', 'Visão geral'], ['evolucao', 'Evolução'], ['poderes', 'Poderes'], ['arsenal', 'Arsenal'], ['magia', 'Magia'],
     ['companheiros', 'Companheiros'], ['roma', 'Roma'], ['diario', 'Diário']
   ];
   const ICO = {
@@ -86,6 +86,15 @@
       return ACENTOS.find(a => a.id === id) || ACENTOS[0];
     };
     Object.assign(FG, { sinal, uid, clamp, num, attrsLista, godDe, arteDe, ACENTOS, HQ });
+    /* Mão de cartas: até 5 no Guia (a Ficha Oficial usa 3; decisão da Staff em 25/11/2026, em teste).
+       O motor copiado continua com as 3 da Oficial, então a mão é lida por aqui. */
+    FG.MAO = 5;
+    FG.cartasNaMao = M => {
+      const set = M.effectiveAbilitySet();
+      const todas = [...(set?.passives || []), ...(set?.actives || [])];
+      const porChave = new Map(todas.map(a => [M.abilityKey(a), a]));
+      return (M.state.abilityDeck || []).slice(0, FG.MAO).map(k => porChave.get(k)).filter(Boolean);
+    };
     /* Imagens embutidas na ficha (data URL, às vezes centenas de KB cada) viram um endereço curto em
        memória (blob:) criado uma vez só. Assim cada redesenho gera um HTML leve e o navegador reaproveita
        a imagem já decodificada, sem piscar nem travar no celular. O JSON da ficha não muda. */
@@ -203,6 +212,8 @@
         prompt: (q, d) => window.prompt(q, d)
       });
       M.state = M.migrate(data || {});
+      // A migração oficial corta a mão em 3 cartas; no Guia a mão guarda até FG.MAO (decisão da Staff).
+      if (Array.isArray(data?.abilityDeck)) M.state.abilityDeck = [...new Set(data.abilityDeck.filter(x => typeof x === 'string'))].slice(0, FG.MAO);
       if (M.state.isCreated) M.syncCurrentCaps();
       return { M, D: dadosP };
     }
@@ -221,8 +232,18 @@
     FG.normalizar = data => JSON.parse(JSON.stringify(criarMotor(validarJson(data)).M.state));
 
     /* ---------------------------------------------------------------- carregar e abrir */
-    async function garantirDados() {
-      if (S.dados || S.carregando) return;
+    // Uma carga só: quem chegar durante a carga espera a mesma promessa.
+    let cargaDados = null;
+    function garantirDados() {
+      // Espera a carga inteira (regras + lista + última ficha aberta), não só as regras: senão quem chega
+      // no meio (Criar ficha, ficha da Staff) é atropelado pela abertura da última ficha.
+      if (cargaDados) return cargaDados;
+      if (S.dados) return Promise.resolve();
+      return cargaDados || (cargaDados = carregarDados().finally(() => { cargaDados = null; }));
+    }
+    // "Criar ficha" na barra do Guia: espera as regras e abre a criação.
+    FG.novaFicha = async () => { await garantirDados(); if (S.dados) { FG.acoes.nova(); render(); } };
+    async function carregarDados() {
       S.carregando = true;
       render();
       try {
@@ -253,6 +274,15 @@
       if (!silencioso) render();
     }
     FG.abrir = abrir;
+    // Ficha aberta só para consulta (Staff vendo a ficha de um jogador): não entra na lista, não é salva
+    // neste navegador nem enviada à conta; some ao trocar de ficha ou em "Sair".
+    FG.abrirTemporaria = async (data, rotulo) => {
+      await garantirDados();
+      const x = criarMotor(validarJson(data));
+      S.rec = { id: 'temporaria', nome: x.M.state.name || 'Ficha', temporaria: true, rotulo: rotulo || 'só leitura', data: x.M.state };
+      S.atual = null; S.M = x.M; S.D = x.D; S.drawer = null; S.criando = null; S.prev = {};
+      render();
+    };
     async function adicionarFicha(data, origem, opcoes = {}) {
       const x = criarMotor(validarJson(data));
       const rec = { id: uid('ficha'), nome: x.M.state.name || 'Personagem sem nome', atualizadoEm: new Date().toISOString(), origem, data: JSON.parse(JSON.stringify(x.M.state)) };
@@ -280,7 +310,7 @@
     /* ---------------------------------------------------------------- salvar */
     let timerSalvar = null;
     function agendarSalvar() {
-      if (!S.M || !S.rec) return;
+      if (!S.M || !S.rec || S.rec.temporaria) return;
       S.salvando = true;
       marcarSalvo();
       clearTimeout(timerSalvar);
@@ -289,7 +319,7 @@
     FG.salvar = agendarSalvar;
     async function salvarAgora() {
       clearTimeout(timerSalvar);
-      if (!S.M || !S.rec) return;
+      if (!S.M || !S.rec || S.rec.temporaria) return;
       const rec = S.rec;
       if (S.M.state.roma) S.M.state.roma.fame = S.M.fameTotal();
       rec.data = JSON.parse(JSON.stringify(S.M.state));
@@ -343,11 +373,12 @@
       const opts = lista().map(r => `<option value="${esc(r.id)}"${r.id === S.atual ? ' selected' : ''}>${esc(r.nome)}</option>`).join('');
       const nuvem = !!FG.nuvem?.ativa?.();
       return `<div class="fg-top">
-        ${lista().length ? `<select class="fg-in" data-a="trocar" aria-label="Personagem">${S.criando?.nova ? '<option selected>Nova ficha (em criação)</option>' : ''}${opts}</select>` : '<b class="fg-anton" style="font-size:20px">Minha Ficha</b>'}
+        ${lista().length || S.rec?.temporaria ? `<select class="fg-in" data-a="trocar" aria-label="Personagem">${S.criando?.nova ? '<option selected>Nova ficha (em criação)</option>' : ''}${S.rec?.temporaria ? `<option selected>${esc(S.rec.nome)} (${esc(S.rec.rotulo)})</option>` : ''}${opts}</select>` : '<b class="fg-anton" style="font-size:20px">Minha Ficha</b>'}
         <button class="fg-btn fg-btn--sm" type="button" data-a="nova">${ICO.plus}Nova</button>
         <button class="fg-btn fg-btn--sm" type="button" data-a="importar">Importar JSON</button>
         <span class="fg-spacer"></span>
-        ${S.M && S.rec && !S.criando ? (nuvem
+        ${S.rec?.temporaria ? `<span class="fg-chip" title="Mudanças nesta ficha não são salvas">Só leitura · nada é salvo</span><button class="fg-btn fg-btn--sm" type="button" data-a="sair-temporaria">Sair</button>` : ''}
+        ${S.M && S.rec && !S.criando && !S.rec.temporaria ? (nuvem
           ? `<button class="fg-save fg-save--btn" type="button" data-a="nuvem" role="status"><i></i><span>Salva neste navegador</span></button>`
           : `<span class="fg-save" role="status"><i></i><span>Salva neste navegador</span></span>`) : ''}
         <div class="fg-menu">
@@ -377,6 +408,13 @@
         </div>
         <p class="fg-muted" style="font-size:12.5px">${FG.nuvem?.ativa?.() ? 'Com a conta do Discord, a ficha fica guardada na sua conta e abre em qualquer aparelho. Exportar o JSON continua sendo uma cópia de segurança extra.' : 'A ficha fica salva neste navegador, com cópias automáticas das últimas versões. Exportar o JSON continua sendo a cópia de segurança fora dele.'}</p>
       </div>`;
+    }
+
+    // Ficha só neste navegador, com a conta ativa: um aviso por ficha (some em "Agora não").
+    function avisoConta() {
+      if (!FG.nuvem?.ativa?.() || !S.rec || S.rec.temporaria || FG.nuvem.ligada(S.rec) || store.get('guia_ficha_aviso_conta_' + S.rec.id) === '1') return '';
+      return `<div class="fg-aviso-conta" role="note"><span><b>${esc(S.rec.nome)}</b> está só neste navegador. Guardada na conta, a ficha abre em qualquer aparelho e não se perde se o navegador for limpo.</span>
+        <span class="fg-aviso-conta-acoes"><button class="fg-btn fg-btn--sm fg-btn--pri" type="button" data-a="nuvem">Guardar na conta</button><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="aviso-conta-fechar">Agora não</button></span></div>`;
     }
 
     function capa() {
@@ -480,7 +518,9 @@
         poderes: (set?.passives?.length || 0) + (set?.actives?.length || 0),
         arsenal: (s.weapons?.length || 0) + (s.inventory?.items?.length || 0) + (s.armor?.equipped ? 1 : 0) + (s.shield?.equipped ? 1 : 0),
         magia: s.magic?.enabled ? (s.magic.spells || []).length : 0,
-        companheiros: (s.familiars?.entries || []).length
+        companheiros: (s.familiars?.entries || []).length,
+        // Na Evolução, o número avisa o que ainda dá para gastar (pontos de atributo e talentos padrão).
+        evolucao: Math.max(0, M.remainingLevelPoints() || 0) + Math.max(0, (M.talentSlotsEarned() || 0) - (M.standardTalentsUsed() || 0))
       };
       return `<nav class="fg-tabs" role="tablist" aria-label="Partes da ficha">${ABAS.map(([k, n]) => {
         if (k === 'magia' && !s.magic?.enabled && !M.isMortal()) return `<button class="fg-tab" type="button" role="tab" aria-selected="${S.aba === k}" data-a="aba" data-aba="${k}">${ICO.lock}${n}</button>`;
@@ -505,7 +545,7 @@
         let conteudo = '';
         try { conteudo = FG.abas[aba] ? FG.abas[aba].render(ctx()) : ''; }
         catch (e) { console.error('[Ficha] erro ao desenhar a aba', aba, e); conteudo = `<div class="fg-note fg-note--warn">Esta parte da ficha não abriu: ${esc(e?.message || e)}. Os dados continuam salvos.</div>`; }
-        html += `${capa()}${hud()}${abas()}<div class="fg-pane" role="tabpanel">${conteudo}</div>`;
+        html += `${avisoConta()}${capa()}${hud()}${abas()}<div class="fg-pane" role="tabpanel">${conteudo}</div>`;
       }
       body.innerHTML = `<div class="fg">${html}</div>`;
       medirDock();
@@ -600,6 +640,7 @@
     acoes.excluir = async () => {
       S.menu = false; render();
       if (!S.rec) return;
+      if (S.rec.temporaria) return acoes['sair-temporaria']();
       // Ficha guardada na conta: a pergunta é outra (só daqui ou também da conta) e fica com nuvem.js.
       const naConta = FG.nuvem?.ligada?.(S.rec);
       const ok = naConta ? await FG.nuvem.confirmarExclusao(S.rec)
@@ -633,6 +674,7 @@
       render();
     };
     acoes.versoes = async () => {
+      if (S.rec?.temporaria) { S.menu = false; render(); toast('Esta ficha está aberta só para consulta e não tem versões aqui.'); return; }
       S.menu = false; render();
       FG.abrirGaveta('versoes', { lista: await versoesDe(S.rec.id), conta: FG.nuvem?.ligada?.(S.rec) ? 'carregando' : null });
       if (FG.nuvem?.ligada?.(S.rec)) {
@@ -662,6 +704,8 @@
       S.M.syncCurrentCaps();
       agendarSalvar(); render();
     };
+    acoes['sair-temporaria'] = async () => { const v = lista()[0]; if (v) await abrir(v.id, true); else { S.M = null; S.rec = null; S.atual = null; } render(); };
+    acoes['aviso-conta-fechar'] = () => { if (S.rec) store.set('guia_ficha_aviso_conta_' + S.rec.id, '1'); render(); };
     acoes['nivel-foco'] = () => { const i = body.querySelector('.fg-nivel input'); if (i) { i.focus(); i.select(); } };
     acoes['hud-toque'] =(el, ev) => { if (ev.type !== 'click' || ev.target.closest('button,input')) return; if (window.matchMedia('(max-width: 760px)').matches || body.clientWidth < 760) { S.hudAberto = !S.hudAberto; render(); } };
     function aplicarAjuste(alvo, delta, absoluto) {

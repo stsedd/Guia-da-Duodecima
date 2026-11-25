@@ -27,7 +27,7 @@
       if (M.hasSheetCasting()) lista.push(['conj', 'Conjuração', '1d20 ' + sinal(M.castAttack())]);
       (s.weapons || []).filter(w => w.equipped).forEach(w => lista.push(['arma:' + w.id, 'Ataque · ' + (w.name || 'Arma'), `${sinal(M.weaponAttack(w))} · ${M.weaponDamageFormula(w)}`]));
       lista.push(['d20', 'd20 livre', '1d20']);
-      const ultima = s.lastRoll ? `<div class="fg-last-roll" role="status"><b>${s.lastRoll.total}</b><div><span class="fg-label">${esc(s.lastRoll.label)}</span><div class="fg-muted" style="font-size:12.5px">${s.lastRoll.die} no d20 ${sinal(s.lastRoll.modifier)}${s.lastRoll.die === 20 ? ' · 20 natural' : s.lastRoll.die === 1 ? ' · 1 natural' : ''}</div></div></div>` : '';
+      const ultima = s.lastRoll ? `<div class="fg-last-roll" role="status"><b>${s.lastRoll.total}</b><div><span class="fg-label">${esc(s.lastRoll.label)}</span><div class="fg-muted" style="font-size:12.5px">${s.lastRoll.die} no d20 ${sinal(s.lastRoll.modifier)}${s.lastRoll.die === 20 ? ' · 20 natural' : s.lastRoll.die === 1 ? ' · 1 natural' : ''}</div></div><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="rolagem-copiar" title="Copiar o resultado para colar no Discord" style="margin-left:auto">Copiar</button></div>` : '';
       return `${ultima}<div class="fg-rolls">${lista.map(([id, n, v]) => `<button class="fg-roll" type="button" data-a="rolar" data-r="${esc(id)}">${ICO.d20}<span>${esc(n)}</span><b>${esc(v)}</b></button>`).join('')}</div>`;
     }
 
@@ -50,7 +50,7 @@
 
     function mao(c) {
       const { M } = c;
-      const cartas = M.abilityDeckEntries();
+      const cartas = FG.cartasNaMao(M);
       if (!cartas.length) return `<p class="fg-empty-line">Nenhuma carta na mão. Em Poderes, abra uma habilidade e use “Pôr na mão”.</p>`;
       const n = cartas.length, meio = (n - 1) / 2;
       return `<div class="fg-fan">${cartas.map((a, i) => FG.carta(c, a, { estilo: `--i:${i};--n:${cartas.length};--r:${(i - meio) * 8}deg;--y:${Math.abs(i - meio) * 16}px;z-index:${10 - Math.abs(i - meio)}` })).join('')}</div>`;
@@ -127,9 +127,10 @@
       const reb = s.roma?.rebentoApproved;
       const sel = Array.isArray(s.roma?.rebentoAttributes) ? s.roma.rebentoAttributes : [];
       const issues = M.validationIssues();
-      return `<details class="fg-sec fg-box" style="margin-top:26px"${FG.S.evolucaoAberta ? ' open' : ''} data-a="evolucao-toggle">
-        <summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center"><h3 class="fg-h">Evolução e ajustes</h3><span class="fg-label">nível, pontos, talentos, treinos, Rebento</span></summary>
-        <div class="fg-cols2" style="margin-top:14px">
+      // Aba própria (antes ficava fechada no fim da Visão geral).
+      return `<div class="fg-sec">
+        <div style="display:flex;flex-direction:column;gap:8px"><span class="fg-kicker">Nível, pontos, talentos, treinos e Rebento</span><h2 class="fg-h fg-h--big">Evolução</h2></div>
+        <div class="fg-cols2" style="margin-top:6px">
           <div class="fg-sec">
             <div class="fg-sec-head"><b class="fg-label">Nível</b></div>
             <div class="fg-stepper"><button type="button" data-a="nivel" data-d="-1" aria-label="Diminuir nível">−</button><b style="font-size:34px;min-width:52px">${s.level}</b><button type="button" data-a="nivel" data-d="1" aria-label="Aumentar nível">+</button><span class="fg-muted" style="font-size:13px">BP ${sinal(M.bp())}</span></div>
@@ -157,8 +158,9 @@
           </div>
         </div>
         ${issues.length ? `<div class="fg-sec" style="margin-top:16px"><b class="fg-label">Diagnóstico da ficha</b>${issues.map(x => `<p class="fg-note${x.level === 'error' ? ' fg-note--warn' : ''}">${esc(x.text)}</p>`).join('')}</div>` : ''}
-      </details>`;
+      </div>`;
     }
+    FG.abas.evolucao = { render: c => evolucao(c) };
 
     function parametrosTalento(c, t, def) {
       const { D, s } = c;
@@ -197,13 +199,21 @@
             ${equipado(c)}
             ${estado(c)}
           </div>
-        </div>
-        ${evolucao(c)}`;
+        </div>`;
       }
     };
 
     /* ---------------------------------------------------------------- ações */
     const salvarDesenhar = (sync = true) => { const M = FG.S.M; if (sync) M.syncCurrentCaps(); FG.salvar(); FG.render(); };
+    // Texto pronto para colar no Discord, em Markdown (ex.: **Madeleine** · Percepção: **17** (d20 13 +4)).
+    acoes['rolagem-copiar'] = async () => {
+      const s = FG.S.M.state, r = s.lastRoll;
+      if (!r) return;
+      const nat = r.die === 20 ? ' · 20 natural' : r.die === 1 ? ' · 1 natural' : '';
+      const texto = `**${s.name || 'Personagem'}** · ${r.label}: **${r.total}** (d20 ${r.die} ${FG.sinal(r.modifier)}${nat})`;
+      try { await navigator.clipboard.writeText(texto); window.PRINCIPIA.api.toast('Rolagem copiada. Cole no Discord.'); }
+      catch { window.prompt('Copie o texto da rolagem:', texto); }
+    };
     acoes.rolar = el => {
       const M = FG.S.M, r = el.dataset.r;
       if (r === 'init') M.rollInitiative();

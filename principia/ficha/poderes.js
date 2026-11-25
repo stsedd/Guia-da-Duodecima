@@ -205,7 +205,7 @@
       s.abilityDeck = Array.isArray(s.abilityDeck) ? s.abilityDeck : [];
       if (s.abilityDeck.includes(key)) s.abilityDeck = s.abilityDeck.filter(k => k !== key);
       else {
-        if (s.abilityDeck.length >= 3) { window.PRINCIPIA.api.toast('A mão tem 3 cartas. Tire uma antes de pôr outra.'); return; }
+        if (s.abilityDeck.length >= FG.MAO) { window.PRINCIPIA.api.toast(`A mão tem ${FG.MAO} cartas. Tire uma antes de pôr outra.`); return; }
         s.abilityDeck.push(key);
       }
       FG.salvar(); FG.render();

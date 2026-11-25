@@ -3,16 +3,16 @@
    dos canais do Discord e entregue em 24/11/2026. Cada bloco registra a parte do documento de onde
    veio (data-fonte, não aparece para o jogador).
 
-   Regras com divergência ainda sem resposta da Staff NÃO entram aqui e continuam com o texto atual
-   do site e do Core (ver seção 8 do relatório de auditoria):
-   13 · penalidade cumulativa de −2 ao voltar de 0 HP (retirada no Core em 04/09/2026);
-   14 · alcance da penalidade de Energia em 50%;
-   15 · exemplo de custo de ritual;
-   16 · condutor das runas e o +1d6 de gelo de Aquilon;
-   17 · proles de teste para estrangeiros;
-   18 · Honesta Missio e "virar NPC";
-   19 · críticos na forja (mantida a regra atual do site);
-   21 · exemplo de Tolerância em testes de resistência.
+   Divergências da seção 8 do relatório de auditoria, decididas pela Staff em 25/11/2026:
+   13 · penalidade cumulativa de −2 ao voltar de 0 HP: aguardando confirmação do sentido da resposta;
+   14 · Energia em 50%: −1 só nas rolagens de d20 (como no site e no Core);
+   15 · custo de ritual: vale a tabela (o exemplo do documento era erro de digitação);
+   16 · runas: condutor cristal, cinzas ou água; runa superior com +1d4 ou +1d6 (abaixo);
+   17 · estrangeiros não usam proles de teste (seção Estrangeiros);
+   18 · Honesta Missio: o personagem segue do jogador; vira NPC e fica imune ao reset (Domus);
+   19 · críticos na forja: 20 natural pula duas etapas, 1 natural recua uma (seção da Forja);
+   20 · Cenric (ex-Áugure): texto a receber;
+   21 · exemplo de Tolerância em testes de resistência: sem resposta ainda.
 
    Operações (aplicadas por principia-estrutura.js, na aba indicada):
    { page, id, append }   → acrescenta ao fim da seção;
@@ -146,7 +146,7 @@
 <h3 class="subheading">Em detalhe</h3>
 <div class="grid two">
 <article class="paper-card"><h3>Quem pode vir</h3><p>São aceitos personagens <strong>gregos, nórdicos, egípcios e celtas</strong>. Não aceitamos, neste sistema, semideuses de panteões orientais, africanos ou de religiões nativas das Américas, incluindo panteões brasileiros: essas divindades existem na lore, mas permanecem ligadas às suas próprias regiões e povos. O recorte atual contempla principalmente os panteões do ocidente europeu.</p><p>O sistema também serve de intercâmbio entre servidores: muitos jogadores vêm de servidores gregos e podem trazer seus personagens sem transformá-los em romanos.</p></article>
-<article class="paper-card"><h3>Vagas</h3><p>Estrangeiros entram no sistema de vagas, mas a vaga é do panteão, não da divindade: um filho de Poseidon ocupa uma vaga de grego (e não de Cimopoleia); um filho de Thor, uma vaga de nórdico. Confira as vagas no canal de vagas.</p></article>
+<article class="paper-card"><h3>Vagas</h3><p>Estrangeiros entram no sistema de vagas, mas a vaga é do panteão, não da divindade: um filho de Poseidon ocupa uma vaga de grego (e não de Cimopoleia); um filho de Thor, uma vaga de nórdico. Confira as vagas no canal de vagas.</p><p><strong>Estrangeiros não usam proles de teste.</strong></p></article>
 <article class="paper-card"><h3>Contrapartes</h3><p>Não criamos árvores de habilidades novas para cada divindade estrangeira; os poderes vêm das proles romanas. Com contraparte direta, é simples: <strong>Hermes → Mercúrio</strong>, <strong>Tyr → Justitia</strong>, <strong>Andraste → Victoria</strong>. Narrativamente, o personagem continua filho do deus estrangeiro. Você pode sugerir a prole, mas a palavra final é dos Dii Consentis – converse com a Staff antes de planejar tudo.</p><p>Algumas divindades ainda não estão disponíveis: Atena, por exemplo, só poderá ser escolhida quando houver uma mecânica que represente sua prole. Nos kits dos Venti e dos Alati, estrangeiros não recebem os acúmulos (por isso, recomendamos o sistema de Legados).</p></article>
 <article class="paper-card"><h3>Fama</h3><p>Ser filho de um deus estrangeiro não dá a Fama positiva da contraparte romana: um filho de Zeus com a mecânica de Júpiter não recebe Fama por ser “filho de Júpiter”. As penalidades, porém, continuam: um filho de Poseidon com a mecânica de Netuno é recebido com tudo o que a associação com Netuno representa, incluindo a Fama negativa.</p><p>Além disso, há a Fama inicial do panteão: <strong>gregos, −10</strong> (reputação de baderneiros, desorganizados, caóticos, indisciplinados e, às vezes, fedidos); <strong>celtas, −15</strong> (vistos com desconfiança depois dos ataques); <strong>nórdicos e egípcios, 0</strong>.</p></article>
 <article class="paper-card"><h3>Itens e bênçãos antigos</h3><p>Itens especiais, armas únicas, artefatos e espólios de outros sistemas não entram no RPG: devem ter sido perdidos, destruídos ou deixados para trás antes da chegada. Um item antigo indispensável à identidade do personagem precisa ser adaptado às regras de <a href="#herancas">Herança</a>, com seus limites, custos e exigências.</p></article>
@@ -480,8 +480,22 @@
 <h3 class="subheading">Honesta Missio, em detalhe</h3>
 <div class="grid two">
 <article class="paper-card"><h3>Um final digno</h3><p>A melhor honra que podemos dar àquilo que criamos é um final digno. Por isso, ninguém é cobrado a encerrar a história de um personagem por ter alcançado um cargo ou uma conquista: só o jogador sabe quando aquela história terminou. Enquanto não pedir a Honesta Missio, o Rebento continua em missões, eventos e RPs, e segue progredindo se ainda não estiver no nível máximo.</p></article>
-<article class="paper-card"><h3>Depois do pedido</h3><p>O personagem pode continuar sendo usado em RP, inclusive pelos bots do servidor, mantendo relações, família, propriedades e profissão em Nova Roma. Recomendamos conversar com os Dii Consentis sobre a função que ele passa a exercer na cidade. Uso por outros jogadores depende de autorização. Pedidos de missão própria, a cada três meses OFF, não têm prioridade sobre conteúdos de personagens ativos e podem demorar mais; participações depois da Honesta Missio ainda podem render pontos, recompensas ou pequenos benefícios.</p></article>
-</div>` });
+<article class="paper-card"><h3>Depois do pedido</h3><p>O personagem continua sendo do jogador e pode seguir sendo usado em RP, inclusive pelos bots do servidor, mantendo relações, família, propriedades e profissão em Nova Roma. Recomendamos conversar com os Dii Consentis sobre a função que ele passa a exercer na cidade. Uso por outros jogadores depende de autorização. Pedidos de missão própria, a cada três meses OFF, não têm prioridade sobre conteúdos de personagens ativos e podem demorar mais; participações depois da Honesta Missio ainda podem render pontos, recompensas ou pequenos benefícios.</p></article>
+</div>
+<article class="paper-card"><h3>Reset</h3><p>Depois da Honesta Missio, o personagem passa a ser um NPC da cidade e fica <strong>imune ao reset</strong>. O reset só acontece se o jogador continuar usando o personagem como principal e ficar sem jogar com ele.</p></article>` });
+
+  /* Runas superiores (decisão da Staff, 25/11/2026): o dano extra é de 1d4 ou 1d6, definido na
+     aprovação. Condutores seguem como no site: cristal, cinzas ou água. */
+  T.push({ page: 'crafting', fonte: 'Decisão da Staff · 25/11/2026 (runas superiores)', fn(root) {
+    const sec = root.querySelector('section#runas');
+    if (!sec) return;
+    for (const el of sec.querySelectorAll('p, li, span, div')) {
+      if (el.children.length > 3) continue;
+      if (el.innerHTML.includes('+1d4 dano')) el.innerHTML = el.innerHTML.replace('+1d4 dano', '+1d4 ou +1d6 de dano');
+    }
+    const dano = [...sec.querySelectorAll('.paper-card')].find(c => /Dano/.test(c.querySelector('h3')?.textContent || ''));
+    if (dano) dano.insertAdjacentHTML('beforeend', '<p>Na runa <strong>superior</strong>, o dano extra é de <strong>1d4 ou 1d6</strong>, definido com a Staff na aprovação: tipos mais comuns, como fogo e gelo, podem chegar a 1d6; tipos como radiante ficam em 1d4.</p>');
+  } });
 
   window.GUIA_TEXTOS = T;
 })();
