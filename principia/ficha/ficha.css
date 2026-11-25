@@ -439,3 +439,13 @@ html[data-theme="light"] .os-ficha{--fg-gold:#a77a1e;--fg-ok:#2f8a46;--fg-warn:#
 .fg-aviso-conta{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;padding:10px 16px;border-bottom:1px solid var(--os-win-line);background:color-mix(in srgb,var(--fg-accent) 9%,var(--os-win-bg));font:500 13px/1.4 Inter,sans-serif}
 .fg-aviso-conta>span:first-child{flex:1;min-width:220px}
 .fg-aviso-conta-acoes{display:flex;gap:6px}
+
+/* Selo "Salvar na conta": ficha ainda só neste aparelho, com a conta ativa. É um convite, não um estado. */
+.fg-save--btn.is-local{border-color:var(--fg-accent);background:color-mix(in srgb,var(--fg-accent) 14%,transparent);color:var(--os-win-ink)}
+.fg-save--btn.is-local i{width:12px;height:12px;border-radius:0;box-shadow:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16V5m0 0-4 4m4-4 4 4M5 19h14'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16V5m0 0-4 4m4-4 4 4M5 19h14'/%3E%3C/svg%3E") center/contain no-repeat}
+.fg-save--btn.is-local:hover{background:color-mix(in srgb,var(--fg-accent) 24%,transparent)}
+/* Fama da ficha que ainda não foi para a Tabula Famae */
+.fg-fama-pend{border-color:color-mix(in srgb,var(--fg-warn) 55%,var(--os-win-line));background:color-mix(in srgb,var(--fg-warn) 8%,transparent);display:flex;flex-direction:column;gap:10px}
+.fg-fama-pend .fg-row{background:transparent}
+.fg-fama-pend .fg-row-main input{width:100%;margin-top:6px}
+.fg-fama-pend .fg-row-main a{color:inherit}

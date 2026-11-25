@@ -335,7 +335,7 @@
         FG.nuvem?.aoSalvar?.(rec);
       } catch (e) {
         S.salvando = false;
-        toast('Não consegui salvar a ficha neste navegador: ' + (e?.message || e));
+        toast('Não consegui salvar a ficha neste aparelho: ' + (e?.message || e));
       }
       marcarSalvo();
     }
@@ -345,8 +345,9 @@
       // Com a conta ativa, o selo mostra o estado da sincronização (nuvem.js); sem ela, o do navegador.
       const n = FG.nuvem?.rotulo?.(S.rec, S.salvando);
       for (const c of ['is-saving', 'is-ok', 'is-warn', 'is-bad', 'is-local']) el.classList.toggle(c, n ? n.classe === c : c === 'is-saving' && S.salvando);
-      el.lastElementChild.textContent = n ? n.texto : S.salvando ? 'Salvando…' : S.salvoEm ? 'Salva neste navegador' : 'Salva';
-      el.title = n?.dica || '';
+      // "Navegador" confundia: para o jogador, o que importa é se a ficha está só aqui ou na conta.
+      el.lastElementChild.textContent = n ? n.texto : S.salvando ? 'Salvando…' : 'Salva neste aparelho';
+      el.title = n?.dica || (window.PRINCIPIA?.online?.ativo ? 'A ficha está salva só neste aparelho. Entre com o Discord para salvar na conta e abrir em qualquer lugar.' : 'A ficha está salva neste aparelho. Exporte o JSON para ter uma cópia.');
     }
     FG.marcarSalvo = marcarSalvo;
     window.addEventListener('beforeunload', () => { if (S.salvando) salvarAgora(); });
@@ -379,8 +380,8 @@
         <span class="fg-spacer"></span>
         ${S.rec?.temporaria ? `<span class="fg-chip" title="Mudanças nesta ficha não são salvas">Só leitura · nada é salvo</span><button class="fg-btn fg-btn--sm" type="button" data-a="sair-temporaria">Sair</button>` : ''}
         ${S.M && S.rec && !S.criando && !S.rec.temporaria ? (nuvem
-          ? `<button class="fg-save fg-save--btn" type="button" data-a="nuvem" role="status"><i></i><span>Salva neste navegador</span></button>`
-          : `<span class="fg-save" role="status"><i></i><span>Salva neste navegador</span></span>`) : ''}
+          ? `<button class="fg-save fg-save--btn" type="button" data-a="nuvem" role="status"><i></i><span>Salva neste aparelho</span></button>`
+          : `<span class="fg-save" role="status"><i></i><span>Salva neste aparelho</span></span>`) : ''}
         <div class="fg-menu">
           <button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="menu" aria-label="Mais opções" aria-expanded="${S.menu}">${ICO.more}</button>
           <div class="fg-menu-list" role="menu"${S.menu ? '' : ' hidden'}>
@@ -406,15 +407,15 @@
           <button class="fg-btn" type="button" data-a="importar">Importar JSON</button>
           ${S.oficial.length ? `<button class="fg-btn" type="button" data-a="oficial">Trazer da Ficha Oficial (${S.oficial.length})</button>` : ''}
         </div>
-        <p class="fg-muted" style="font-size:12.5px">${FG.nuvem?.ativa?.() ? 'Com a conta do Discord, a ficha fica guardada na sua conta e abre em qualquer aparelho. Exportar o JSON continua sendo uma cópia de segurança extra.' : 'A ficha fica salva neste navegador, com cópias automáticas das últimas versões. Exportar o JSON continua sendo a cópia de segurança fora dele.'}</p>
+        <p class="fg-muted" style="font-size:12.5px">${FG.nuvem?.ativa?.() ? 'Com a conta do Discord, a ficha fica salva na sua conta e abre em qualquer aparelho. Exportar o JSON continua sendo uma cópia de segurança extra.' : 'A ficha fica salva neste navegador, com cópias automáticas das últimas versões. Exportar o JSON continua sendo a cópia de segurança fora dele.'}</p>
       </div>`;
     }
 
     // Ficha só neste navegador, com a conta ativa: um aviso por ficha (some em "Agora não").
     function avisoConta() {
       if (!FG.nuvem?.ativa?.() || !S.rec || S.rec.temporaria || FG.nuvem.ligada(S.rec) || store.get('guia_ficha_aviso_conta_' + S.rec.id) === '1') return '';
-      return `<div class="fg-aviso-conta" role="note"><span><b>${esc(S.rec.nome)}</b> está só neste navegador. Guardada na conta, a ficha abre em qualquer aparelho e não se perde se o navegador for limpo.</span>
-        <span class="fg-aviso-conta-acoes"><button class="fg-btn fg-btn--sm fg-btn--pri" type="button" data-a="nuvem">Guardar na conta</button><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="aviso-conta-fechar">Agora não</button></span></div>`;
+      return `<div class="fg-aviso-conta" role="note"><span><b>${esc(S.rec.nome)}</b> ainda não está salva na sua conta: por enquanto, só existe neste aparelho. Salve na conta para abrir a ficha em qualquer lugar e para a fama aparecer na Tabula Famae.</span>
+        <span class="fg-aviso-conta-acoes"><button class="fg-btn fg-btn--sm fg-btn--pri" type="button" data-a="nuvem">Salvar na conta</button><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="aviso-conta-fechar">Agora não</button></span></div>`;
     }
 
     function capa() {
@@ -644,7 +645,7 @@
       // Ficha guardada na conta: a pergunta é outra (só daqui ou também da conta) e fica com nuvem.js.
       const naConta = FG.nuvem?.ligada?.(S.rec);
       const ok = naConta ? await FG.nuvem.confirmarExclusao(S.rec)
-        : await FG.confirmar('Excluir esta ficha?', `${S.rec.nome} sai deste navegador. As versões salvas ficam guardadas por segurança; exporte o JSON antes se quiser uma cópia.`, 'Excluir', true);
+        : await FG.confirmar('Excluir esta ficha?', `${S.rec.nome} sai deste aparelho. As versões salvas ficam guardadas por segurança; exporte o JSON antes se quiser uma cópia.`, 'Excluir', true);
       if (!ok) return;
       await guardarVersao(S.rec, 'Antes de excluir');
       await dbDel(S.rec.id);
@@ -653,7 +654,7 @@
       store.del('guia_ficha_atual');
       if (lista()[0]) await abrir(lista()[0].id, true);
       render();
-      toast(ok === 'conta' ? 'Ficha excluída deste navegador e da conta.' : 'Ficha excluída deste navegador.');
+      toast(ok === 'conta' ? 'Ficha excluída deste aparelho e da conta.' : 'Ficha excluída deste aparelho.');
     };
     acoes.oficial = () => {
       S.menu = false;

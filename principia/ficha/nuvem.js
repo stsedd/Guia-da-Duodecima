@@ -68,7 +68,7 @@
 
     function msg(e) {
       const m = String(e?.message || e?.error || e || '');
-      if (/Failed to fetch|NetworkError|Load failed|network/i.test(m)) return 'Sem conexão com a conta. A ficha continua salva neste navegador e sobe quando a conexão voltar.';
+      if (/Failed to fetch|NetworkError|Load failed|network/i.test(m)) return 'Sem conexão com a conta. A ficha continua salva neste aparelho e vai para a conta quando a conexão voltar.';
       if (/JWT expired|invalid JWT/i.test(m)) return 'Sua sessão expirou. Entre de novo com o Discord.';
       if (/row-level security|permission denied/i.test(m)) return 'A conta recusou a gravação (permissão ou limite de imagens). Fale com a Staff se continuar.';
       if (/maximum allowed size|Payload too large/i.test(m)) return 'Uma imagem passou de 1 MB mesmo reduzida. Troque por uma imagem menor.';
@@ -262,9 +262,9 @@
           N.ultimaSync = Date.now();
           for (const rec of S.lista.filter(r => r.nuvem?.dono === c.uid)) {
             const p = N.lista.find(x => x.id === rec.nuvem.pid);
-            if (!p) { desligar(rec, `${rec.nome} não está mais na sua conta. A ficha ficou só neste navegador.`); mudou = true; continue; }
+            if (!p) { desligar(rec, `${rec.nome} não está mais na sua conta. A ficha ficou só neste aparelho.`); mudou = true; continue; }
             if (p.ficha_revisao !== rec.nuvem.rev) {
-              if (!p.ficha_salva_em) { desligar(rec, `A ficha de ${rec.nome} foi tirada da conta em outro aparelho. Aqui ela ficou só neste navegador.`); mudou = true; continue; }
+              if (!p.ficha_salva_em) { desligar(rec, `A ficha de ${rec.nome} foi tirada da conta em outro aparelho. Aqui ela ficou só neste aparelho.`); mudou = true; continue; }
               if (rec.nuvem.conflito || pendente(rec) || (S.rec === rec && S.salvando)) {
                 rec.nuvem.conflito = { rev: p.ficha_revisao, em: p.ficha_salva_em };
                 await FG.dbPut(rec);
@@ -298,8 +298,8 @@
     async function confirmarExclusao(rec) {
       const v = await FG.dialogo({
         titulo: 'Excluir esta ficha?',
-        texto: `${rec.nome} está guardada na sua conta. Excluir só deste navegador (continua na conta e nos outros aparelhos) ou também da conta? Na conta, a ficha excluída fica nas versões por segurança.`,
-        botoes: [{ texto: 'Cancelar', v: null }, { texto: 'Só deste navegador', v: 'local' }, { texto: 'Também da conta', v: 'conta', perigo: true }]
+        texto: `${rec.nome} está salva na sua conta. Excluir só deste aparelho (continua na conta e nos outros aparelhos) ou também da conta? Na conta, a ficha excluída fica nas versões por segurança.`,
+        botoes: [{ texto: 'Cancelar', v: null }, { texto: 'Só deste aparelho', v: 'local' }, { texto: 'Também da conta', v: 'conta', perigo: true }]
       });
       if (v === 'local') { ignorar(rec.nuvem.dono, rec.nuvem.pid, true); return 'local'; }
       if (v !== 'conta') return null;
@@ -351,7 +351,7 @@
     FG.gavetas.nuvem = () => {
       const fechar = `<div style="display:flex;justify-content:space-between;align-items:center"><span class="fg-kicker">Conta</span><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fechar-gaveta" aria-label="Fechar">${ICO.close}</button></div><h3>Ficha na conta</h3>`;
       const c = conta();
-      if (!c) return `<div class="fg-drawer-body">${fechar}<p class="fg-muted">${esc(N.indisponivel || 'Entre com a conta do Discord da Duodécima para guardar a ficha na conta.')}</p></div>`;
+      if (!c) return `<div class="fg-drawer-body">${fechar}<p class="fg-muted">${esc(N.indisponivel || 'Entre com a conta do Discord da Duodécima para salvar a ficha na conta.')}</p></div>`;
       const rec = S.rec;
       const partes = [];
       if (N.erro) partes.push(`<div class="fg-note fg-note--warn">${esc(N.erro)}</div>`);
@@ -376,9 +376,9 @@
         const deus = s.originType === 'mortal' ? '' : (s.godId || '');
         const nomeDeus = deus ? (FG.godDe(deus)?.name || deus) : '';
         const livres = (N.lista || []).filter(p => !S.lista.some(r => r !== rec && r.nuvem?.dono === c.uid && r.nuvem.pid === p.id));
-        partes.push(`<p class="fg-muted"><b>${esc(rec.nome)}</b> está só neste navegador. Guardada na conta, a ficha abre em qualquer aparelho em que você entrar com o Discord, e só você e a Staff conseguem vê-la.</p>`);
+        partes.push(`<p class="fg-muted"><b>${esc(rec.nome)}</b> ainda não está na sua conta: por enquanto, só existe neste aparelho. Salva na conta, a ficha abre em qualquer aparelho em que você entrar com o Discord, a fama dela vai para a Tabula Famae, e só você e a Staff conseguem ver a ficha.</p>`);
         partes.push(`<div class="fg-sec-head"><b class="fg-label">Usar um personagem da sua conta</b></div>
-          <div class="fg-rows">${N.lista === null ? '<p class="fg-empty-line">Consultando a conta…</p>' : livres.map(p => `<div class="fg-row"><div class="fg-row-main"><b>${esc(p.nome)}</b><small>${p.ficha_salva_em ? 'já tem ficha na conta (' + esc(dataHora(p.ficha_salva_em)) + ')' : 'sem ficha na conta'}</small></div><button class="fg-btn fg-btn--sm${p.ficha_salva_em ? '' : ' fg-btn--pri'}" type="button" data-a="nuvem-ligar" data-id="${esc(p.id)}">${p.ficha_salva_em ? 'Substituir' : 'Guardar aqui'}</button></div>`).join('') || '<p class="fg-empty-line">Nenhum personagem livre na conta.</p>'}</div>`);
+          <div class="fg-rows">${N.lista === null ? '<p class="fg-empty-line">Consultando a conta…</p>' : livres.map(p => `<div class="fg-row"><div class="fg-row-main"><b>${esc(p.nome)}</b><small>${p.ficha_salva_em ? 'já tem ficha na conta (' + esc(dataHora(p.ficha_salva_em)) + ')' : 'sem ficha na conta'}</small></div><button class="fg-btn fg-btn--sm${p.ficha_salva_em ? '' : ' fg-btn--pri'}" type="button" data-a="nuvem-ligar" data-id="${esc(p.id)}">${p.ficha_salva_em ? 'Substituir' : 'Salvar aqui'}</button></div>`).join('') || '<p class="fg-empty-line">Nenhum personagem livre na conta.</p>'}</div>`);
         partes.push(`<div class="fg-sec-head"><b class="fg-label">Ou cadastrar na conta</b></div>
           <div class="fg-form" data-nuvem-form>
             <label class="fg-field fg-wide"><span>Nome</span><input name="nome" maxlength="80" value="${esc(s.name || rec.nome || '')}"></label>
@@ -388,10 +388,10 @@
             <label class="fg-check fg-wide"><input type="checkbox" name="publico" checked> Aparece na Tabula Famae</label>
           </div>
           <p class="fg-muted" style="font-size:12.5px">Gregos começam com −10 de fama e celtas com −15; filhos de Iuppiter, Bellona e Marte Ultor recebem +15. Depois de cadastrar, linhagem, panteão e divindade só mudam com a Staff.</p>
-          <div class="fg-actions"><button class="fg-btn fg-btn--pri" type="button" data-a="nuvem-cadastrar">Cadastrar e guardar a ficha</button></div>`);
+          <div class="fg-actions"><button class="fg-btn fg-btn--pri" type="button" data-a="nuvem-cadastrar">Cadastrar e salvar a ficha</button></div>`);
       }
       const fora = (N.lista || []).filter(p => p.ficha_salva_em && !S.lista.some(r => r.nuvem?.dono === c.uid && r.nuvem.pid === p.id));
-      if (fora.length) partes.push(`<div class="fg-sec-head"><b class="fg-label">Na conta, mas não neste navegador</b></div>
+      if (fora.length) partes.push(`<div class="fg-sec-head"><b class="fg-label">Na conta, mas não neste aparelho</b></div>
         <div class="fg-rows">${fora.map(p => `<div class="fg-row"><div class="fg-row-main"><b>${esc(p.nome)}</b><small>ficha de ${esc(dataHora(p.ficha_salva_em))}</small></div><button class="fg-btn fg-btn--sm" type="button" data-a="nuvem-baixar" data-id="${esc(p.id)}">Baixar</button></div>`).join('')}</div>`);
       return `<div class="fg-drawer-body">${fechar}${partes.join('')}</div>`;
     };
@@ -419,7 +419,7 @@
       rec.nuvem = { pid: p.id, dono: c.uid, rev: p.ficha_revisao, em: p.ficha_salva_em, enviado: '' };
       await FG.dbPut(rec);
       const r = await enviar(rec, { forcar: true, motivo });
-      if (r?.ok) toast(`${rec.nome} guardado na conta.`);
+      if (r?.ok) { toast(`${rec.nome} salvo na conta.`); FG.famaAoLigar?.(rec); }
       else if (!r && N.erro) toast(N.erro);
     }
     acoes['nuvem-cadastrar'] = el => ocupado(el, async () => {
@@ -447,7 +447,7 @@
     acoes['nuvem-desligar'] = el => ocupado(el, async () => {
       const rec = S.rec;
       if (!ligada(rec)) return;
-      if (!(await FG.confirmar('Parar de sincronizar?', `${rec.nome} continua neste navegador e na conta, mas as mudanças daqui deixam de subir. Dá para voltar a qualquer momento em "Ficha na conta".`, 'Parar'))) return;
+      if (!(await FG.confirmar('Parar de sincronizar?', `${rec.nome} continua neste aparelho e na conta, mas as mudanças daqui deixam de ir para a conta. Dá para voltar a qualquer momento em "Ficha na conta".`, 'Parar'))) return;
       desligar(rec);
       toast('Sincronização desligada para esta ficha.');
     });
@@ -477,10 +477,10 @@
     /* ---------------------------------------------------------------- selo */
     function rotulo(rec, salvando) {
       if (!conta() || !rec) return null;
-      if (!ligada(rec)) return { texto: 'Só neste navegador', classe: 'is-local', dica: 'Toque para guardar na conta e abrir em outros aparelhos.' };
+      if (!ligada(rec)) return { texto: 'Salvar na conta', classe: 'is-local', dica: 'Esta ficha está salva só neste aparelho. Toque para salvar na sua conta: ela abre em qualquer aparelho e a fama vai para a Tabula Famae.' };
       if (rec.nuvem.conflito) return { texto: 'Conflito: escolha a versão', classe: 'is-bad', dica: 'A ficha mudou em outro aparelho.' };
-      if (salvando || N.enviando.has(rec.id)) return { texto: 'Enviando para a conta…', classe: 'is-saving' };
-      if (pendente(rec)) return N.erro ? { texto: 'Ainda não subiu', classe: 'is-warn', dica: N.erro } : { texto: 'Enviando para a conta…', classe: 'is-saving' };
+      if (salvando || N.enviando.has(rec.id)) return { texto: 'Salvando na conta…', classe: 'is-saving' };
+      if (pendente(rec)) return N.erro ? { texto: 'Não salvou na conta', classe: 'is-warn', dica: N.erro + ' Toque para tentar de novo.' } : { texto: 'Salvando na conta…', classe: 'is-saving' };
       return { texto: 'Salva na conta', classe: 'is-ok', dica: rec.nuvem.em ? 'Última vez: ' + dataHora(rec.nuvem.em) : '' };
     }
 

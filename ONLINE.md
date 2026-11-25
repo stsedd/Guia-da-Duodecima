@@ -109,7 +109,7 @@ Se algo der erro na parte do Storage, mande só a mensagem de erro; nenhuma chav
 
 Já aplicada no banco (migração `duodecima_fama_ajuste_staff`).
 
-- **Uma fonte só:** a fama oficial é a da conta. A Tabula Famae, a Minha Conta e a aba Roma da Minha Ficha leem e lançam no mesmo lugar.
+- **Uma fonte só:** a fama oficial é a da conta. A Tabula Famae, a Minha Conta e a aba Roma da Minha Ficha leem e lançam no mesmo lugar. A fama registrada só na ficha é enviada para a conta pela aba Roma (ou logo depois de salvar a ficha na conta), sem repetir links que já estão lá.
 - **Ajuste da Staff:** Donos e Staff lançam pelo Praetorium sem link do Discord. O banco grava o lançamento como ajuste da Staff (`staff:<id>`), e ele aparece assim na conta e no histórico. Fama negativa retira. Jogadores continuam obrigados a mandar o link da mensagem.
 - **Ver ficha:** a Staff abre a ficha da conta de qualquer jogador em modo só leitura pelo Praetorium. A leitura continua protegida pelo banco: só o dono do personagem e a Staff conseguem.
 

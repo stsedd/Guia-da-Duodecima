@@ -765,7 +765,7 @@
     if (fichaHook) P.hooks.ficha = { ...fichaHook, open() { travarFicha(); return fichaHook.open?.(); } };
 
     // Para depuração no console e testes: o estado e as funções de dados.
-    P.online = { ativo: ON, estado: S, db, aplicar, entrar, sair, msgErro, linkFama, recarregarMeus: () => (uid() && ehMembro() ? recarregarMeus() : null) };
+    P.online = { ativo: ON, estado: S, db, aplicar, entrar, sair, msgErro, linkFama, ehStaff, recarregarMeus: () => (uid() && ehMembro() ? recarregarMeus() : null) };
     iniciar();
   }
 

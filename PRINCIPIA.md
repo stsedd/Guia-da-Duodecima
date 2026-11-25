@@ -110,7 +110,11 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
     - Sem a atualização do banco, tudo segue só no navegador.
   - **Nível:** campo com − e + no topo da ficha (o selo no retrato leva até ele), porque o nível muda com frequência no servidor.
   - **Mão de cartas:** até **5** cartas (`FG.MAO`, em `principia/ficha/ficha.js`; o `motor.js` não muda). Fichas com mais cartas abrem com as 5 primeiras.
-  - **Fama:** com a ficha ligada à conta, a aba Roma mostra a fama da conta (a mesma da Tabula Famae) e lança por ali. A fama que estava só na ficha fica em "Fama antiga desta ficha".
+  - **Fama:** com a ficha ligada à conta, a aba Roma mostra a fama da conta (a mesma da Tabula Famae) e lança direto nela.
+    - Registros feitos só na ficha (antes de ela ir para a conta, ou pelo botão da montaria) ficam em `roma.famaFichaAntiga`.
+    - Logo depois de salvar a ficha na conta, o Guia oferece enviá-los à Tabula. Depois, a aba Roma mantém o cartão "ainda não está na Tabula Famae" com **Enviar para a Tabula** e **Já lancei na conta**.
+    - O que já está na conta com o mesmo link fica de fora sozinho. Sem link, o jogador cola o link no cartão; para a Staff, entra como ajuste da Staff.
+  - **Selo de salvamento:** "Salva neste aparelho" sem conta; com a conta ativa, a ficha que ainda não está nela mostra o botão **Salvar na conta**, e depois "Salvando na conta…" e "Salva na conta".
   - **Ficha só leitura (Staff):** no Praetorium, **Ver ficha** abre a ficha da conta do jogador fora da lista, sem salvar nem enviar nada. **Sair** volta para as fichas da própria pessoa.
   - No computador, **Lado a lado** coloca a ficha à esquerda e o Guia à direita; no celular, os botões **Ficha** e **Guia** alternam entre as duas telas sem perder o lugar. As abas ficam presas abaixo do painel de recursos no computador; no celular só o painel fica preso, e as gavetas viram folhas que sobem de baixo.
 - **Celular:** tela inicial com busca, grade de apps e dock; apps em tela cheia com botão de voltar e gaveta de seções.

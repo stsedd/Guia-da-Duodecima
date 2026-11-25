@@ -170,7 +170,7 @@
       s.roma.fame = S.M.fameTotal();
       s.familiars.mountFameClaimed = true;
       pronto();
-      window.PRINCIPIA.api.toast('+10 de fama da montaria registrada em Roma.');
+      window.PRINCIPIA.api.toast(FG.nuvem?.ligada?.(S.rec) ? '+10 de fama da montaria registrado. Envie para a Tabula Famae na aba Roma.' : '+10 de fama da montaria registrada em Roma.');
     };
   }
   if (window.FichaGuia) iniciar();

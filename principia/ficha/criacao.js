@@ -135,7 +135,7 @@
         </div>
         <div class="fg-attrs" style="grid-template-columns:repeat(6,minmax(0,1fr))">${FG.attrsLista.map(([k, ab]) => `<div class="fg-attr"><span>${ab}</span><b style="font-size:34px">${M.effectiveAttr(k)}</b></div>`).join('')}</div>
         ${issues.map(x => `<p class="fg-note${x.level === 'error' ? ' fg-note--warn' : ''}">${esc(x.text)}</p>`).join('')}
-        ${ok ? '<p class="fg-note">Tudo pronto. Ao concluir, a ficha é salva neste navegador e abre na Visão geral.</p>' : '<p class="fg-note fg-note--warn">Ainda falta algo nos passos marcados sem ✓.</p>'}`;
+        ${ok ? '<p class="fg-note">Tudo pronto. Ao concluir, a ficha é salva neste aparelho e abre na Visão geral' + (window.FichaGuia?.nuvem?.ativa?.() ? '; depois, toque em <b>Salvar na conta</b> para levar a ficha para a sua conta.' : '.') + '</p>' : '<p class="fg-note fg-note--warn">Ainda falta algo nos passos marcados sem ✓.</p>'}`;
     }
 
     FG.abas.criacao = {
@@ -229,7 +229,7 @@
       S.criando = null;
       S.aba = 'geral';
       FG.renderAgora();
-      window.PRINCIPIA.api.toast(`${rec.nome} criado. A ficha fica salva neste navegador.`);
+      window.PRINCIPIA.api.toast(`${rec.nome} criado. ${window.FichaGuia?.nuvem?.ativa?.() ? 'Toque em Salvar na conta para levar a ficha para a sua conta.' : 'A ficha fica salva neste aparelho.'}`);
     };
   }
   if (window.FichaGuia) iniciar();
