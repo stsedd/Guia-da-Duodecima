@@ -222,7 +222,7 @@
   const WM = (() => {
     const wins = {};
     let z = 200;
-    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], ficha: [420, 480], conta: [360, 400], famae: [380, 420], praetorium: [560, 440] };
+    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], ficha: [420, 480], conta: [360, 400], famae: [380, 420], praetorium: [560, 440], notes: [460, 360] };
     let saved = {};
     try { saved = JSON.parse(store.get('principia_wins', '{}')) || {}; } catch { saved = {}; }
     const barH = () => isMobile() ? 0 : ($('#osBar')?.offsetHeight || 40);
@@ -234,7 +234,7 @@
         const w = Math.min(1300, vw - 236);
         return { x: Math.round((vw - w) / 2), y: bar + g, w, h: vh - bar - g * 2 };
       }
-      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], ficha: [1240, 900], conta: [560, 760], famae: [760, 800], praetorium: [1080, 820], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
+      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], ficha: [1240, 900], conta: [560, 760], famae: [760, 800], praetorium: [1080, 820], notes: [780, 560], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
       const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, ficha: 0, conta: -60, famae: 40, praetorium: 0 }[id] || 0;
       const [w0, h0] = sizes[id] || [620, 480];
       const w = Math.round(Math.min(w0, vw - g * 2)), h = Math.round(Math.min(h0, vh - bar - g * 2));
@@ -631,16 +631,35 @@
 
   const minimizedPages = new Map();
   const windowLabel = w => w.id === 'reader' ? (appTitle(currentKey || HOME)) : ({tabularium:'Tabularium', notes:'Notae', ficha:'Minha Ficha', prefs:'Preferências', leiame:'Leia-me', sobre:'Sobre', viewer:'Imagem', conta:'Minha Conta', famae:'Tabula Famae', praetorium:'Praetorium'}[w.id] || w.id);
+  // Minimizadas aparecem na barra de cima pelo nome e ícone, como uma barra de tarefas;
+  // as que não cabem ficam no "+N", que abre a lista completa.
+  const appDaJanela = id => Object.keys(APPS).find(k => APPS[k].kind === 'win' && APPS[k].win === id) || null;
+  let taskbar = null;
+  function renderTaskbar(itens) {
+    const counter = $('#osMinimizedCount');
+    if (!counter) return;
+    if (!taskbar) {
+      taskbar = document.createElement('div');
+      taskbar.className = 'os-taskbar';
+      taskbar.id = 'osTaskbar';
+      taskbar.setAttribute('role', 'group');
+      taskbar.setAttribute('aria-label', 'Janelas minimizadas');
+      counter.before(taskbar);
+    }
+    const vis = itens.slice(0, isMobile() ? 1 : 4);
+    taskbar.innerHTML = vis.map(it => `<button class="os-task" type="button" data-action="${it.acao}" ${it.attr} title="Voltar para ${esc(it.nome)}" aria-label="Voltar para ${esc(it.nome)}">${it.app ? miniArt(it.app) : `<span class="os-mini-glyph">${svg('open')}</span>`}<span>${esc(it.nome)}</span></button>`).join('');
+    const resto = itens.length - vis.length;
+    counter.hidden = resto <= 0;
+    counter.textContent = '+' + resto;
+    counter.title = `Mais ${resto} minimizada(s)`;
+    counter.setAttribute('aria-label', counter.title);
+  }
   function updateRunning() {
     const minimized = Object.values(WM.wins).filter(w => w.minimized && w.id !== 'reader');
-    const count = minimized.length + minimizedPages.size;
-    const counter = $('#osMinimizedCount');
-    if (counter) {
-      counter.hidden = !count;
-      counter.textContent = '▱ ' + count;
-      counter.title = count + ' janela(s) minimizada(s)';
-      counter.setAttribute('aria-label', counter.title);
-    }
+    renderTaskbar([
+      ...[...minimizedPages.keys()].map(k => ({ nome: shortTitle(k), app: APPS[k] ? k : null, acao: 'restore-page', attr: `data-page-key="${esc(k)}"` })),
+      ...minimized.map(w => ({ nome: windowLabel(w), app: appDaJanela(w.id), acao: 'restore-window', attr: `data-window-id="${esc(w.id)}"` }))
+    ]);
     const readerOpen = WM.isOpen('reader');
     $$('.os-ico[data-app]').forEach(ic => {
       const id = ic.dataset.app;
@@ -969,7 +988,7 @@
         <button class="os-dd-item" type="button" role="menuitem" data-app="sobre">${svg('info')}Sobre este terminal</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="prefs">${svg('gear')}Preferências…</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="leiame">${svg('note')}Leia-me</button>
-        <button class="os-dd-item" type="button" role="menuitem" data-app="notes">${svg('note')}Notae · Bloco de notas</button>
+        <button class="os-dd-item" type="button" role="menuitem" data-app="notes">${svg('quill')}Notae · Bloco de notas</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="tabularium">${svg('folder')}Tabularium</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="minhaficha"><img src="${APPS.minhaficha.art}" alt="">Minha Ficha</button>
         <a class="os-dd-item" role="menuitem" href="${IMESSAGE_URL}" target="_blank" rel="noopener noreferrer">${svg('phone')}iMessage<em>Discord</em></a>
@@ -1185,20 +1204,7 @@
   $('#osPrefBoot').addEventListener('change', e => store.set('principia_boot', e.target.checked ? 'on' : 'off'));
   new MutationObserver(() => { syncPrefs(); if (WM.isOpen('sobre')) renderAbout(); }).observe(html, { attributes: true, attributeFilter: ['data-theme'] });
 
-  const notesText = $('#osNotesText');
-  const notesStatus = $('#osNotesStatus');
-  if (notesText && notesStatus) {
-    notesText.value = store.get('principia_notes_v1', '');
-    let saveTimer;
-    const saveNotes = () => {
-      clearTimeout(saveTimer);
-      try { localStorage.setItem('principia_notes_v1', notesText.value); notesStatus.textContent = 'Salvo neste navegador.'; }
-      catch (_) { notesStatus.textContent = 'Não foi possível salvar. Copie suas anotações antes de sair.'; }
-    };
-    notesText.addEventListener('input', () => { clearTimeout(saveTimer); notesStatus.textContent = 'Salvando…'; saveTimer = setTimeout(saveNotes, 250); });
-    notesText.addEventListener('blur', saveNotes);
-    window.addEventListener('pagehide', saveNotes);
-  }
+  // Notae (caderno com várias notas e notas adesivas na área de trabalho): principia/principia-notas.js.
 
   async function openUtil(win, from) {
     if (WM.get(win)?.minimized) { await WM.open(win, { from }); return; }

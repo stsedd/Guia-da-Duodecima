@@ -86,6 +86,27 @@
       return ACENTOS.find(a => a.id === id) || ACENTOS[0];
     };
     Object.assign(FG, { sinal, uid, clamp, num, attrsLista, godDe, arteDe, ACENTOS, HQ });
+    /* Imagens embutidas na ficha (data URL, às vezes centenas de KB cada) viram um endereço curto em
+       memória (blob:) criado uma vez só. Assim cada redesenho gera um HTML leve e o navegador reaproveita
+       a imagem já decodificada, sem piscar nem travar no celular. O JSON da ficha não muda. */
+    const blobs = new Map();
+    FG.src = url => {
+      const u = String(url || '');
+      if (!u.startsWith('data:') || u.length < 4096) return esc(u);
+      let b = blobs.get(u);
+      if (!b) {
+        try {
+          const i = u.indexOf(','), cab = u.slice(5, i);
+          const bin = /;base64/i.test(cab) ? atob(u.slice(i + 1)) : decodeURIComponent(u.slice(i + 1));
+          const arr = new Uint8Array(bin.length);
+          for (let k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+          b = URL.createObjectURL(new Blob([arr], { type: cab.split(';')[0] || 'image/png' }));
+        } catch { return esc(u); }
+        blobs.set(u, b);
+        if (blobs.size > 300) { const [k, v] = blobs.entries().next().value; URL.revokeObjectURL(v); blobs.delete(k); }
+      }
+      return b;
+    };
 
     /* ---------------------------------------------------------------- banco do navegador */
     function abrirDb(nome, versao, upgrade) {
@@ -369,27 +390,35 @@
         : tipo === 'compound' && sub ? `Legado composto · ${g.name} e ${sub.name}`
         : `Prole de ${g?.name || '—'} · ${M.isTriumvir(s.godId) ? 'Triúnviros' : (g?.group || '')}`;
       const banner = h.bannerUrl
-        ? `<img class="fg-hero-img" src="${esc(h.bannerUrl)}" alt="" style="object-position:${num(h.bannerPositionX ?? 50)}% ${num(h.bannerPositionY ?? 50)}%">`
+        ? `<img class="fg-hero-img" src="${FG.src(h.bannerUrl)}" alt="" style="object-position:${num(h.bannerPositionX ?? 50)}% ${num(h.bannerPositionY ?? 50)}%">`
         : `<img class="fg-hero-img is-art" src="${arteDe(s.godId)}" alt="">`;
-      const retrato = h.portraitUrl ? `<img src="${esc(h.portraitUrl)}" alt="Retrato de ${esc(s.name)}">` : `<span class="fg-ini" aria-hidden="true">${esc(M.initials(s.name || '?'))}</span>`;
+      const retrato = h.portraitUrl ? `<img src="${FG.src(h.portraitUrl)}" alt="Retrato de ${esc(s.name)}">` : `<span class="fg-ini" aria-hidden="true">${esc(M.initials(s.name || '?'))}</span>`;
       const fama = M.fameTotal();
       const banda = M.fameBand();
       const rank = (S.D.roma?.legionRanks || []).find(r => r.id === s.roma?.legionRank);
+      // Nível muda o tempo todo no servidor: fica à mão, com − / + e campo para digitar.
+      const nivel = `<span class="fg-nivel" role="group" aria-label="Nível do personagem">
+          <button type="button" data-a="nivel" data-d="-1" aria-label="Diminuir nível">−</button>
+          <label>Nível <input type="number" inputmode="numeric" min="1" max="100" step="1" data-a="nivel-campo" value="${s.level}" aria-label="Nível"></label>
+          <button type="button" data-a="nivel" data-d="1" aria-label="Aumentar nível">+</button>
+        </span>`;
       const chips = [
-        `<span class="fg-chip">Nível ${s.level} · BP ${sinal(M.bp())}</span>`,
+        nivel,
+        `<span class="fg-chip">BP ${sinal(M.bp())}</span>`,
         s.roma?.rebentoApproved ? '<span class="fg-chip fg-chip--gold">Rebento de Roma</span>' : '',
         banda?.name && fama ? `<span class="fg-chip">${esc(banda.name)} · ${sinal(fama)} fama</span>` : '',
         rank?.id ? `<span class="fg-chip">${esc(rank.name)}</span>` : '',
         s.roma?.cohort ? `<span class="fg-chip">${esc(s.roma.cohort)}</span>` : '',
         s.player ? `<span class="fg-chip">Jogador(a): ${esc(s.player)}</span>` : ''
       ].join('');
-      const marca = (g?.name || 'Roma').split(' ')[0];
+      // Como um perfil do Discord: a capa inteira em cima, o retrato metade sobre ela e o resto da identidade abaixo.
       return `<header class="fg-hero">
-        ${banner}
-        <span class="fg-hero-mark" aria-hidden="true">${esc(marca)}</span>
-        <div class="fg-hero-tools"><button class="fg-btn fg-btn--sm" type="button" data-a="aba" data-aba="diario">${ICO.edit}Capa e retrato</button></div>
+        <div class="fg-capa">
+          ${banner}
+          <div class="fg-hero-tools"><button class="fg-btn fg-btn--sm" type="button" data-a="aba" data-aba="diario">${ICO.edit}Capa e retrato</button></div>
+        </div>
         <div class="fg-hero-in">
-          <div class="fg-portrait">${retrato}<span class="fg-lvl" title="Nível">${s.level}</span></div>
+          <div class="fg-portrait">${retrato}<button class="fg-lvl" type="button" data-a="nivel-foco" title="Mudar o nível" aria-label="Nível ${s.level}: mudar">${s.level}</button></div>
           <div class="fg-id">
             <span class="fg-kicker">${esc(kicker)}</span>
             <h1 class="fg-name">${esc(s.name || 'Sem nome')}</h1>
@@ -626,7 +655,15 @@
       S.M.state.appearance = { ...(S.M.state.appearance || {}), guiaAccent: el.dataset.id };
       agendarSalvar(); render();
     };
-    acoes['hud-toque'] = (el, ev) => { if (ev.type !== 'click' || ev.target.closest('button,input')) return; if (window.matchMedia('(max-width: 760px)').matches || body.clientWidth < 760) { S.hudAberto = !S.hudAberto; render(); } };
+    acoes['nivel-campo'] = (el, ev) => {
+      if (!S.M || ev.type !== 'change') return;
+      const n = clamp(Math.round(Number(el.value) || S.M.state.level || 1), 1, 100);
+      S.M.state.level = n;
+      S.M.syncCurrentCaps();
+      agendarSalvar(); render();
+    };
+    acoes['nivel-foco'] = () => { const i = body.querySelector('.fg-nivel input'); if (i) { i.focus(); i.select(); } };
+    acoes['hud-toque'] =(el, ev) => { if (ev.type !== 'click' || ev.target.closest('button,input')) return; if (window.matchMedia('(max-width: 760px)').matches || body.clientWidth < 760) { S.hudAberto = !S.hudAberto; render(); } };
     function aplicarAjuste(alvo, delta, absoluto) {
       const M = S.M, s = M.state;
       if (alvo === 'hp') {

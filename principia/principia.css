@@ -709,3 +709,65 @@ html[data-motion="reduce"] .os-reader .content .os-reveal{opacity:1;transform:no
 .os-ico-art--glyph .os-svg{filter:drop-shadow(0 1.5px 1.5px rgba(30,0,4,.6))}
 .os-phone-bubble path{fill:#fffaf5}
 .os-phone-bubble circle{fill:#b5101f}
+
+/* Barra de tarefas: cada janela ou página minimizada aparece com ícone e nome na barra de cima. */
+.os-taskbar{display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden;margin-right:4px}
+.os-taskbar:empty{display:none}
+.os-task{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;flex:none;height:28px;max-width:160px;padding:0 10px 0 4px;border-radius:8px;cursor:pointer;font:600 12px/1 var(--os-font-ui);color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);white-space:nowrap;animation:os-task-in .35s var(--os-out) both}
+.os-task>span:last-child{overflow:hidden;text-overflow:ellipsis}
+.os-task:hover{background:rgba(255,255,255,.2)}
+.os-task:focus-visible{outline:2px solid var(--os-focus);outline-offset:1px}
+.os-task img,.os-task .os-mini-glyph{width:20px;height:20px;border-radius:5px;object-fit:cover;flex:none;border-width:1px;box-shadow:none}
+.os-task .os-mini-glyph .os-svg{width:12px;height:12px}
+@keyframes os-task-in{from{opacity:0;transform:translateY(-6px) scale(.9)}to{opacity:1;transform:none}}
+@media(max-width:759px){.os-task{height:24px;max-width:118px;padding-right:7px}}
+
+/* Notae: caderno com várias notas (lista à esquerda, texto à direita) */
+.os-notes-body.is-caderno{flex-direction:row;gap:0;padding:0}
+.nt-lista{flex:0 0 220px;display:flex;flex-direction:column;gap:8px;min-height:0;padding:12px;border-right:1px solid var(--os-win-line);background:var(--os-win-soft)}
+.nt-nova{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:7px;height:36px;border-radius:9px;background:var(--os-red);color:#fff;font:700 13px/1 var(--os-font-ui);cursor:pointer}
+.nt-nova .os-svg{width:16px;height:16px}
+.nt-nova:hover{filter:brightness(1.1)}
+.nt-nova:focus-visible{outline:2px solid var(--os-focus);outline-offset:2px}
+.nt-itens{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.nt-item{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:3px;padding:9px 10px 9px 11px;border-radius:9px;cursor:pointer;border-left:5px solid var(--nt-c);background:var(--os-win-bg)}
+.nt-item b{font:700 13px/1.25 var(--os-font-ui);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nt-item small{font:500 11px/1.2 var(--os-font-ui);color:var(--os-win-muted)}
+.nt-item.is-atual{box-shadow:inset 0 0 0 2px var(--os-red)}
+.nt-item:focus-visible{outline:2px solid var(--os-focus)}
+.nt-editor{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding:14px}
+.nt-barra{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nt-esp{flex:1}
+.nt-cores{display:flex;gap:7px}
+.nt-cor{all:unset;cursor:pointer;width:20px;height:20px;border-radius:50%;background:var(--nt-c);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.nt-cor.is-on{box-shadow:0 0 0 2px var(--os-win-bg),0 0 0 4px var(--os-red)}
+.nt-cor:focus-visible{outline:2px solid var(--os-focus);outline-offset:3px}
+.nt-acao{height:30px;font-size:12px}
+.nt-perigo{color:var(--os-red-hi)}
+.nt-editor textarea{flex:1;min-height:120px;resize:none;padding:14px;border:1px solid var(--os-win-line);border-radius:10px;background:var(--nt-c);color:var(--nt-ink);font:500 14px/1.6 var(--os-font-ui)}
+.nt-editor textarea:focus{outline:2px solid var(--os-focus);outline-offset:2px}
+.nt-status,.nt-vazio{color:var(--os-win-muted)}
+.nt-cor-papiro{--nt-c:#f6e7b8;--nt-ink:#2b2010}
+.nt-cor-rosa{--nt-c:#f6cbd1;--nt-ink:#3a1219}
+.nt-cor-salvia{--nt-c:#d3e6c8;--nt-ink:#1d2e17}
+.nt-cor-ceu{--nt-c:#cfe0f2;--nt-ink:#132536}
+.nt-cor-legiao{--nt-c:#9e0f1d;--nt-ink:#fff3ef}
+/* Notas adesivas na área de trabalho: acima dos ícones, abaixo das janelas */
+.nt-fixas{position:fixed;inset:0;z-index:20;pointer-events:none}
+.nt-fixa{position:absolute;pointer-events:auto;display:flex;flex-direction:column;min-width:180px;min-height:140px;border-radius:4px 4px 16px 4px;background:var(--nt-c);color:var(--nt-ink);box-shadow:0 14px 30px rgba(0,0,0,.35),0 2px 4px rgba(0,0,0,.25);resize:both;overflow:hidden;animation:nt-cola .35s var(--os-out) both}
+.nt-fixa.is-arrastando{box-shadow:0 24px 44px rgba(0,0,0,.45)}
+.nt-fixa-topo{display:flex;align-items:center;gap:2px;height:28px;padding:0 4px;cursor:grab;background:rgba(0,0,0,.08);touch-action:none}
+.nt-fixa.is-arrastando .nt-fixa-topo{cursor:grabbing}
+.nt-fixa-topo button{all:unset;cursor:pointer;width:24px;height:24px;border-radius:6px;display:grid;place-items:center;color:inherit;opacity:.7}
+.nt-fixa-topo button:hover{opacity:1;background:rgba(0,0,0,.1)}
+.nt-fixa-topo button:focus-visible{outline:2px solid currentColor;opacity:1}
+.nt-fixa-topo .os-svg{width:14px;height:14px}
+.nt-fixa-topo button[data-fx="cor"] i{width:12px;height:12px;border-radius:50%;background:currentColor;opacity:.55}
+.nt-fixa textarea{flex:1;min-height:0;resize:none;border:0;padding:10px 12px;background:transparent;color:inherit;font:500 13.5px/1.55 var(--os-font-ui)}
+.nt-fixa textarea:focus{outline:none}
+@keyframes nt-cola{from{opacity:0;transform:scale(.92) rotate(-2deg)}to{opacity:1;transform:none}}
+@media(max-width:759px){.nt-fixas{display:none}.os-notes-body.is-caderno{flex-direction:column}.nt-lista{flex:none;max-height:40%;border-right:0;border-bottom:1px solid var(--os-win-line)}}
+@media(prefers-reduced-motion:reduce){.nt-fixa,.os-task{animation:none}}
+/* Desempenho: sem desfoque de fundo nos nomes dos ícones (a paralaxe do papel de parede obrigava o
+   navegador a refazer ~20 desfoques a cada movimento do mouse); fundo sólido com a mesma leitura. */
+.os-icons .os-ico-label{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(28,6,9,.64)}

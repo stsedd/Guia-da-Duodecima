@@ -156,18 +156,24 @@
     async function iniciar() {
       aplicar();
       if (!ON) return;
-      const erroUrl = new URLSearchParams(location.search).get('error_description');
+      // Login pelo app do Discord (celular) volta com a sessão no endereço (#access_token=…).
+      // principia-early.js guardou isso em P.retornoLogin antes de o motor do Guia trocar o endereço.
+      const retorno = P.retornoLogin ? new URLSearchParams(P.retornoLogin) : null;
+      P.retornoLogin = null;
+      const erroUrl = new URLSearchParams(location.search).get('error_description') || retorno?.get('error_description');
       try {
         await carregarScript(SUPABASE_JS, SUPABASE_SRI);
-        // Login pelo app do Discord (celular) volta com a sessão no endereço (#access_token=…), o
-        // fluxo "implícito"; o login pelo navegador volta com ?code= (PKCE). O cliente só aceita o
-        // retorno do próprio fluxo, então o fluxo é escolhido pelo que chegou no endereço.
-        const voltaImplicita = /(^#|&)(access_token|error_description)=/.test(location.hash);
         S.sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, {
-          auth: { flowType: voltaImplicita ? 'implicit' : 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'duodecima-auth' }
+          auth: { flowType: 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'duodecima-auth' }
         });
         // O Supabase pede que o callback não chame o próprio cliente na mesma volta (evita travar).
         S.sb.auth.onAuthStateChange((ev, session) => setTimeout(() => aoMudarSessao(ev, session), 0));
+        if (retorno?.get('access_token') && retorno.get('refresh_token')) {
+          // O token do Discord não entra na sessão por setSession; guarda para a conferência de membro.
+          S.tokenRetorno = retorno.get('provider_token') || null;
+          const { error } = await S.sb.auth.setSession({ access_token: retorno.get('access_token'), refresh_token: retorno.get('refresh_token') });
+          if (error) { S.tokenRetorno = null; toast('Não consegui concluir o login: ' + msgErro(error)); }
+        }
         const { data } = await S.sb.auth.getSession();
         await aoMudarSessao('INITIAL', data?.session || null);
       } catch (err) {
@@ -186,9 +192,10 @@
       fila = fila.then(async () => {
         const antes = uid();
         S.session = session;
-        const token = session?.provider_token;
+        const token = session?.provider_token || (session ? S.tokenRetorno : null);
         if (token && token !== S.tokenVisto) {
           S.tokenVisto = token;
+          S.tokenRetorno = null;
           try {
             const r = await db.verificar(token);
             toast(r?.membro ? 'Conta confirmada: você está no servidor da Duodécima.' : 'Você entrou como visitante: esta conta não está no servidor da Duodécima.');

@@ -27,7 +27,7 @@
       const img = arte('arma', w.imageUrl);
       return `<button class="fg-icard${w.equipped ? '' : ' is-off'}" type="button" data-a="abrir-item" data-tipo="arma" data-id="${esc(w.id)}" style="--metal:${METAL[w.material] || NEUTRO};animation-delay:${i * 70}ms" aria-label="${esc(w.name || 'Arma')}${w.equipped ? ', equipada' : ''}">
         <span class="fg-icard-in">
-          <span class="fg-icard-art"><img src="${esc(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:50% 15%"></span>
+          <span class="fg-icard-art"><img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:50% 15%"></span>
           <span class="fg-icard-chips"><span class="fg-icard-tag">${w.equipped ? 'ARMA' : 'GUARDADA'}</span><span class="fg-icard-mat" title="${esc(mat.name || '')}">${esc(mat.name || '')}</span></span>
           <span class="fg-icard-body"><b>${esc(w.name || 'Arma')}</b><small>${esc(M.weaponType(w.type)?.name || '')} · ${esc(FG.attrsLista.find(a => a[0] === w.attr)?.[2] || '')}${w.isHeritage ? ' · herança' : ''}</small></span>
           <span class="fg-icard-foot">
@@ -46,7 +46,7 @@
       const k2 = tipo === 'armadura' ? ['REDUÇÃO', 'RD ' + M.armorReduction()] : ['ESTACAS', `${it.stakes || 0} / 30`];
       return `<button class="fg-icard${it.equipped ? '' : ' is-off'}" type="button" data-a="abrir-item" data-tipo="${tipo}" style="--metal:${METAL[it.material] || NEUTRO};animation-delay:${i * 70}ms" aria-label="${esc(it.name || tipo)}${it.equipped ? ', equipada' : ', não equipada'}">
         <span class="fg-icard-in">
-          <span class="fg-icard-art"><img src="${esc(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:${tipo === 'armadura' ? '40% 40%' : '45% 78%'}"></span>
+          <span class="fg-icard-art"><img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:${tipo === 'armadura' ? '40% 40%' : '45% 78%'}"></span>
           <span class="fg-icard-chips"><span class="fg-icard-tag">${tipo === 'armadura' ? 'ARMADURA' : 'ESCUDO'}${it.equipped ? '' : ' · GUARDADO'}</span><span class="fg-icard-mat" title="${esc(mat.name || '')}">${esc(mat.name || '')}</span></span>
           <span class="fg-icard-body"><b>${esc(it.name || (tipo === 'armadura' ? 'Armadura' : 'Escudo'))}</b><small>${tipo === 'armadura' ? esc(M.armorType(it.type)?.name || '') : (it.masterTalent ? 'Mestre de Escudos' : 'Escudo padrão')}${it.isHeritage ? ' · herança' : ''}</small></span>
           <span class="fg-icard-foot">
@@ -63,7 +63,7 @@
       const metal = consumivel ? VIDRO : METAL[it.material] || NEUTRO;
       return `<div class="fg-icard${consumivel && qtd > 1 ? ' fg-icard--stack' : ''}" style="--metal:${metal};width:190px;height:262px;animation-delay:${i * 60}ms">
         <span class="fg-icard-in" data-a="abrir-item" data-tipo="item" data-id="${esc(it.id)}" role="button" tabindex="0" aria-label="${esc(it.name || 'Item')}" style="display:block;cursor:pointer">
-          <span class="fg-icard-art" style="height:36%"><img src="${esc(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:${30 + (i * 17) % 50}% ${30 + (i * 11) % 40}%"></span>
+          <span class="fg-icard-art" style="height:36%"><img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:${30 + (i * 17) % 50}% ${30 + (i * 11) % 40}%"></span>
           <span class="fg-icard-tag">${esc((c.M.inventoryCategoryLabel(it.category) || 'Item').toUpperCase())}</span>
           <span class="fg-icard-qty">×${qtd}</span>
           <span class="fg-icard-body"><b>${esc(it.name || 'Item')}</b><small>${esc(it.effect || it.notes || '')}</small></span>
@@ -121,8 +121,8 @@
 
     /* ---------------------------------------------------------------- gavetas de edição */
     const opcoes = (lista, atual) => lista.map(([v, n]) => `<option value="${esc(v)}"${String(atual) === String(v) ? ' selected' : ''}>${esc(n)}</option>`).join('');
-    const campoImagem = (rotulo, url, acao, extra) => `<div class="fg-imgpick">${url ? `<img src="${esc(url)}" alt="">` : ''}<label class="fg-btn fg-btn--sm" style="cursor:pointer">${rotulo}<input type="file" accept="image/*" data-a="${acao}" ${extra} hidden></label>${url ? `<button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="${acao}-tirar" ${extra}>Tirar imagem</button>` : ''}</div>`;
-    const cabeca = (img, tags) => `<div class="fg-drawer-head"><img src="${esc(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''}><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fechar-gaveta" aria-label="Fechar">${ICO.close}</button><span class="fg-drawer-tags">${tags}</span></div>`;
+    const campoImagem = (rotulo, url, acao, extra) => `<div class="fg-imgpick">${url ? `<img src="${FG.src(url)}" alt="">` : ''}<label class="fg-btn fg-btn--sm" style="cursor:pointer">${rotulo}<input type="file" accept="image/*" data-a="${acao}" ${extra} hidden></label>${url ? `<button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="${acao}-tirar" ${extra}>Tirar imagem</button>` : ''}</div>`;
+    const cabeca = (img, tags) => `<div class="fg-drawer-head"><img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''}><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fechar-gaveta" aria-label="Fechar">${ICO.close}</button><span class="fg-drawer-tags">${tags}</span></div>`;
     const resistencia = (atual, max, alvo) => max == null ? '<p class="fg-muted">Material inquebrável.</p>' : `<div class="fg-row"><div class="fg-row-main"><b>Resistência</b><small>Perde 1 a cada golpe que a regra mandar; reparos na forja devolvem.</small></div><div class="fg-stepper"><button type="button" data-a="resistencia" data-alvo="${alvo}" data-d="-1" aria-label="Menos resistência">−</button><b>${atual}</b><button type="button" data-a="resistencia" data-alvo="${alvo}" data-d="1" aria-label="Mais resistência">+</button><small class="fg-muted">/ ${max}</small></div></div>`;
     const regraMaterial = (c, matId) => { const m = c.M.material(matId); const t = m?.targeting?.ruleText || m?.ruleText || ''; return t ? `<p class="fg-note"><b>${esc(m.name)}:</b> ${esc(t)}</p>` : ''; };
 

@@ -41,7 +41,7 @@
       const pode = f.active || M.canActivateFamiliar(f);
       return `<article class="fg-fam${f.active ? ' is-on' : ''}" style="animation-delay:${i * 60}ms">
         <button class="fg-fam-art" type="button" data-a="fam-abrir" data-id="${esc(f.id)}" style="all:unset;display:block;position:relative;height:130px;cursor:pointer;background:#0b0809" aria-label="Abrir ${esc(f.name || 'familiar')}">
-          <img src="${esc(img || FG.HQ + 'a-familiar.webp')}" alt=""${img ? ' class="is-own"' : ''} style="width:100%;height:100%;object-fit:cover">
+          <img src="${FG.src(img || FG.HQ + 'a-familiar.webp')}" alt=""${img ? ' class="is-own"' : ''} style="width:100%;height:100%;object-fit:cover">
           <span><small>${esc(nomeTipo(f.type))}${f.species ? ' · ' + esc(f.species) : ''}</small><b>${esc(f.name || 'Familiar')}</b></span>
         </button>
         <div class="fg-fam-body">
@@ -66,7 +66,7 @@
       const pts = pontos(M, f), gastos = M.familiarAttrSpent(f), lim = M.familiarSkillLimit(f);
       const hab = (f.abilities || []);
       const img = f.images?.[0];
-      return `<div class="fg-drawer-head"><img src="${esc(img || FG.HQ + 'a-familiar.webp')}" alt=""${img ? ' class="is-own"' : ''}><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fechar-gaveta" aria-label="Fechar">${ICO.close}</button><span class="fg-drawer-tags"><span class="fg-tag fg-tag--gold">${esc(nomeTipo(f.type))}</span>${f.active ? '<span class="fg-tag fg-tag--red">Em missão</span>' : ''}</span></div>
+      return `<div class="fg-drawer-head"><img src="${FG.src(img || FG.HQ + 'a-familiar.webp')}" alt=""${img ? ' class="is-own"' : ''}><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fechar-gaveta" aria-label="Fechar">${ICO.close}</button><span class="fg-drawer-tags"><span class="fg-tag fg-tag--gold">${esc(nomeTipo(f.type))}</span>${f.active ? '<span class="fg-tag fg-tag--red">Em missão</span>' : ''}</span></div>
         <div class="fg-drawer-body">
           <h3>${esc(f.name || 'Familiar')}</h3>
           <div class="fg-form">
@@ -113,7 +113,7 @@
             <textarea class="fg-in" data-a="campo" data-vivo data-path="${p}.abilities[id=${h.id}].${'text' in h || !('description' in h) ? 'text' : 'description'}" rows="2" aria-label="Efeito">${esc(h.text ?? h.description ?? '')}</textarea>
           </div>`).join('') : '<p class="fg-empty-line">Nenhuma habilidade.</p>'}
           <div class="fg-sec-head"><b class="fg-label">Imagens (até 3)</b></div>
-          <div class="fg-imgpick" style="flex-wrap:wrap">${(f.images || []).map((u, i) => `<span style="position:relative"><img src="${esc(u)}" alt=""><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fam-img-tirar" data-id="${esc(f.id)}" data-i="${i}" aria-label="Tirar imagem" style="position:absolute;right:-8px;top:-8px;min-height:24px;width:24px">${ICO.close}</button></span>`).join('')}${(f.images || []).length < 3 ? `<label class="fg-btn fg-btn--sm" style="cursor:pointer">Adicionar imagem<input type="file" accept="image/*" data-a="fam-img" data-id="${esc(f.id)}" hidden></label>` : ''}</div>
+          <div class="fg-imgpick" style="flex-wrap:wrap">${(f.images || []).map((u, i) => `<span style="position:relative"><img src="${FG.src(u)}" alt=""><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fam-img-tirar" data-id="${esc(f.id)}" data-i="${i}" aria-label="Tirar imagem" style="position:absolute;right:-8px;top:-8px;min-height:24px;width:24px">${ICO.close}</button></span>`).join('')}${(f.images || []).length < 3 ? `<label class="fg-btn fg-btn--sm" style="cursor:pointer">Adicionar imagem<input type="file" accept="image/*" data-a="fam-img" data-id="${esc(f.id)}" hidden></label>` : ''}</div>
           <label class="fg-field"><span>Notas</span><textarea data-a="campo" data-vivo data-path="${p}.notes" rows="3">${esc(f.notes || '')}</textarea></label>
         </div>
         <div class="fg-drawer-foot"><button class="fg-btn fg-btn--danger" type="button" data-a="fam-remover" data-id="${esc(f.id)}">Remover companheiro</button></div>`;

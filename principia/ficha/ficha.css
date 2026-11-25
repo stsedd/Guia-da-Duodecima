@@ -66,22 +66,34 @@ html[data-theme="light"] .os-ficha{--fg-gold:#a77a1e;--fg-ok:#2f8a46;--fg-warn:#
 .fg-menu-list .fg-btn:hover{background:var(--os-win-soft);transform:none}
 
 /* ---------- Capa ---------- */
-.fg-hero{position:relative;min-height:260px;overflow:hidden;display:flex;align-items:flex-end;padding:28px 28px 40px;background:#0b0809;color:#f4ede6}
-.fg-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.3) contrast(1.1)}
-.fg-hero-img.is-art{left:auto;right:0;width:min(68%,940px);object-position:60% 24%;filter:grayscale(.35) contrast(1.15)}
-.fg-hero::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(11,8,9,.94) 0%,rgba(11,8,9,.7) 38%,rgba(11,8,9,.15) 75%),linear-gradient(0deg,rgba(11,8,9,.95),transparent 55%)}
-.fg-hero::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,transparent 45%,var(--fg-accent));mix-blend-mode:multiply;opacity:.45;pointer-events:none}
-.fg-hero-mark{position:absolute;right:-6px;bottom:-30px;z-index:1;font:400 clamp(90px,17cqi,220px)/1 Anton,Impact,sans-serif;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.1);white-space:nowrap;pointer-events:none;text-transform:uppercase}
-.fg-hero-in{position:relative;z-index:2;display:flex;align-items:flex-end;gap:24px;min-width:0;animation:fg-rise .7s cubic-bezier(.2,.9,.22,1) both}
-.fg-portrait{position:relative;flex:none;width:clamp(96px,14cqi,156px);aspect-ratio:1}
-.fg-portrait img,.fg-portrait .fg-ini{width:100%;height:100%;border-radius:50%;object-fit:cover;border:4px solid var(--fg-accent);box-shadow:0 14px 30px rgba(0,0,0,.45)}
+/* Como um perfil do Discord: a capa aparece inteira (sem escurecer), o retrato fica metade sobre ela
+   e o nome, o nível e as informações ficam abaixo, já na ficha. */
+.fg-hero{--fg-pt:clamp(104px,13cqi,150px);position:relative;background:var(--os-win-bg);color:var(--os-win-ink);padding-bottom:18px;border-bottom:1px solid var(--os-win-line)}
+.fg-capa{position:relative;height:clamp(150px,22cqi,300px);overflow:hidden;background:#140b0d}
+.fg-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fg-hero-img.is-art{object-position:50% 30%}
+.fg-capa::after{content:"";position:absolute;inset:auto 0 0;height:35%;background:linear-gradient(0deg,rgba(8,5,6,.28),transparent);pointer-events:none}
+.fg-hero-in{position:relative;z-index:2;display:flex;align-items:flex-start;gap:20px;min-width:0;padding:0 28px;margin-top:calc(var(--fg-pt) / -2);animation:fg-rise .7s cubic-bezier(.2,.9,.22,1) both}
+.fg-portrait{position:relative;flex:none;width:var(--fg-pt);aspect-ratio:1}
+.fg-portrait img,.fg-portrait .fg-ini{width:100%;height:100%;border-radius:50%;object-fit:cover;border:6px solid var(--os-win-bg);box-shadow:0 0 0 2px var(--fg-accent),0 12px 26px rgba(0,0,0,.35);background:var(--os-win-bg)}
 .fg-portrait .fg-ini{display:grid;place-items:center;background:linear-gradient(160deg,#3a0a12,#120a0c);font:400 clamp(34px,5cqi,58px)/1 Anton,Impact,sans-serif;color:#f4ede6}
-.fg-portrait::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:1.5px dashed rgba(217,180,90,.55);animation:fg-pulse 4s ease-in-out infinite}
-.fg-lvl{position:absolute;right:-4px;bottom:4px;display:grid;place-items:center;width:clamp(36px,4.6cqi,48px);aspect-ratio:1;border-radius:50%;background:#0b0809;border:2px solid #d9b45a;color:#d9b45a;font:400 clamp(16px,2.2cqi,22px)/1 Anton,Impact,sans-serif}
-.fg-id{display:flex;flex-direction:column;gap:10px;min-width:0}
-.fg-id .fg-kicker{color:#ff8a98}
-.fg-name{font:400 clamp(44px,8.2cqi,108px)/.86 Anton,Impact,sans-serif;text-transform:uppercase;overflow-wrap:anywhere}
-.fg-tagline{font:500 14px/1.4 Inter,sans-serif;color:#d6c9cc;max-width:640px}
+.fg-lvl{all:unset;box-sizing:border-box;cursor:pointer;position:absolute;right:0;bottom:6px;display:grid;place-items:center;width:clamp(38px,4.4cqi,46px);aspect-ratio:1;border-radius:50%;background:#0b0809;border:3px solid var(--os-win-bg);box-shadow:0 0 0 2px #d9b45a;color:#d9b45a;font:400 clamp(16px,2.1cqi,21px)/1 Anton,Impact,sans-serif;transition:transform .2s}
+.fg-lvl:hover{transform:scale(1.08)}
+.fg-lvl:focus-visible{outline:2px solid var(--fg-accent);outline-offset:3px}
+.fg-id{display:flex;flex-direction:column;gap:9px;min-width:0;flex:1;padding-top:calc(var(--fg-pt) / 2 + 12px)}
+.fg-name{font:400 clamp(34px,5.6cqi,72px)/.92 Anton,Impact,sans-serif;text-transform:uppercase;overflow-wrap:anywhere}
+.fg-tagline{font:500 14px/1.4 Inter,sans-serif;color:var(--os-win-muted);max-width:680px}
+.fg-hero .fg-chip{border-color:var(--os-win-line);background:var(--os-win-soft);color:var(--os-win-ink)}
+.fg-hero .fg-chip--gold{color:#2a1b04;background:linear-gradient(135deg,#f3d27a,#c99a2e)}
+/* Nível no topo da ficha: − / campo / + */
+.fg-nivel{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:999px;border:1px solid var(--fg-accent);background:color-mix(in srgb,var(--fg-accent) 10%,var(--os-win-soft))}
+.fg-nivel button{all:unset;cursor:pointer;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 15px/1 Inter,sans-serif;color:var(--os-win-ink)}
+.fg-nivel button:hover{background:var(--fg-accent);color:var(--fg-accent-ink)}
+.fg-nivel button:focus-visible{outline:2px solid var(--fg-accent);outline-offset:1px}
+.fg-nivel label{display:inline-flex;align-items:center;gap:5px;padding:0 4px;font:700 12px/1 Inter,sans-serif;letter-spacing:.04em}
+.fg-nivel input{all:unset;box-sizing:border-box;width:3.2ch;text-align:center;font:400 17px/1 Anton,Impact,sans-serif;border-bottom:1px dashed var(--os-win-muted);-moz-appearance:textfield}
+.fg-nivel input::-webkit-outer-spin-button,.fg-nivel input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.fg-nivel input:focus{border-bottom-color:var(--fg-accent)}
 .fg-chips{display:flex;flex-wrap:wrap;gap:7px}
 .fg-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.35);font:600 12px/1 Inter,sans-serif;white-space:nowrap}
 .fg-chip--gold{border:0;color:#2a1b04;background:linear-gradient(135deg,#f3d27a,#c99a2e);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px}
@@ -189,6 +201,10 @@ html[data-theme="light"] .os-ficha{--fg-gold:#a77a1e;--fg-ok:#2f8a46;--fg-warn:#
 .fg-card-art img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.15) brightness(.85);display:block}
 .fg-card-art img.is-own{filter:none}
 .fg-card-art::after{content:"";position:absolute;inset:0;mix-blend-mode:multiply;background:var(--fg-tint,linear-gradient(180deg,rgba(211,17,42,.5),rgba(40,0,6,.85)))}
+/* Arte escolhida pelo jogador aparece como ele enviou: sem tinta vermelha por cima (só uma sombra leve
+   no alto, para a etiqueta e o custo continuarem legíveis). O tratamento fica só na arte padrão. */
+.fg-card-art.is-own::after{mix-blend-mode:normal;background:linear-gradient(180deg,rgba(0,0,0,.32),transparent 38%)}
+.fg-stepper button:disabled{opacity:.35;cursor:default;border-color:var(--os-win-line)}
 .fg-card-tag{position:absolute;left:9px;top:9px;z-index:2;padding:4px 7px;border-radius:5px;font:800 9.5px/1 Archivo,Inter,sans-serif;font-stretch:120%;letter-spacing:.16em;background:var(--fg-gold);color:#2a1b04}
 .fg-card.is-active .fg-card-tag{background:var(--fg-accent);color:#fff}
 .fg-card-cost{position:absolute;right:9px;top:7px;z-index:2;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#0d090a;border:1.5px solid #d9b45a;color:#d9b45a;font:700 11px/1 Inter,sans-serif}
@@ -390,9 +406,13 @@ html[data-theme="light"] .os-ficha{--fg-gold:#a77a1e;--fg-ok:#2f8a46;--fg-warn:#
 }
 @container (max-width:760px){
   .fg-cols,.fg-cols2,.fg-form{grid-template-columns:minmax(0,1fr)}
-  .fg-hero{min-height:220px;padding:62px 16px 34px}
-  .fg-hero-tools{right:12px;top:12px}
-  .fg-hero-in{gap:14px}
+  .fg-hero{--fg-pt:96px}
+  .fg-capa{height:clamp(120px,38cqi,170px)}
+  .fg-hero-tools{right:10px;top:10px}
+  /* No celular, retrato em cima e identidade embaixo (como o perfil do Discord no app). */
+  .fg-hero-in{flex-direction:column;gap:8px;padding:0 14px}
+  .fg-id{padding-top:0}
+  .fg-name{font-size:clamp(28px,9cqi,40px)}
   /* No celular só o painel de recursos fica preso: barra do topo e abas rolam junto, para sobrar tela. */
   .fg-hud{top:0;grid-template-columns:repeat(3,minmax(0,1fr));padding:8px 10px;gap:6px}
   .fg-hud:not(.is-open) .fg-stat-note{display:none}

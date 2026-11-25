@@ -37,7 +37,7 @@
       const faixas = a.tiers ? [0, 1, 2].map(i => `<i class="${i <= idx ? 'on' : ''}"></i>`).join('') : '<i class="fixo"></i><i class="fixo"></i><i class="fixo"></i>';
       const pos = `${40 + (key.length * 7) % 40}% ${15 + (key.length * 5) % 30}%`;
       return `<button class="fg-card${a._tipo === 'ativa' ? ' is-active' : ''}${lock ? ' is-lock' : ''}${sel ? ' is-sel' : ''}" type="button" data-a="habilidade" data-key="${esc(key)}" style="${opts.estilo || ''}${opts.atraso ? ';animation-delay:' + opts.atraso : ''}" aria-label="${esc(a.name)}${lock ? ', liberada no nível ' + a.level : ''}">
-        <span class="fg-card-art" style="--fg-tint:${a._tipo === 'ativa' ? TINTA_ATIVA : TINTA_PASSIVA}"><img src="${esc(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:${pos}"></span>
+        <span class="fg-card-art${img.propria ? ' is-own' : ''}" style="--fg-tint:${a._tipo === 'ativa' ? TINTA_ATIVA : TINTA_PASSIVA}"><img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:${pos}"></span>
         <span class="fg-card-tag">${a._tipo === 'ativa' ? 'ATIVA' : 'PASSIVA'}</span>
         ${a._tipo === 'ativa' && Number(a.cost) ? `<span class="fg-card-cost" title="Custo em Energia">${Number(a.cost)}</span>` : ''}
         ${lock ? `<span class="fg-card-lock">${ICO.lock}NV ${a.level}</span>` : ''}
@@ -122,7 +122,7 @@
       const slugs = window.PRINCIPIA?.api?.deitySlugs?.();
       const slug = slugs?.get?.(a.sourceGodId || s.godId);
       return `<div class="fg-drawer-head" style="--fg-tint:${a._tipo === 'ativa' ? TINTA_ATIVA : TINTA_PASSIVA}">
-          <img src="${esc(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''}>
+          <img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''}>
           <button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fechar-gaveta" aria-label="Fechar">${ICO.close}</button>
           <span class="fg-drawer-tags"><span class="fg-tag ${a._tipo === 'ativa' ? 'fg-tag--red' : 'fg-tag--gold'}">${a._tipo === 'ativa' ? 'Ativa' : 'Passiva'}</span><span class="fg-tag">${esc(meta)}</span>${a.legacyFrom ? `<span class="fg-tag">Legado · ${esc(FG.godDe(a.legacyFrom)?.name || '')}</span>` : ''}${lock ? `<span class="fg-tag">Bloqueada até o nível ${a.level}</span>` : ''}</span>
         </div>

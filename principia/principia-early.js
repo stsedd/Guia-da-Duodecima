@@ -8,6 +8,14 @@
   var doc=document.documentElement;
   var P=window.PRINCIPIA=window.PRINCIPIA||{};
   P.initialHash=location.hash||'';
+  /* Login que volta com a sessão no endereço (#access_token=…, usado no login pelo app do Discord):
+     o motor do Guia troca qualquer endereço desconhecido por #page:sistema assim que carrega, antes
+     de o cliente das contas existir. Guarda aqui e limpa o endereço; principia-online.js usa depois. */
+  if(/(^#|&)(access_token|error_description)=/.test(location.hash)){
+    P.retornoLogin=location.hash.slice(1);
+    P.initialHash='';
+    try{history.replaceState(history.state,'',location.pathname+location.search);}catch(e){}
+  }
   P.bootStartedAt=(window.performance&&performance.now)?performance.now():0;
 
   var scroller=document.getElementById('osScroller');
