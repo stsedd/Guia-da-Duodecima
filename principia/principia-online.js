@@ -121,13 +121,12 @@
     async function carregarDeuses() {
       if (S.deuses) return S.deuses;
       try {
-        const C = await window.DUODECIMA_CORE_READY;
-        const j = await fetch(`${C.baseUrl}/${C.manifest.files.gods}?v=${encodeURIComponent(C.version)}`).then(r => r.json());
+        const { core: { gods: j } } = await window.FichaDados.carregar();
         const grupos = Object.fromEntries((j.groups || []).map(g => [g.id, g]));
         S.deuses = (j.deities || []).filter(d => d.selectable !== false)
           .map(d => ({ id: d.id, nome: d.name, grupo: d.groupLabel || grupos[d.group]?.name || '', ordem: grupos[d.group]?.order ?? 99 }))
           .sort((a, b) => a.ordem - b.ordem || a.nome.localeCompare(b.nome, 'pt-BR'));
-      } catch { S.deuses = []; }
+      } catch { return []; }
       return S.deuses;
     }
     function opcoesDeuses(atual) {
