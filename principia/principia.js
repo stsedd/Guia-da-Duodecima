@@ -105,7 +105,7 @@
     domus: { kind: 'page', title: 'Domus Memoriae', short: 'Domus', art: ICON('domus'), tilt: -2 },
     tabularium: { kind: 'win', win: 'tabularium', title: 'Tabularium', art: ICON('tabularium'), tilt: 3 },
     mapa: { kind: 'menu', menu: 'mapas', title: 'Mapas', route: EST ? ['casa-do-lobo', 'mapa-acampamento'] : ['roma', 'mapa-acampamento'], art: ICON('mapa'), tilt: -2 },
-    minhaficha: { kind: 'win', win: 'ficha', title: 'Minha Ficha', art: ICON('ficha'), tilt: -2 },
+    minhaficha: { kind: 'win', win: 'ficha', title: 'Minhas Fichas', art: ICON('ficha'), tilt: -2 },
     ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, glyph: 'book', tilt: 2 },
     imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
     notes: { kind: 'win', win: 'notes', title: 'Notae · Bloco de notas', short: 'Notae', glyph: 'quill', tilt: 0 },
@@ -630,7 +630,7 @@
   }
 
   const minimizedPages = new Map();
-  const windowLabel = w => w.id === 'reader' ? (appTitle(currentKey || HOME)) : ({tabularium:'Tabularium', notes:'Notae', ficha:'Minha Ficha', prefs:'Preferências', leiame:'Leia-me', sobre:'Sobre', viewer:'Imagem', conta:'Minha Conta', famae:'Tabula Famae', praetorium:'Praetorium'}[w.id] || w.id);
+  const windowLabel = w => w.id === 'reader' ? (appTitle(currentKey || HOME)) : ({tabularium:'Tabularium', notes:'Notae', ficha:'Minhas Fichas', prefs:'Preferências', leiame:'Leia-me', sobre:'Sobre', viewer:'Imagem', conta:'Minha Conta', famae:'Tabula Famae', praetorium:'Praetorium'}[w.id] || w.id);
   // Minimizadas aparecem na barra de cima pelo nome e ícone, como uma barra de tarefas;
   // as que não cabem ficam no "+N", que abre a lista completa.
   const appDaJanela = id => Object.keys(APPS).find(k => APPS[k].kind === 'win' && APPS[k].win === id) || null;
@@ -999,7 +999,7 @@
         <button class="os-dd-item" type="button" role="menuitem" data-app="leiame">${svg('note')}Leia-me</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="notes">${svg('quill')}Notae · Bloco de notas</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="tabularium">${svg('folder')}Tabularium</button>
-        <button class="os-dd-item" type="button" role="menuitem" data-app="minhaficha"><img src="${APPS.minhaficha.art}" alt="">Minha Ficha</button>
+        <button class="os-dd-item" type="button" role="menuitem" data-app="minhaficha"><img src="${APPS.minhaficha.art}" alt="">Minhas Fichas</button>
         <a class="os-dd-item" role="menuitem" href="${IMESSAGE_URL}" target="_blank" rel="noopener noreferrer">${svg('phone')}iMessage<em>Discord</em></a>
         <div class="os-dd-sep" role="separator"></div>
         <button class="os-dd-item" type="button" role="menuitem" data-action="desktop">${svg('desktop')}Mostrar área de trabalho</button>

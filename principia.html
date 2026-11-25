@@ -49,7 +49,7 @@
   <!-- Camada Principia (interface de terminal). -->
   <link rel="stylesheet" href="principia/principia.css?v=2.6.0">
   <link rel="stylesheet" href="principia/principia-online.css?v=1.1.0">
-  <link rel="stylesheet" href="principia/ficha/ficha.css?v=1.4.0">
+  <link rel="stylesheet" href="principia/ficha/ficha.css?v=1.4.1">
 </head>
 <body class="os-body">
 <a class="skip-link" href="#content">Pular para o conteúdo</a>
@@ -93,7 +93,7 @@
     <div class="os-bar-spacer"></div>
     <button class="os-minimized-count" id="osMinimizedCount" type="button" data-menu="minimized" aria-haspopup="menu" aria-expanded="false" hidden></button>
     <div class="os-bar-tools">
-      <button class="os-cta" type="button" data-action="criar-ficha" title="Criar um personagem na Minha Ficha">Criar ficha <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="os-cta" type="button" data-action="criar-ficha" title="Criar um personagem em Minhas Fichas">Criar ficha <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       <a class="os-bar-btn os-bar-btn--msg" href="https://discord.com/channels/1498461819902234624/1498486495668080761" target="_blank" rel="noopener noreferrer" title="iMessage: abre o canal no Discord">
         <svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/></svg><b>iMessage</b>
       </a>
@@ -147,7 +147,7 @@
         <span class="os-crumb-sep" aria-hidden="true">/</span>
         <span class="os-crumb-sec" id="osCrumbSection"></span>
       </div>
-      <button class="os-tbtn os-tbtn--ficha" type="button" data-action="ficha-beside" aria-label="Abrir Minha Ficha ao lado do Guia" title="Minha Ficha ao lado do Guia"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 10h4M14 13.5h3"/></svg><span class="os-tbtn-label">Ficha</span></button>
+      <button class="os-tbtn os-tbtn--ficha" type="button" data-action="ficha-beside" aria-label="Abrir Minhas Fichas ao lado do Guia" title="Minhas Fichas ao lado do Guia"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 10h4M14 13.5h3"/></svg><span class="os-tbtn-label">Ficha</span></button>
       <button class="os-tbtn os-tbtn--copy" type="button" id="osCopyLink" data-copy-anchor="" aria-label="Copiar link da seção atual" title="Copiar link da seção atual"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
       <button class="os-tbtn" type="button" data-action="search" aria-label="Buscar" title="Buscar (Ctrl/⌘ K)"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button>
       <button class="os-tbtn" id="menuBtn" type="button" aria-label="Seções desta página" aria-expanded="false"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Seções</button>
@@ -235,7 +235,7 @@
         <h3>Primeiros passos</h3>
         <ol>
           <li><strong>Entre com o Discord</strong> pelo selo no canto inferior esquerdo. Quem está no servidor da Duodécima entra como membro; no celular, o login abre o app do Discord para você autorizar.</li>
-          <li><strong>Crie ou traga a sua ficha</strong> em <strong>Criar ficha</strong>, na barra de cima, ou em <strong>Minha Ficha</strong>. Dá para importar o JSON da Ficha Oficial: cada campo vai para o lugar certo.</li>
+          <li><strong>Crie ou traga a sua ficha</strong> em <strong>Criar ficha</strong>, na barra de cima, ou em <strong>Minhas Fichas</strong>. Dá para importar o JSON da Ficha Oficial: cada campo vai para o lugar certo.</li>
           <li><strong>Guarde a ficha na conta</strong> pelo selo ao lado do nome do personagem. Assim ela abre em qualquer aparelho e as mudanças sobem sozinhas.</li>
           <li><strong>Lance a fama</strong> na aba Roma da ficha ou em Minha Conta, com o link da mensagem no Discord. A <strong>Tabula Famae</strong> mostra o ranking da Legião.</li>
         </ol>
@@ -245,7 +245,7 @@
           <li><kbd>Ctrl</kbd> <kbd>K</kbd> (ou <kbd>⌘</kbd> <kbd>K</kbd> no Mac) abre a busca em qualquer tela.</li>
           <li>O <strong>Tabularium</strong> mostra o Guia inteiro como pastas e documentos.</li>
           <li>Cada seção tem link próprio: copie e mande direto no Discord.</li>
-          <li>Na Minha Ficha, <strong>Lado a lado</strong> abre a ficha e o Guia juntos.</li>
+          <li>Em Minhas Fichas, <strong>Lado a lado</strong> abre a ficha e o Guia juntos.</li>
           <li>Janelas minimizadas aparecem com o nome na barra de cima: clique para voltar a elas.</li>
           <li>A <strong>Notae</strong> é um caderno com várias notas; as que você fixar ficam na área de trabalho como notas adesivas.</li>
           <li>No celular, a tela inicial funciona como um aparelho: toque no app e use <strong>Seções</strong> para pular dentro da página.</li>
@@ -303,7 +303,7 @@
   <section class="os-win os-util os-ficha" data-win="ficha" role="dialog" aria-modal="false" aria-labelledby="osFichaTitle">
     <div class="os-titlebar" data-drag>
       <span class="os-win-seal" aria-hidden="true"></span>
-      <div class="os-win-title"><b id="osFichaTitle">Minha Ficha</b><small id="osFichaSub">Ficha da Duodécima</small></div>
+      <div class="os-win-title"><b id="osFichaTitle">Minhas Fichas</b><small id="osFichaSub">Ficha da Duodécima</small></div>
       <button class="os-wbtn os-wbtn--text os-ficha-guia" type="button" data-action="to-guia" title="Ir para o Guia">Guia</button>
       <button class="os-wbtn os-wbtn--text os-ficha-tile" type="button" data-action="ficha-beside" title="Ficha e Guia lado a lado"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M11 4.5v15"/></svg><span>Lado a lado</span></button>
       <div class="os-winctl">
@@ -469,24 +469,24 @@
 <script src="guide-editorial-v273.js?v=2.7.8"></script>
 
 <!-- Camada Principia: área de trabalho, janelas, busca e celular. -->
-<script src="principia/principia.js?v=3.7.0"></script>
+<script src="principia/principia.js?v=3.8.0"></script>
 <script src="principia/principia-notas.js?v=1.0.0"></script>
 <!-- Minha Ficha: regras copiadas da Ficha Oficial (motor.js), dados do Core (dados.js) e as abas da ficha. -->
 <script src="principia/ficha/dados.js?v=1.0.0"></script>
 <script src="principia/ficha/motor.js?v=1.0.0"></script>
-<script src="principia/ficha/ficha.js?v=1.4.0"></script>
-<script src="principia/ficha/geral.js?v=1.1.0"></script>
+<script src="principia/ficha/ficha.js?v=1.5.0"></script>
+<script src="principia/ficha/geral.js?v=1.2.0"></script>
 <script src="principia/ficha/poderes.js?v=1.2.0"></script>
-<script src="principia/ficha/arsenal.js?v=1.1.0"></script>
+<script src="principia/ficha/arsenal.js?v=1.2.0"></script>
 <script src="principia/ficha/magia.js?v=1.1.0"></script>
 <script src="principia/ficha/companheiros.js?v=1.2.0"></script>
-<script src="principia/ficha/roma.js?v=1.2.0"></script>
+<script src="principia/ficha/roma.js?v=1.3.0"></script>
 <script src="principia/ficha/diario.js?v=1.1.0"></script>
 <script src="principia/ficha/criacao.js?v=1.1.0"></script>
 <script src="principia/ficha/nuvem.js?v=1.2.0"></script>
 <!-- Contas (login com Discord + Supabase), Tabula Famae e Praetorium. Sem configuração, tudo segue em modo visitante. -->
 <script src="principia/online-config.js?v=1.0.1"></script>
-<script src="principia/principia-online.js?v=1.5.0"></script>
+<script src="principia/principia-online.js?v=1.6.0"></script>
 <!-- Guia em formato pôster: capas, banners em alta e artes decorativas a cada página. -->
 <script src="principia/principia-guia.js?v=1.1.3"></script>
 </body>

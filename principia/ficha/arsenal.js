@@ -37,6 +37,16 @@
         </span>
       </button>`;
     }
+    // Armadura e escudo são campos fixos da ficha (como na Ficha Oficial). "Sem armadura/escudo" = o valor
+    // padrão do motor; nesse caso o cartão não aparece, e "Remover" volta a esse padrão.
+    const PADRAO = { armadura: 'Armadura', escudo: 'Escudo' };
+    function temProtecao(it, tipo) {
+      if (!it) return false;
+      if (it.equipped || it.imageUrl || it.notes || it.isHeritage || it.madeByVulcano) return true;
+      if ((it.name || PADRAO[tipo]) !== PADRAO[tipo] || (it.material || 'ferro-aco') !== 'ferro-aco') return true;
+      return tipo === 'armadura' ? (it.type || 'nenhuma') !== 'nenhuma' : Number(it.stakes) > 0 || !!it.masterTalent;
+    }
+    FG.temProtecao = temProtecao;
     function cartaProtecao(c, tipo, i) {
       const { M, s } = c;
       const it = tipo === 'armadura' ? s.armor : s.shield;
@@ -88,7 +98,7 @@
           <div>
             <div class="fg-sec">
               <div class="fg-sec-head"><div style="display:flex;flex-direction:column;gap:8px"><span class="fg-kicker">Baralho de combate</span><h2 class="fg-h fg-h--big">Equipado</h2></div><span class="fg-muted" style="font-size:12.5px;max-width:320px;text-align:right">A moldura é o metal. Toque numa carta para editar.</span></div>
-              <div class="fg-items">${[...armas.map((w, i) => cartaArma(c, w, i)), cartaProtecao(c, 'armadura', armas.length), cartaProtecao(c, 'escudo', armas.length + 1)].join('')}</div>
+              <div class="fg-items">${[...armas.map((w, i) => cartaArma(c, w, i)), ...['armadura', 'escudo'].filter(t => temProtecao(t === 'armadura' ? s.armor : s.shield, t)).map((t, k) => cartaProtecao(c, t, armas.length + k))].join('') || '<p class="fg-empty-line">Nada no arsenal. Adicione pela biblioteca ao lado.</p>'}</div>
             </div>
             <div class="fg-sec">
               <div class="fg-sec-head"><h3 class="fg-h">Consumíveis</h3><span class="fg-label">Usar desconta a quantidade</span></div>
@@ -113,7 +123,7 @@
             <input class="fg-in" type="search" data-a="busca-lib" data-vivo value="${esc(S.buscaLib || '')}" placeholder="Buscar entre ${lib.length} itens" aria-label="Buscar na biblioteca">
             ${q ? '' : `<div class="fg-pills">${grupos.map(x => `<button class="fg-pill" type="button" data-a="grupo-lib" data-g="${esc(x)}" aria-pressed="${x === g}">${esc(x.replace('Forja · ', ''))}</button>`).join('')}</div>`}
             <div class="fg-rows" style="max-height:420px;overflow:auto">${listaLib.map(x => `<div class="fg-row" style="padding:8px 10px"><i style="width:30px;height:30px;border-radius:8px;flex:none;background:${x.kind === 'inventory' && x.category === 'consumivel' ? VIDRO : METAL[x.material] || NEUTRO}"></i><div class="fg-row-main"><b style="font-size:13px">${esc(x.name)}</b><small>${esc(x.effect || (x.material ? c.M.material(x.material).name : ''))}</small></div><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="lib-por" data-id="${esc(x.id)}" aria-label="Adicionar ${esc(x.name)}">${ICO.plus}</button></div>`).join('') || '<p class="fg-empty-line">Nada encontrado.</p>'}</div>
-            <div class="fg-actions"><button class="fg-btn fg-btn--sm" type="button" data-a="nova-arma">${ICO.plus}Arma manual</button><button class="fg-btn fg-btn--sm" type="button" data-a="novo-item">${ICO.plus}Item manual</button></div>
+            <div class="fg-actions"><button class="fg-btn fg-btn--sm" type="button" data-a="nova-arma">${ICO.plus}Arma manual</button><button class="fg-btn fg-btn--sm" type="button" data-a="novo-item">${ICO.plus}Item manual</button>${temProtecao(s.armor, 'armadura') ? '' : `<button class="fg-btn fg-btn--sm" type="button" data-a="nova-protecao" data-tipo="armadura">${ICO.plus}Armadura manual</button>`}${temProtecao(s.shield, 'escudo') ? '' : `<button class="fg-btn fg-btn--sm" type="button" data-a="nova-protecao" data-tipo="escudo">${ICO.plus}Escudo manual</button>`}</div>
           </aside>
         </div>`;
       }
@@ -176,7 +186,8 @@
           ${regraMaterial(c, it.material)}
           <label class="fg-field"><span>Descrição</span><textarea data-a="campo" data-vivo data-path="${p}.notes" rows="3">${esc(it.notes || '')}</textarea></label>
           ${campoImagem('Imagem', it.imageUrl, 'img-item', `data-alvo="${tipo}"`)}
-        </div>`;
+        </div>
+        <div class="fg-drawer-foot"><button class="fg-btn fg-btn--danger" type="button" data-a="remover-item" data-alvo="${tipo}">Remover ${tipo === 'armadura' ? 'armadura' : 'escudo'}</button></div>`;
     }
     FG.gavetas.armadura = c => gavetaProtecao(c, 'armadura');
     FG.gavetas.escudo = c => gavetaProtecao(c, 'escudo');
@@ -252,7 +263,18 @@
       const s = S.M.state;
       if (alvo === 'arma') s.weapons = s.weapons.filter(x => x.id !== id);
       else if (alvo === 'item') s.inventory.items = s.inventory.items.filter(x => x.id !== id);
+      // Armadura e escudo voltam ao padrão do motor (o mesmo de uma ficha nova): sem defesa e sem cartão.
+      else if (alvo === 'armadura') s.armor = { equipped: false, name: 'Armadura', type: 'nenhuma', material: 'ferro-aco', resistanceCurrent: 3, madeByVulcano: false, imageUrl: '', isHeritage: false, notes: '' };
+      else if (alvo === 'escudo') s.shield = { equipped: false, name: 'Escudo', material: 'ferro-aco', stakes: 0, resistanceCurrent: 3, madeByVulcano: false, masterTalent: false, imageUrl: '', isHeritage: false, notes: '' };
       FG.fecharGaveta(); S.M.syncCurrentCaps(); FG.salvar(); FG.render();
+    };
+    acoes['nova-protecao'] = el => {
+      const s = S.M.state, tipo = el.dataset.tipo;
+      if (tipo === 'armadura') {
+        const t = (S.D?.system?.armorTypes || []).find(x => x.id !== 'nenhuma');
+        s.armor = { ...s.armor, equipped: true, type: t?.id || s.armor.type };
+      } else s.shield = { ...s.shield, equipped: true };
+      S.M.syncCurrentCaps(); FG.salvar(); FG.abrirGaveta(tipo); FG.render();
     };
     acoes.material = el => {
       const M = S.M, it = alvoItem(el.dataset.alvo, el.dataset.id);

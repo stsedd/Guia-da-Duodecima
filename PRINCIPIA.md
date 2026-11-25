@@ -16,7 +16,7 @@ A pedido da Staff, a interface passou a se chamar **Guia da Duodécima** (o nome
 
 - **Como funciona:** `principia/principia-estrutura.js` carrega antes do `app-v24.js`, lê as páginas que o motor já monta (Sistema, Sobre Roma etc., com o Core e todas as camadas) e monta as abas novas com as **mesmas seções**. O mapa "seção antiga → aba nova" fica em `PLAN`, no topo do arquivo. A versão final é remontada quando o Core e as camadas terminam (`PRINCIPIA_ESTRUTURA_READY`).
 - **Páginas antigas:** `sistema` e `roma` continuam existindo como fonte, mas não aparecem na navegação. As abas novas usam chaves próprias (`personagem`, `cursus`, `familiares`, `casa-do-lobo`, `roma-hoje`, `extras`) porque camadas antigas reescrevem a página `roma` toda vez que ela aparece (recolocariam a trama de Morcan Glass, por exemplo).
-- **Links antigos:** `#page:sistema:afinidade` abre `#page:deuses:afinidade`, `#page:roma:coortes` abre `#page:roma-hoje:coortes` e assim por diante. Vale para links colados no Discord, cliques em textos antigos, a Minha Ficha e o Tabularium.
+- **Links antigos:** `#page:sistema:afinidade` abre `#page:deuses:afinidade`, `#page:roma:coortes` abre `#page:roma-hoje:coortes` e assim por diante. Vale para links colados no Discord, cliques em textos antigos, Minhas Fichas e o Tabularium.
 - **Correções aprovadas pela Staff (24/11/2026):** Celtas liberados com −15 de Fama; Praetoria = triunvirato de Cassius, Cyrus e Jasmine, com Blume como ex-pretora em destaque; a Trama mostra só a Helix Vitae; Morcan Glass morreu; regras de Fama de Odiado e Conhecido; DT em todo o Guia; subtítulos novos dos quadros da Domus; Rebentos de Roma depois dos quadros. Todas ficam em `FIX`, em `principia-estrutura.js`.
 - **Conferência:** nenhum texto das páginas antigas se perde na montagem; as únicas diferenças são as correções acima (comparação automática dos textos, feita a cada mudança).
 - **Busca:** o motor guardava a primeira lista de busca e nunca via as atualizações das camadas (por isso aparecia texto antigo). `principia-early.js` passa a atualizar essa lista no lugar, e o índice é refeito com as abas novas.
@@ -35,9 +35,9 @@ Na `principia.html`, as 13 folhas legadas do `index.html` foram substituídas po
 - **Capítulos em faixas:** os capítulos alternam fundo preto e papel (no tema Dia, ao contrário), e cada capítulo começa com o nome dele em letreiro vazado gigante que desliza devagar.
 - **Domus Memoriae:** os quadros viraram recortes PNG sobre o fundo, sem moldura, com o numeral romano do rebento gigante atrás.
 - **Lideranças e panteões:** retratos em preto e branco que ganham cor ao passar o mouse; panteões em mosaico de pôsteres.
-- **Aba Ficha:** a barra de abas do Guia ganhou a aba **Ficha**, que abre a Minha Ficha ao lado do Guia.
+- **Aba Ficha:** a barra de abas do Guia ganhou a aba **Ficha**, que abre Minhas Fichas ao lado do Guia.
 - **Arquivos de arte:** `assets/principia/hq/` guarda os WebP gerados a partir dos originais (`b-*` banners, `a-*` artes quadradas sem a moldura vermelha, `c-*` recortes da Domus, `cover-roma`, `m-influencia`). O mapeamento fica no topo de `principia/principia-guia.js`.
-- **Layout pela janela, não pela tela:** as grades usam *container queries*, então se ajustam também quando o Guia divide a tela com a Minha Ficha.
+- **Layout pela janela, não pela tela:** as grades usam *container queries*, então se ajustam também quando o Guia divide a tela com Minhas Fichas.
 - **Movimento:** letreiro dos capítulos, capa que se dissolve ao rolar, acordeões com abertura animada e linhas que acendem em vermelho. Tudo some com "reduzir movimento".
 - **Camadas injetadas:** `guide-stabilization-v251.js` e `lineage-core-v25.js` injetavam CSS com `!important`. A `principia.html` declara `<style>` vazios com os mesmos ids, e as camadas pulam a injeção; o design system cobre esses blocos.
 - **Painel "Nesta página":** as seções longas ganham capítulos (Sistema: Personagem, Mecânicas, Roma, Outros sistemas; Combate, Magia e Sobre Roma com agrupamentos próprios). A ordem e os links não mudam; os capítulos ficam em `NAV_CHAPTERS`, no `principia/principia.js`.
@@ -73,12 +73,12 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
 | `principia/principia.css` | Visual da interface e ajustes do conteúdo dentro das janelas. |
 | `principia/ficha/motor.js` | Regras da ficha **copiadas sem alteração** da Ficha Oficial (227 funções de `app-v511.js`): contas, migração de JSON antigo, criação, descansos, rolagens. Gerado; não editar à mão. |
 | `principia/ficha/dados.js` | Lê o Duodécima Core (ou o `core-snapshot.json`) e converte para o formato do motor, com as funções de conversão e as regras-base da Ficha Oficial. |
-| `principia/ficha/ficha.js` | Janela Minha Ficha: lista de fichas, armazenamento, importar/exportar JSON, versões, topo, capa, painel de recursos e abas. |
+| `principia/ficha/ficha.js` | Janela Minhas Fichas: lista de fichas, armazenamento, importar/exportar JSON, versões, topo, capa, painel de recursos e abas. |
 | `principia/ficha/geral.js`, `poderes.js`, `arsenal.js`, `magia.js`, `companheiros.js`, `roma.js`, `diario.js`, `criacao.js` | Uma aba cada: Visão geral, Poderes (baralho), Arsenal (cartas de itens), Magia, Companheiros, Roma, Diário e a criação de personagem. |
 | `principia/ficha/ficha.css` | Visual da ficha (cartas, gavetas, animações, celular). |
 | `principia/ficha/nuvem.js` | Ficha na conta (Supabase): envio, recebimento, conflitos, versões na conta e imagens no Storage. |
 | `scripts/gerar-motor-ficha.html` | Ferramenta de manutenção: regenera o `motor.js` a partir da Ficha Oficial e compara com o atual. |
-| `principia/principia-online.js` + `principia-online.css` | Minha Conta, Tabula Famae, Praetorium e trava da Minha Ficha para visitantes. |
+| `principia/principia-online.js` + `principia-online.css` | Minha Conta, Tabula Famae, Praetorium e trava de Minhas Fichas para visitantes. |
 | `principia/online-config.js` | Endereço e chave pública do Supabase (vazio = modo visitante). |
 | `supabase/schema.sql` | Banco: tabelas, RLS, regras de fama e títulos, auditoria. |
 | `principia/manifest.webmanifest` | Permite adicionar a Principia à tela inicial do celular. |
@@ -89,7 +89,7 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
 - **Inicialização:** tela de terminal com a marca da legião e um registro real do carregamento (arquivos, versão do Core, registros de busca). Toque ou qualquer tecla pula. Roda completa uma vez por sessão; links diretos abrem com a versão curta.
 - **Área de trabalho:** ícones dos 7 arquivos à esquerda e utilitários à direita (Tabularium, Notae, Tabula Famae, Mapas, Praetorium), papel de parede com paralaxe e relógio com a data no calendário romano.
   - A Ficha Oficial saiu da área de trabalho; segue no menu do símbolo como "Ficha Oficial (antiga)".
-  - **Criar ficha**, na barra de cima, abre a Minha Ficha já na criação de personagem.
+  - **Criar ficha**, na barra de cima, abre Minhas Fichas já na criação de personagem.
   - **Mapas** abre um menu com os três mapas e a página do Acampamento.
   - Janelas minimizadas viram botões com o nome na barra de baixo. A **Notae** guarda vários cadernos e notas autoadesivas.
 - **Janela do arquivo:** abas para alternar entre as páginas, caminho com a seção atual, painel "Nesta página", barra de progresso de leitura, botão de copiar link da seção e barra de status com o selo do Core. Pode ser movida, redimensionada, maximizada e minimizada.
@@ -99,11 +99,11 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
 - **Visualizador de imagens:** mapas e retratos abrem ampliados em janela própria.
 - **Preferências:** tema Noite/Dia (o mesmo do site atual), quatro papéis de parede, reduzir animações e ligar/desligar a inicialização.
 - **iMessage:** ícone de celular na área de trabalho, no dock do celular e na barra superior, que abre o canal do iMessage no Discord. No celular, o link abre direto no app do Discord. O endereço do canal fica só em `IMESSAGE_URL`, no `principia/principia.js`.
-- **Minha Ficha:** a ficha completa dentro da Principia, com o visual novo. Abas **Visão geral** (atributos, rolagens com botão de copiar para o Discord, perícias, mão de cartas e estado), **Evolução** (pontos de nível e talentos; o selo da aba mostra o que falta distribuir), **Poderes** (baralho de habilidades com estacas, usos, escolhas e arte própria), **Arsenal** (cartas de armas, armadura, escudo e itens com moldura do metal, biblioteca do Core e bolsa), **Magia**, **Companheiros**, **Roma** e **Diário**, além da criação de personagem passo a passo. As contas são as da Ficha Oficial: o `motor.js` é cópia literal das funções de regra dela, e os números foram conferidos lado a lado (Legado Composto, Legado Direto com Rebento e mortal com magia e exaustão: HP, Energia, Defesa, DT, conjuração, atributos e as 26 perícias iguais). O painel mostra o atributo já com a penalidade de sanidade (o valor das rolagens) e indica a penalidade embaixo; a Ficha Oficial mostra o valor sem ela.
+- **Minhas Fichas:** a ficha completa dentro da Principia, com o visual novo. Abas **Visão geral** (atributos, rolagens com botão de copiar para o Discord, perícias, mão de cartas, estado e, logo abaixo, a evolução aberta: pontos de nível, talentos, treinos e Rebento; o selo da aba mostra o que falta distribuir), **Poderes** (baralho de habilidades com estacas, usos, escolhas e arte própria), **Arsenal** (cartas de armas, armadura, escudo e itens com moldura do metal, biblioteca do Core e bolsa; armadura e escudo só aparecem quando o personagem tem, com **Remover** na gaveta e **Armadura/Escudo manual** para pôr de volta), **Magia**, **Companheiros**, **Roma** e **Diário**, além da criação de personagem passo a passo. As contas são as da Ficha Oficial: o `motor.js` é cópia literal das funções de regra dela, e os números foram conferidos lado a lado (Legado Composto, Legado Direto com Rebento e mortal com magia e exaustão: HP, Energia, Defesa, DT, conjuração, atributos e as 26 perícias iguais). O painel mostra o atributo já com a penalidade de sanidade (o valor das rolagens) e indica a penalidade embaixo; a Ficha Oficial mostra o valor sem ela.
   - **JSON antigo:** **Importar JSON**, arrastar o arquivo para a janela ou **Trazer da Ficha Oficial** (lê as fichas salvas no mesmo navegador, sem alterá-las). Arquivos de versões antigas passam pelo `migrate()` da Ficha Oficial e cada campo vai para o lugar certo. **Exportar** gera o mesmo formato, que a Ficha Oficial abre.
   - **Armazenamento:** IndexedDB `guia_fichas_v2` (fichas e até 12 versões por ficha: ao abrir, a cada 15 minutos e antes de substituir ou excluir). As fichas da prévia antiga (`principia_fichas_v1`) são trazidas uma vez, automaticamente.
   - **Ficha na conta** (`principia/ficha/nuvem.js`, detalhes em [ONLINE.md](ONLINE.md)): com o login do Discord, cada ficha pode ficar no personagem da conta e abre em qualquer aparelho.
-    - O selo ao lado do nome mostra o estado ("Só neste navegador", "Enviando…", "Salva na conta", "Conflito") e abre a gaveta **Ficha na conta**.
+    - O selo ao lado do nome mostra o estado ("Salvar na conta", "Salvando na conta…", "Salva na conta", "Conflito") e abre a gaveta **Ficha na conta**.
     - As mudanças sobem 2,5 s depois. Se dois aparelhos mexerem ao mesmo tempo, o jogador escolhe qual versão fica.
     - A conta guarda as 20 últimas versões, que aparecem em **Versões salvas**.
     - As imagens vão para o Storage, e a cópia local continua com as imagens embutidas, então o JSON exportado segue igual ao da Ficha Oficial.
@@ -113,7 +113,9 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
   - **Fama:** com a ficha ligada à conta, a aba Roma mostra a fama da conta (a mesma da Tabula Famae) e lança direto nela.
     - Registros feitos só na ficha (antes de ela ir para a conta, ou pelo botão da montaria) ficam em `roma.famaFichaAntiga`.
     - Logo depois de salvar a ficha na conta, o Guia oferece enviá-los à Tabula. Depois, a aba Roma mantém o cartão "ainda não está na Tabula Famae" com **Enviar para a Tabula** e **Já lancei na conta**.
-    - O que já está na conta com o mesmo link fica de fora sozinho. Sem link, o jogador cola o link no cartão; para a Staff, entra como ajuste da Staff.
+    - O que já está (ou esteve) na conta com o mesmo link fica de fora sozinho e não volta como pendente. Sem link, o jogador cola o link no cartão; para a Staff, entra como ajuste da Staff.
+    - O × de um lançamento da conta apaga de verdade (função `apagar_fama`): sai da conta e da Tabula, e o link fica livre para lançar de novo. Os registros antigos da ficha também têm × e "Apagar todos".
+  - **Cargo:** com "Outro / acima disso", o topo da ficha mostra o que foi escrito em "Outro cargo" (ex.: Praetor).
   - **Selo de salvamento:** "Salva neste aparelho" sem conta; com a conta ativa, a ficha que ainda não está nela mostra o botão **Salvar na conta**, e depois "Salvando na conta…" e "Salva na conta".
   - **Ficha só leitura (Staff):** no Praetorium, **Ver ficha** abre a ficha da conta do jogador fora da lista, sem salvar nem enviar nada. **Sair** volta para as fichas da própria pessoa.
   - No computador, **Lado a lado** coloca a ficha à esquerda e o Guia à direita; no celular, os botões **Ficha** e **Guia** alternam entre as duas telas sem perder o lugar. As abas ficam presas abaixo do painel de recursos no computador; no celular só o painel fica preso, e as gavetas viram folhas que sobem de baixo.
@@ -124,7 +126,7 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
 
 - Quando o `index.html` ganhar uma camada nova de **JS**, replique a mesma linha no `principia.html`, na mesma posição. Camadas novas de **CSS** não entram na Principia: o visual equivalente vai para `principia/guia-ds.css`, na seção da página correspondente.
 - Para adotar a Principia como padrão, basta publicar o conteúdo de `principia.html` como `index.html`.
-- **Regras da Minha Ficha:** mudanças de conteúdo (habilidades, deuses, itens, ajustes de estacas) chegam sozinhas pelo Core. Quando a **lógica** da Ficha Oficial mudar (novo `app-v5xx.js`), abra `scripts/gerar-motor-ficha.html` (no site publicado ou num servidor local), informe o arquivo e a versão, gere e compare. Se mudou, baixe o `motor.js`, substitua `principia/ficha/motor.js`, suba o `?v=` dele no `principia.html` e confira os números de alguns personagens contra a Ficha Oficial antes de publicar. Se a ferramenta avisar que alguma função sumiu ou que o código novo chama uma função de tela, a ficha do Guia precisa de ajuste antes.
+- **Regras de Minhas Fichas:** mudanças de conteúdo (habilidades, deuses, itens, ajustes de estacas) chegam sozinhas pelo Core. Quando a **lógica** da Ficha Oficial mudar (novo `app-v5xx.js`), abra `scripts/gerar-motor-ficha.html` (no site publicado ou num servidor local), informe o arquivo e a versão, gere e compare. Se mudou, baixe o `motor.js`, substitua `principia/ficha/motor.js`, suba o `?v=` dele no `principia.html` e confira os números de alguns personagens contra a Ficha Oficial antes de publicar. Se a ferramenta avisar que alguma função sumiu ou que o código novo chama uma função de tela, a ficha do Guia precisa de ajuste antes.
 - As preferências ficam no navegador de cada pessoa (`principia_wall`, `principia_motion`, `principia_boot`, `principia_wins`, `principia_seen`). A chave antiga `principia_music` não é mais lida.
 
 ## Pontos para validar

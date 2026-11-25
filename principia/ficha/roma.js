@@ -18,9 +18,11 @@
     const canonLink = l => String(l || '').trim().replace(/^https:\/\/(www\.|ptb\.|canary\.)?discord(app)?\.com\//i, 'https://discord.com/').replace(/\/$/, '');
     // Fama registrada na ficha antes de ela ir para a conta e que ainda não está na Tabula Famae.
     // O que já está na conta com o mesmo link fica de fora, para não contar duas vezes.
+    // Um link que já passou pela conta (mesmo que depois removido ou apagado) não volta a ficar pendente:
+    // quem removeu na conta não quer ver o registro antigo da ficha reaparecer pedindo envio.
     function pendentes(conta, antigo) {
-      const links = new Set((conta?.regs || []).filter(x => !x.removido_em).map(x => canonLink(x.link_discord)));
-      return (antigo || []).filter(x => !x.enviadoConta && !x.dispensado && (Number(x.amount) || 0) !== 0 && !(x.discordLink && links.has(canonLink(x.discordLink))));
+      const links = new Set((conta?.regs || []).map(x => canonLink(x.link_discord)));
+      return (antigo || []).filter(x => !x.enviadoConta && !x.dispensado && !x.naConta && (Number(x.amount) || 0) !== 0 && !(x.discordLink && links.has(canonLink(x.discordLink))));
     }
     const somar = l => l.reduce((t, x) => t + (Number(x.amount) || 0), 0);
     const lanc = n => n === 1 ? '1 lançamento' : `${n} lançamentos`;
@@ -69,7 +71,7 @@
       const fora = pend.length - vao.length;
       const v = await FG.dialogo({
         titulo: 'Levar a fama da ficha para a Tabula?',
-        texto: `${rec.nome} tem ${lanc(pend.length)} de fama (${sinal(somar(pend))}) registrados só na ficha. Na Tabula Famae vale a fama da conta.${vao.length ? ` Enviar agora ${vao.length === pend.length ? (pend.length === 1 ? 'esse lançamento' : 'todos') : lanc(vao.length)}?` : ''}${fora ? ` ${lanc(fora)} sem link do Discord ${fora === 1 ? 'fica' : 'ficam'} na aba Roma, esperando o link.` : ''}`,
+        texto: `${rec.nome} tem ${lanc(pend.length)} de fama (${sinal(somar(pend))}) ${pend.length === 1 ? 'registrado' : 'registrados'} só na ficha. Na Tabula Famae vale a fama da conta.${vao.length ? ` Enviar agora ${vao.length === pend.length ? (pend.length === 1 ? 'esse lançamento' : 'todos') : lanc(vao.length)}?` : ''}${fora ? ` ${lanc(fora)} sem link do Discord ${fora === 1 ? 'fica' : 'ficam'} na aba Roma, esperando o link.` : ''}`,
         botoes: vao.length ? [{ texto: 'Agora não', v: false }, { texto: 'Enviar para a Tabula', v: true, pri: true }] : [{ texto: 'Ver na aba Roma', v: 'roma', pri: true }]
       });
       if (v === true) avisarEnvio(await enviarPendentes(vao));
@@ -120,6 +122,9 @@
       const novosLocais = locais.filter(x => !antigo.some(a => a.id === x.id));
       let mudou = false;
       if (novosLocais.length) { s.roma.famaFichaAntiga = [...antigo, ...novosLocais]; mudou = true; }
+      // Marca de vez o que já está (ou esteve) na conta, para continuar resolvido mesmo se o registro for apagado lá.
+      const linksConta = new Set(conta.regs.map(x => canonLink(x.link_discord)));
+      for (const x of s.roma.famaFichaAntiga || []) if (!x.naConta && x.discordLink && linksConta.has(canonLink(x.discordLink))) { x.naConta = true; mudou = true; }
       if (JSON.stringify(atuais) !== JSON.stringify(novas)) { s.roma.fameEntries = novas; mudou = true; }
       if (s.roma.fame !== conta.p.fama) { s.roma.fame = conta.p.fama; mudou = true; }
       if (mudou) FG.salvar();
@@ -172,11 +177,26 @@
     acoes['fama-remover'] = async el => {
       const c = FG.nuvem?.cliente?.();
       if (!c) return;
-      if (!(await FG.confirmar('Remover este lançamento?', 'Ele continua no histórico como removido, e a Staff pode restaurar.', 'Remover', true))) return;
-      const { error } = await c.sb.rpc('remover_fama', { registro: el.dataset.id, motivo: null });
-      if (error) { window.PRINCIPIA.api.toast(window.PRINCIPIA.online?.msgErro?.(error) || error.message); return; }
+      if (!(await FG.confirmar('Apagar este lançamento?', 'Ele sai da conta e da Tabula Famae, e o link fica livre para lançar de novo (por exemplo, com o valor certo).', 'Apagar', true))) return;
+      const { error } = await c.sb.rpc('apagar_fama', { registro: el.dataset.id });
+      if (error) { toast(msgErro(error)); return; }
+      toast('Lançamento apagado.');
       S.famaConta = null;
       window.PRINCIPIA.online?.recarregarMeus?.();
+      FG.render();
+    };
+    // Registros antigos da ficha (os que nunca foram para a conta): apagar só mexe na ficha.
+    acoes['fama-apagar-ficha'] = async el => {
+      const r = S.M?.state?.roma;
+      if (!r?.famaFichaAntiga) return;
+      const todos = el.dataset.id === '*';
+      const x = todos ? null : r.famaFichaAntiga.find(y => y.id === el.dataset.id);
+      if (!todos && !x) return;
+      const ok = await FG.confirmar(todos ? 'Apagar os registros antigos da ficha?' : 'Apagar este registro da ficha?',
+        `${todos ? `Os ${r.famaFichaAntiga.length} registros antigos saem` : `“${x.source || 'Sem origem'}” (${sinal(Number(x.amount) || 0)}) sai`} da ficha. A fama da conta e a Tabula Famae não mudam.`, 'Apagar', true);
+      if (!ok) return;
+      r.famaFichaAntiga = todos ? [] : r.famaFichaAntiga.filter(y => y.id !== x.id);
+      FG.salvar();
       FG.render();
     };
 
@@ -209,15 +229,17 @@
           const antigo = s.roma?.famaFichaAntiga || [];
           const pend = pendentes(conta, antigo);
           const staff = ehStaff();
-          const linksConta = new Set(conta.regs.filter(x => !x.removido_em).map(x => canonLink(x.link_discord)));
-          const situacao = x => x.enviadoConta ? 'enviado para a Tabula' : x.dispensado ? 'não enviado' : x.discordLink && linksConta.has(canonLink(x.discordLink)) ? 'já está na conta' : !(Number(x.amount) || 0) ? 'sem valor' : 'esperando envio';
+          const linksConta = new Set(conta.regs.map(x => canonLink(x.link_discord)));
+          const situacao = x => x.enviadoConta ? 'enviado para a Tabula' : x.dispensado ? 'não enviado' : x.naConta || (x.discordLink && linksConta.has(canonLink(x.discordLink))) ? 'já passou pela conta' : !(Number(x.amount) || 0) ? 'sem valor' : 'esperando envio';
+          const apagarAntigo = x => `<button class="fg-btn fg-btn--sm fg-btn--icon fg-btn--ghost" type="button" data-a="fama-apagar-ficha" data-id="${esc(x.id)}" aria-label="Apagar este registro da ficha" title="Apagar da ficha">${ICO.close}</button>`;
+          const regsAtivos = conta.regs.filter(x => !x.removido_em);
           const cartaoPend = pend.length ? `<div class="fg-box fg-fama-pend" role="note">
               <b>${pend.length === 1 ? '1 lançamento desta ficha ainda não está' : `${pend.length} lançamentos desta ficha ainda não estão`} na Tabula Famae <span class="fg-chip fg-chip--gold" style="margin-left:4px">${sinal(somar(pend))}</span></b>
               <span class="fg-muted" style="font-size:13px">Foram registrados na ficha e ainda não contam na fama oficial. Envie para a Tabula; o que já está na conta com o mesmo link fica de fora sozinho.</span>
               <div class="fg-rows">${pend.map(x => `<div class="fg-row"><span class="fg-row-num">${sinal(Number(x.amount) || 0)}</span><div class="fg-row-main"><b>${esc(x.source || 'Sem origem')}</b>${linkOk(x.discordLink)
                 ? `<small><a href="${esc(x.discordLink)}" target="_blank" rel="noopener noreferrer">ver no Discord</a></small>`
                 : staff ? '<small>sem link: entra como ajuste da Staff</small>'
-                : `<input class="fg-in" data-pend-link="${esc(x.id)}" type="url" maxlength="200" value="${esc(x.discordLink || '')}" placeholder="Cole o link da mensagem no Discord" autocomplete="off" spellcheck="false" aria-label="Link da mensagem no Discord">`}</div></div>`).join('')}</div>
+                : `<input class="fg-in" data-pend-link="${esc(x.id)}" type="url" maxlength="200" value="${esc(x.discordLink || '')}" placeholder="Cole o link da mensagem no Discord" autocomplete="off" spellcheck="false" aria-label="Link da mensagem no Discord">`}</div>${apagarAntigo(x)}</div>`).join('')}</div>
               <div class="fg-actions"><button class="fg-btn fg-btn--pri" type="button" data-a="fama-enviar-ficha">Enviar para a Tabula</button><button class="fg-btn fg-btn--ghost" type="button" data-a="fama-dispensar-ficha">Já lancei na conta</button></div>
             </div>` : '';
           blocoFama = `${topo}
@@ -231,8 +253,8 @@
               <div class="fg-actions fg-wide"><button class="fg-btn fg-btn--pri" type="button" data-a="fama-lancar">Lançar fama</button></div>
             </div>
             <div class="fg-sec-head"><b class="fg-label">Histórico de fama</b><small class="fg-label">${conta.base ? `inclui ${sinal(conta.base)} de fama inicial` : ''}</small></div>
-            <div class="fg-rows">${conta.regs.map(x => `<div class="fg-row${x.removido_em ? ' is-off' : ''}"><span class="fg-row-num">${sinal(x.quantidade)}</span><div class="fg-row-main"><b>${esc(x.motivo)}</b><small>${new Date(x.criado_em).toLocaleDateString('pt-BR')} · ${window.PRINCIPIA.online?.linkFama ? window.PRINCIPIA.online.linkFama(x) : ''}${x.removido_em ? ` · removido${x.motivo_remocao ? ': ' + esc(x.motivo_remocao) : ''}` : ''}</small></div>${!x.removido_em && x.criado_por === uid ? `<button class="fg-btn fg-btn--sm fg-btn--icon fg-btn--ghost" type="button" data-a="fama-remover" data-id="${esc(x.id)}" aria-label="Remover este lançamento">${ICO.close}</button>` : ''}</div>`).join('') || '<p class="fg-empty-line">Nenhum lançamento ainda.</p>'}</div>
-            ${antigo.length ? `<details class="fg-box"><summary class="fg-label" style="cursor:pointer">Registros feitos na ficha (${antigo.length})</summary><div class="fg-rows" style="margin-top:10px">${antigo.map(x => `<div class="fg-row"><span class="fg-row-num">${sinal(Number(x.amount) || 0)}</span><div class="fg-row-main"><b>${esc(x.source || 'Sem origem')}</b><small>${esc(situacao(x))}${x.discordLink && linkOk(x.discordLink) ? ` · <a href="${esc(x.discordLink)}" target="_blank" rel="noopener noreferrer">ver no Discord</a>` : ''}</small></div></div>`).join('')}</div></details>` : ''}`;
+            <div class="fg-rows">${regsAtivos.map(x => `<div class="fg-row"><span class="fg-row-num">${sinal(x.quantidade)}</span><div class="fg-row-main"><b>${esc(x.motivo)}</b><small>${new Date(x.criado_em).toLocaleDateString('pt-BR')} · ${window.PRINCIPIA.online?.linkFama ? window.PRINCIPIA.online.linkFama(x) : ''}</small></div>${x.criado_por === uid || staff ? `<button class="fg-btn fg-btn--sm fg-btn--icon fg-btn--ghost" type="button" data-a="fama-remover" data-id="${esc(x.id)}" aria-label="Apagar este lançamento" title="Apagar">${ICO.close}</button>` : ''}</div>`).join('') || '<p class="fg-empty-line">Nenhum lançamento ainda.</p>'}</div>
+            ${antigo.length ? `<details class="fg-box"><summary class="fg-label" style="cursor:pointer">Registros antigos da ficha (${antigo.length}) · não contam na Tabula</summary><div class="fg-rows" style="margin-top:10px">${antigo.map(x => `<div class="fg-row"><span class="fg-row-num">${sinal(Number(x.amount) || 0)}</span><div class="fg-row-main"><b>${esc(x.source || 'Sem origem')}</b><small>${esc(situacao(x))}${x.discordLink && linkOk(x.discordLink) ? ` · <a href="${esc(x.discordLink)}" target="_blank" rel="noopener noreferrer">ver no Discord</a>` : ''}</small></div>${apagarAntigo(x)}</div>`).join('')}</div><div class="fg-actions" style="margin-top:10px"><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="fama-apagar-ficha" data-id="*">Apagar todos os registros antigos</button></div></details>` : ''}`;
         } else {
           const online = FG.nuvem?.ativa?.();
           blocoFama = `${topo}

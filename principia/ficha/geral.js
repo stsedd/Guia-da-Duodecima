@@ -127,8 +127,8 @@
       const reb = s.roma?.rebentoApproved;
       const sel = Array.isArray(s.roma?.rebentoAttributes) ? s.roma.rebentoAttributes : [];
       const issues = M.validationIssues();
-      // Aba própria (antes ficava fechada no fim da Visão geral).
-      return `<div class="fg-sec">
+      // Fica aberta na Visão geral, logo abaixo dos atributos e perícias (a aba separada não ajudou a achar os talentos).
+      return `<div class="fg-sec fg-evolucao" style="margin-top:22px">
         <div style="display:flex;flex-direction:column;gap:8px"><span class="fg-kicker">Nível, pontos, talentos, treinos e Rebento</span><h2 class="fg-h fg-h--big">Evolução</h2></div>
         <div class="fg-cols2" style="margin-top:6px">
           <div class="fg-sec">
@@ -160,7 +160,6 @@
         ${issues.length ? `<div class="fg-sec" style="margin-top:16px"><b class="fg-label">Diagnóstico da ficha</b>${issues.map(x => `<p class="fg-note${x.level === 'error' ? ' fg-note--warn' : ''}">${esc(x.text)}</p>`).join('')}</div>` : ''}
       </div>`;
     }
-    FG.abas.evolucao = { render: c => evolucao(c) };
 
     function parametrosTalento(c, t, def) {
       const { D, s } = c;
@@ -199,7 +198,8 @@
             ${equipado(c)}
             ${estado(c)}
           </div>
-        </div>`;
+        </div>
+        ${evolucao(c)}`;
       }
     };
 

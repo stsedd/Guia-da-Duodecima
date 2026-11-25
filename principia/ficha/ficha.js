@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GUIA DA DUODÉCIMA · Ficha (janela "Minha Ficha")
+   GUIA DA DUODÉCIMA · Ficha (janela "Minhas Fichas")
 
    - Regras: motor.js, copiado da Ficha Oficial (mesmos números, mesmas ações).
    - Dados: dados.js, lidos do Duodécima Core (com a cópia do Guia de reserva).
@@ -26,7 +26,7 @@
     { id: 'numina', nome: 'Verde dos Numina', c: '#5aa866', dia: '#2f7a3d', ink: '#051207' }
   ];
   const ABAS = [
-    ['geral', 'Visão geral'], ['evolucao', 'Evolução'], ['poderes', 'Poderes'], ['arsenal', 'Arsenal'], ['magia', 'Magia'],
+    ['geral', 'Visão geral'], ['poderes', 'Poderes'], ['arsenal', 'Arsenal'], ['magia', 'Magia'],
     ['companheiros', 'Companheiros'], ['roma', 'Roma'], ['diario', 'Diário']
   ];
   const ICO = {
@@ -66,7 +66,7 @@
     const S = {
       dados: null, erroDados: null, carregando: false,
       lista: [], atual: null, rec: null, M: null, D: null,
-      aba: store.get('guia_ficha_aba', 'geral'),
+      aba: (a => a === 'evolucao' ? 'geral' : a)(store.get('guia_ficha_aba', 'geral')),
       drawer: null, dialog: null, menu: false,
       criando: null, oficial: [], salvoEm: null, salvando: false,
       fx: {}, prev: {}, versaoSessao: new Set(), hudAberto: false
@@ -374,7 +374,7 @@
       const opts = lista().map(r => `<option value="${esc(r.id)}"${r.id === S.atual ? ' selected' : ''}>${esc(r.nome)}</option>`).join('');
       const nuvem = !!FG.nuvem?.ativa?.();
       return `<div class="fg-top">
-        ${lista().length || S.rec?.temporaria ? `<select class="fg-in" data-a="trocar" aria-label="Personagem">${S.criando?.nova ? '<option selected>Nova ficha (em criação)</option>' : ''}${S.rec?.temporaria ? `<option selected>${esc(S.rec.nome)} (${esc(S.rec.rotulo)})</option>` : ''}${opts}</select>` : '<b class="fg-anton" style="font-size:20px">Minha Ficha</b>'}
+        ${lista().length || S.rec?.temporaria ? `<select class="fg-in" data-a="trocar" aria-label="Personagem">${S.criando?.nova ? '<option selected>Nova ficha (em criação)</option>' : ''}${S.rec?.temporaria ? `<option selected>${esc(S.rec.nome)} (${esc(S.rec.rotulo)})</option>` : ''}${opts}</select>` : '<b class="fg-anton" style="font-size:20px">Minhas Fichas</b>'}
         <button class="fg-btn fg-btn--sm" type="button" data-a="nova">${ICO.plus}Nova</button>
         <button class="fg-btn fg-btn--sm" type="button" data-a="importar">Importar JSON</button>
         <span class="fg-spacer"></span>
@@ -435,6 +435,8 @@
       const fama = M.fameTotal();
       const banda = M.fameBand();
       const rank = (S.D.roma?.legionRanks || []).find(r => r.id === s.roma?.legionRank);
+      // "Outro / acima disso" é só a opção da lista: o cargo de verdade é o que foi escrito em "Outro cargo".
+      const cargoProprio = (rank?.id === 'outro' || s.roma?.religioRank === 'outro') ? String(s.roma?.customRank || '').trim() : '';
       // Nível muda o tempo todo no servidor: fica à mão, com − / + e campo para digitar.
       const nivel = `<span class="fg-nivel" role="group" aria-label="Nível do personagem">
           <button type="button" data-a="nivel" data-d="-1" aria-label="Diminuir nível">−</button>
@@ -446,7 +448,8 @@
         `<span class="fg-chip">BP ${sinal(M.bp())}</span>`,
         s.roma?.rebentoApproved ? '<span class="fg-chip fg-chip--gold">Rebento de Roma</span>' : '',
         banda?.name && fama ? `<span class="fg-chip">${esc(banda.name)} · ${sinal(fama)} fama</span>` : '',
-        rank?.id ? `<span class="fg-chip">${esc(rank.name)}</span>` : '',
+        rank?.id && rank.id !== 'outro' ? `<span class="fg-chip">${esc(rank.name)}</span>` : '',
+        cargoProprio ? `<span class="fg-chip">${esc(cargoProprio)}</span>` : '',
         s.roma?.cohort ? `<span class="fg-chip">${esc(s.roma.cohort)}</span>` : '',
         s.player ? `<span class="fg-chip">Jogador(a): ${esc(s.player)}</span>` : ''
       ].join('');
@@ -520,8 +523,8 @@
         arsenal: (s.weapons?.length || 0) + (s.inventory?.items?.length || 0) + (s.armor?.equipped ? 1 : 0) + (s.shield?.equipped ? 1 : 0),
         magia: s.magic?.enabled ? (s.magic.spells || []).length : 0,
         companheiros: (s.familiars?.entries || []).length,
-        // Na Evolução, o número avisa o que ainda dá para gastar (pontos de atributo e talentos padrão).
-        evolucao: Math.max(0, M.remainingLevelPoints() || 0) + Math.max(0, (M.talentSlotsEarned() || 0) - (M.standardTalentsUsed() || 0))
+        // Na Visão geral, o número avisa o que ainda dá para gastar (pontos de atributo e talentos padrão).
+        geral: Math.max(0, M.remainingLevelPoints() || 0) + Math.max(0, (M.talentSlotsEarned() || 0) - (M.standardTalentsUsed() || 0))
       };
       return `<nav class="fg-tabs" role="tablist" aria-label="Partes da ficha">${ABAS.map(([k, n]) => {
         if (k === 'magia' && !s.magic?.enabled && !M.isMortal()) return `<button class="fg-tab" type="button" role="tab" aria-selected="${S.aba === k}" data-a="aba" data-aba="${k}">${ICO.lock}${n}</button>`;

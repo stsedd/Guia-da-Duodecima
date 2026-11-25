@@ -103,6 +103,8 @@
       editar: (id, patch) => q(S.sb.from('personagens').update(patch).eq('id', id)),
       lancar: row => q(S.sb.from('fama_registros').insert(row)),
       remover: (id, motivo) => q(S.sb.rpc('remover_fama', { registro: id, motivo: motivo || null })),
+      // Apagar de verdade: sai da conta e da Tabula e o link fica livre para lançar de novo.
+      apagar: id => q(S.sb.rpc('apagar_fama', { registro: id })),
       restaurar: id => q(S.sb.rpc('restaurar_fama', { registro: id })),
       tabula: () => q(S.sb.rpc('tabula_famae')),
       todos: () => q(S.sb.from('personagens_fama').select(COLS).order('fama', { ascending: false })),
@@ -430,11 +432,11 @@
         <h4 class="on-sub">Histórico</h4>
         <ul class="on-regs">
           ${base ? `<li class="on-reg on-reg--base"><b>${sinal(base)}</b><span>Fama inicial (${p.panteao === 'romano' ? 'reclamação' : 'panteão ' + esc((PANTEOES.find(x => x[0] === p.panteao) || [, ''])[1].toLowerCase())})</span><small>automática</small></li>` : ''}
-          ${!regs ? `<li class="on-reg">${carregando('Carregando…')}</li>` : regs.length ? regs.map(r => `<li class="on-reg${r.removido_em ? ' is-removido' : ''}">
+          ${!regs ? `<li class="on-reg">${carregando('Carregando…')}</li>` : regs.filter(r => !r.removido_em).length ? regs.filter(r => !r.removido_em).map(r => `<li class="on-reg">
               <b>${sinal(r.quantidade)}</b>
-              <span>${esc(r.motivo)}${r.removido_em ? ` <em>removido${r.motivo_remocao ? ': ' + esc(r.motivo_remocao) : ''}</em>` : ''}</span>
+              <span>${esc(r.motivo)}</span>
               <small>${data(r.criado_em)} · ${linkFama(r)}</small>
-              ${!r.removido_em && r.criado_por === uid() ? `<button class="on-x" type="button" data-on="remover-fama" data-reg="${esc(r.id)}" title="Remover este lançamento" aria-label="Remover este lançamento">×</button>` : ''}
+              ${r.criado_por === uid() || ehStaff() ? `<button class="on-x" type="button" data-on="remover-fama" data-reg="${esc(r.id)}" title="Apagar este lançamento" aria-label="Apagar este lançamento">×</button>` : ''}
             </li>`).join('') : '<li class="on-reg on-muted">Nenhum lançamento ainda.</li>'}
         </ul>
         ${editando ? `<form class="on-form" data-on-form="editar" data-id="${esc(p.id)}">
@@ -521,8 +523,8 @@
       if (act === 'editar') { S.editando = id; await carregarDeuses(); return renderConta(); }
       if (act === 'cancelar-editar') { S.editando = null; return renderConta(); }
       if (act === 'remover-fama') {
-        if (!confirm('Remover este lançamento de fama? Ele continua no histórico como removido.')) return;
-        try { await db.remover(b.dataset.reg); toast('Lançamento removido.'); await recarregarMeus(); await recarregarFama(id); } catch (err) { toast(msgErro(err)); }
+        if (!confirm('Apagar este lançamento de fama? Ele sai da conta e da Tabula Famae, e o link fica livre para lançar de novo.')) return;
+        try { await db.apagar(b.dataset.reg); toast('Lançamento apagado.'); await recarregarMeus(); await recarregarFama(id); } catch (err) { toast(msgErro(err)); }
         return;
       }
       if (act === 'excluir-personagem') {
@@ -644,7 +646,7 @@
           <div class="on-tr${r.removido_em ? ' is-removido' : ''}" role="row" data-reg="${esc(r.id)}">
             <span class="on-td on-td--num">${sinal(r.quantidade)}</span>
             <span class="on-td on-td--main"><b>${esc(nomePersonagem(r.personagem_id))}</b><small>${esc(r.motivo)} · ${esc(arroba(r.criado_por))} · ${dataHora(r.criado_em)}${r.removido_em ? ` · removido por ${esc(arroba(r.removido_por))}${r.motivo_remocao ? ': ' + esc(r.motivo_remocao) : ''}` : ''}</small></span>
-            <span class="on-td on-td--act">${linkFama(r, true)}${r.removido_em ? '<button class="os-btn os-btn--ghost" type="button" data-on="adm-restaurar-fama">Restaurar</button>' : '<button class="os-btn os-btn--ghost on-btn-danger" type="button" data-on="adm-remover-fama">Remover</button>'}</span>
+            <span class="on-td on-td--act">${linkFama(r, true)}${r.removido_em ? '<button class="os-btn os-btn--ghost" type="button" data-on="adm-restaurar-fama">Restaurar</button><button class="os-btn os-btn--ghost on-btn-danger" type="button" data-on="adm-remover-fama">Apagar</button>' : '<button class="os-btn os-btn--ghost on-btn-danger" type="button" data-on="adm-remover-fama">Apagar</button>'}</span>
           </div>`).join('') || '<p class="on-muted">Nenhum lançamento.</p>'}</div>`;
     }
     function admJogadores() {
@@ -675,6 +677,7 @@
       }
       if (a.tabela === 'fama_registros') {
         if (a.acao === 'update') return `${nomePersonagem(r.personagem_id)}: ${sinal(r.quantidade)} ${a.depois?.removido_em ? 'removido' : 'restaurado'}`;
+        if (a.acao === 'delete') return `${nomePersonagem(r.personagem_id)}: ${sinal(r.quantidade)} apagado (${r.motivo})`;
         return `${nomePersonagem(r.personagem_id)}: ${sinal(r.quantidade)} (${r.motivo})`;
       }
       if (a.tabela === 'papeis') return `${arroba(r.usuario_id)} → ${a.acao === 'delete' ? 'jogador' : r.papel}`;
@@ -751,7 +754,7 @@
       }
       if (act === 'adm-excluir') { if (confirm('Excluir este personagem? Ele some da Tabula Famae e da conta do jogador; dá para restaurar aqui.')) await feito(() => db.editar(id, { excluido_em: new Date().toISOString() }), 'Personagem excluído.'); return; }
       if (act === 'adm-restaurar') return feito(() => db.editar(id, { excluido_em: null }), 'Personagem restaurado.');
-      if (act === 'adm-remover-fama') { const m = prompt('Motivo da remoção (aparece para o jogador):', ''); if (m === null) return; return feito(() => db.remover(reg, m.trim()), 'Lançamento removido.'); }
+      if (act === 'adm-remover-fama') { if (!confirm('Apagar este lançamento de fama? Ele sai da conta do jogador e da Tabula Famae, e o link fica livre. A cópia fica na Auditoria.')) return; return feito(() => db.apagar(reg), 'Lançamento apagado.'); }
       if (act === 'adm-restaurar-fama') return feito(() => db.restaurar(reg), 'Lançamento restaurado.');
       if (act === 'adm-membro') return feito(() => db.definirMembro(alvo, b.dataset.valor === '1'), 'Situação atualizada.');
     });

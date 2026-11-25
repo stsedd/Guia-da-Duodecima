@@ -382,7 +382,7 @@ create policy "fama: lançar nos seus personagens" on public.fama_registros
       select 1 from public.personagens p
       where p.id = personagem_id and p.jogador_id = (select auth.uid()) and p.excluido_em is null))
   );
--- Sem UPDATE/DELETE direto: remover é pela função remover_fama (fica registrado).
+-- Sem UPDATE/DELETE direto: apagar é pela função apagar_fama (confere quem pode e fica na auditoria).
 
 create or replace function public.remover_fama(registro uuid, motivo text default null) returns void
 language plpgsql security definer set search_path = '' as $$
@@ -406,6 +406,23 @@ language plpgsql security definer set search_path = '' as $$
 begin
   if not public.eh_admin() then raise exception 'Só a Staff restaura registros.' using errcode = '42501'; end if;
   update public.fama_registros set removido_em = null, removido_por = null, motivo_remocao = null where id = registro;
+end $$;
+
+-- Apagar de verdade (25/11/2026, pedido da Staff): o lançamento sai da conta e da Tabula, e o link fica livre
+-- para lançar de novo. Quem pode: quem lançou, no próprio personagem, ou a Staff. A auditoria guarda a cópia.
+create or replace function public.apagar_fama(registro uuid) returns void
+language plpgsql security definer set search_path = '' as $$
+declare
+  r record;
+begin
+  select f.*, p.jogador_id into r
+  from public.fama_registros f join public.personagens p on p.id = f.personagem_id
+  where f.id = registro;
+  if not found then raise exception 'Registro não encontrado.'; end if;
+  if auth.uid() is null or not coalesce(public.eh_admin() or (r.jogador_id = auth.uid() and r.criado_por = auth.uid()), false) then
+    raise exception 'Você não pode apagar este registro.' using errcode = '42501';
+  end if;
+  delete from public.fama_registros where id = registro;
 end $$;
 
 -- Fama inicial automática (regras do Guia):
@@ -676,11 +693,11 @@ revoke execute on function public.versionar_ficha() from public, anon, authentic
 
 -- Funções que mexem em conta, papéis ou fama: só para quem está logado (o banco ainda confere quem é).
 revoke execute on function public.verificar_membro(text), public.minha_conta(),
-                           public.remover_fama(uuid, text), public.restaurar_fama(uuid),
+                           public.remover_fama(uuid, text), public.restaurar_fama(uuid), public.apagar_fama(uuid),
                            public.definir_membro(uuid, boolean), public.definir_papel(uuid, text),
                            public.excluir_minha_conta() from public, anon;
 grant execute on function public.verificar_membro(text), public.minha_conta(),
-                          public.remover_fama(uuid, text), public.restaurar_fama(uuid),
+                          public.remover_fama(uuid, text), public.restaurar_fama(uuid), public.apagar_fama(uuid),
                           public.definir_membro(uuid, boolean), public.definir_papel(uuid, text),
                           public.excluir_minha_conta() to authenticated;
 -- Funções de gatilho não são endpoints públicos.

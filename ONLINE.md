@@ -21,7 +21,7 @@ Tudo de graça: Supabase no plano Free (sem cartão), login pelo Discord e autom
 - **Membro ou visitante:** no login, o banco confere se a conta do Discord está no servidor da Duodécima. Ninguém lê cargos. Quem não está no servidor entra como visitante: vê o Guia inteiro e a Tabula Famae, mas não usa a ficha nem cadastra personagens.
 - **Personagens e fama:** cada membro cadastra os personagens e lança a fama com o link da mensagem no Discord. A barra e o título atualizam sozinhos.
 - **Tabula Famae:** ranking público de fama com título automático. O @ dos jogadores só aparece para membros logados.
-- **Ficha na conta:** a Minha Ficha fica guardada no personagem da conta e abre em qualquer aparelho. Mudanças sobem sozinhas alguns segundos depois; se dois aparelhos mexerem ao mesmo tempo, o jogador escolhe qual versão fica e a outra vai para as versões da conta (as 20 mais recentes). Imagens da ficha vão para o Storage, em pasta privada de cada conta.
+- **Ficha na conta:** cada ficha de Minhas Fichas fica guardada no personagem da conta e abre em qualquer aparelho. Mudanças sobem sozinhas alguns segundos depois; se dois aparelhos mexerem ao mesmo tempo, o jogador escolhe qual versão fica e a outra vai para as versões da conta (as 20 mais recentes). Imagens da ficha vão para o Storage, em pasta privada de cada conta.
 - **Praetorium:** painel da Staff com personagens, fama, jogadores e auditoria. Aparece só para quem tem papel de Staff ou Dono, e o banco confere o papel de novo a cada ação.
 - **Automações:** sinal diário para o Supabase não pausar, lembrete a cada 5 dias e backup semanal opcional.
 
@@ -94,7 +94,7 @@ Uma vez só, uns 2 minutos:
 1. Supabase → **SQL Editor** → **New query**.
 2. Cole o conteúdo inteiro de [`supabase/schema.sql`](supabase/schema.sql) (a versão nova) e clique em **Run**. Deve terminar com "Success". Os dados atuais (contas, personagens, fama, papéis) continuam intactos; o arquivo foi testado rodando por cima do esquema anterior com dados.
 3. Confira em **Storage** que apareceu o bucket **fichas**, marcado como privado.
-4. Recarregue o site. Na Minha Ficha, o selo ao lado do nome passa a mostrar a conta: "Só neste navegador" → toque nele e escolha **Guardar aqui** (num personagem que já existe) ou **Cadastrar e guardar a ficha**.
+4. Recarregue o site. Em Minhas Fichas, o selo ao lado do nome passa a mostrar a conta: "Só neste navegador" → toque nele e escolha **Guardar aqui** (num personagem que já existe) ou **Cadastrar e guardar a ficha**.
 
 O que o arquivo acrescenta:
 - **Colunas:** `ficha_revisao`, `ficha_salva_em` e `ficha_salva_por` em `personagens`, preenchidas só pelo banco.
@@ -109,7 +109,7 @@ Se algo der erro na parte do Storage, mande só a mensagem de erro; nenhuma chav
 
 Já aplicada no banco (migração `duodecima_fama_ajuste_staff`).
 
-- **Uma fonte só:** a fama oficial é a da conta. A Tabula Famae, a Minha Conta e a aba Roma da Minha Ficha leem e lançam no mesmo lugar. A fama registrada só na ficha é enviada para a conta pela aba Roma (ou logo depois de salvar a ficha na conta), sem repetir links que já estão lá.
+- **Uma fonte só:** a fama oficial é a da conta. A Tabula Famae, a Minha Conta e a aba Roma de Minhas Fichas leem e lançam no mesmo lugar. A fama registrada só na ficha é enviada para a conta pela aba Roma (ou logo depois de salvar a ficha na conta), sem repetir links que já estão lá.
 - **Ajuste da Staff:** Donos e Staff lançam pelo Praetorium sem link do Discord. O banco grava o lançamento como ajuste da Staff (`staff:<id>`), e ele aparece assim na conta e no histórico. Fama negativa retira. Jogadores continuam obrigados a mandar o link da mensagem.
 - **Ver ficha:** a Staff abre a ficha da conta de qualquer jogador em modo só leitura pelo Praetorium. A leitura continua protegida pelo banco: só o dono do personagem e a Staff conseguem.
 
@@ -119,11 +119,11 @@ Já aplicada no banco (migração `duodecima_fama_ajuste_staff`).
 - **Personagens e fama:**
   - Ninguém vê ou altera personagens de outra conta.
   - Linhagem, panteão, divindade e títulos especiais só mudam com a Staff. A divindade pode ser escolhida uma única vez, na reclamação.
-  - Lançamentos de fama não são editados nem apagados: a remoção fica marcada, com autor e motivo.
+  - Lançamentos de fama não são editados. Apagar é pela função `apagar_fama` (migração `duodecima_fama_apagar`, 25/11/2026): só quem lançou, no próprio personagem, ou a Staff. O lançamento sai da conta e da Tabula, o link fica livre para lançar de novo, e a cópia fica na auditoria da Staff. Registros removidos do jeito antigo continuam no Praetorium (Restaurar ou Apagar) e não aparecem para os jogadores.
 - **Fichas:**
   - Só o dono do personagem e a Staff leem a ficha e as versões dela. Salvar exige ser o dono e membro do servidor, ou Staff; quem salvou por último fica registrado.
   - As imagens ficam numa pasta com o ID da conta, num bucket privado. Ninguém envia para a pasta de outra conta, e só o dono e a Staff baixam.
-  - Num computador compartilhado, a Minha Ficha esconde as fichas ligadas a outra conta.
+  - Num computador compartilhado, Minhas Fichas esconde as fichas ligadas a outra conta.
   - Excluir a conta apaga também as imagens da pessoa.
 - **Papéis e auditoria:** só o Dono dá ou tira papéis, e o banco impede que o último Dono saia. Toda mudança em personagens, fama, papéis e contas vai para a auditoria, que só a Staff lê.
 - **Dados guardados:** ID, @, nome e avatar do Discord, mais "está no servidor: sim/não". O e-mail fica só no sistema de login do Supabase. Cada pessoa pode excluir a própria conta, com personagens e fama.
@@ -153,6 +153,6 @@ As regras vêm do documento-mestre:
 | `supabase/functions/discord-app/index.ts` | Edge Function do login pelo app do Discord no celular: devolve o endereço de autorização para o site abrir no app. |
 | `principia/ficha/nuvem.js` | Ficha na conta: envio, recebimento, conflitos entre aparelhos, imagens no Storage e a gaveta "Ficha na conta". |
 | `principia/online-config.js` | Endereço e chave pública do Supabase. |
-| `principia/principia-online.js` | Login, Minha Conta, Tabula Famae, Praetorium e trava da Minha Ficha. |
+| `principia/principia-online.js` | Login, Minha Conta, Tabula Famae, Praetorium e trava de Minhas Fichas. |
 | `principia/principia-online.css` | Visual das janelas novas. |
 | `.github/workflows/supabase-*.yml` | Sinal diário, lembrete de 5 dias e backup semanal. |
