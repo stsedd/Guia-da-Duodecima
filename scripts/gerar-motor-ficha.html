@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Gerar motor da ficha</title>
+<style>
+  :root{color-scheme:dark;--bg:#0d0a0b;--soft:#1a1416;--line:#3a2c30;--ink:#f4ede6;--muted:#a8999c;--red:#e0283f;--ok:#4cc38a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:860px;margin:0 auto;padding:28px 16px 60px}
+  h1{margin:0 0 6px;font-size:24px}
+  p{color:var(--muted);margin:0 0 14px}
+  code{font:13px/1.4 ui-monospace,Consolas,monospace;color:var(--ink)}
+  label{display:grid;gap:4px;margin:0 0 12px;font-weight:600;font-size:13px}
+  input{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit}
+  .acoes{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 18px}
+  button{padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:600 14px/1 inherit;cursor:pointer}
+  button.pri{background:var(--red);border-color:var(--red);color:#fff}
+  button:disabled{opacity:.45;cursor:default}
+  pre{margin:0;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--soft);white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 ui-monospace,Consolas,monospace;max-height:60vh;overflow:auto}
+  .ok{color:var(--ok)}.erro{color:var(--red)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Gerar o motor da Minha Ficha</h1>
+  <p>Ferramenta de manutenção. Lê o código da Ficha Oficial, separa só as funções de regra (contas, sem tela) e monta o <code>principia/ficha/motor.js</code>. Nada é alterado na Ficha Oficial nem enviado para lugar nenhum: o resultado é baixado no seu computador para você substituir o arquivo e publicar.</p>
+  <label>Arquivo principal da Ficha Oficial
+    <input id="url" value="https://stsedd.github.io/ficha-oficial-duodecima-rpg/app-v511.js" spellcheck="false">
+  </label>
+  <label>Versão da Ficha Oficial (aparece no cabeçalho)
+    <input id="versao" value="v5.41.0" spellcheck="false">
+  </label>
+  <div class="acoes">
+    <button class="pri" id="gerar" type="button">Gerar e comparar</button>
+    <button id="baixar" type="button" disabled>Baixar motor.js</button>
+  </div>
+  <pre id="saida" aria-live="polite">Pronto para gerar.</pre>
+</main>
+<script type="module">
+// Mesmo processo usado para criar o motor.js (novembro de 2026):
+// 1. lê o arquivo da Ficha Oficial com o acorn e lista as declarações de topo do IIFE;
+// 2. parte das funções de regra usadas pela ficha do Guia (RAIZES) e puxa tudo de que elas dependem;
+// 3. funções de tela/armazenamento (STUBS) não são copiadas: o motor fornece versões vazias que chamam os ganchos;
+// 4. copia as declarações sem alteração, na ordem original, dentro de window.FichaMotor(DADOS, ganchos).
+const RAIZES = `defaultState migrate syncCurrentCaps setHp setEnergy setSanity isMortal hasSheetCasting sheetCastingAttr godById primaryGod god baseAbilitySet isTriumvir talentDef talentCount hasTalent effectiveAttr structuralAttr ordinaryAttrRaw basePlusLevel sanityAttrPenalty attributeExtraBonus magicSacrifice remainingLevelPoints earnedLevelPoints spentLevelPoints talentSlotsEarned standardTalentsUsed initialSkillLimit bp hpMax energyMax rawHpMax rawEnergyMax fortunaBlessingIsCurrent divineResources resourceMaxFor resourceKey resourceValue setResourceValue hudResources abilityResourcesFor targetResources resourceMax resourceByKey skillAttr skillId skillNameById attrAbbr skillValue skillSources skillIsProficient skillHasExpertise skillHasAutomaticExpertise canUseInitialSkill skillTrainingSlots availableSkillTrainingSlots levelSkillUnlocked levelSkillChoice divineGranted manualSkillSourceLabel skillMetaFor skillTraining activeCondition conditionData conditionDefenseMod conditionDexRollMod globalD20Penalty attrRollConditionPenalty energyRollPenalty exhaustionRollPenalty fixedDefense defenseBonus initiativeBonus damageReduction armorDefense armorReduction shieldDefense armorType weaponType material materialResistance weaponAttack weaponDamageFormula weaponDiceCount castAttack castDT castAttackText castDtText energyValueText effectiveAbilitySet abilityKey stakesOf tierName tierText coreTierCurrent coreStakeValue coreSubStakeKey cleanAbilityText structuredTextPieces abilityUsageRule abilityUsageKey abilityUses abilityChoiceDefs choiceLimit chosenFor choiceOptions choiceDetailKey abilityDeckEntries abilityInDeck abilityVisual abilityVisualState magicAbilityStakeMax activeAbilitySkillEffects isStoredOmenAbility storedOmenCapacity storedOmenSlotKey abilityToolKey abilityToolCapacity sanityBand energyBand magicCircleRule maxMagicCircleByLevel magicSpellCost highCircleRemaining magicCastBonus magicCastDT magicSacrificeAvailable magicComponentsText ensureMagicStarters familiarTypeRule familiarHpMax familiarAttrSpent familiarSkillLimit familiarActiveCommons familiarActiveLegendaries mountRouteOk mountEligible canActivateFamiliar fameTotal fameBand affinityGrandTotal affinityTotals affinityMark rankById validationIssues secondaryGod eligibleLegacyGods resetLineage initializeDirectSelections lineageAbilityTitle libraryItemById createInventoryItemFromLibrary applyLibraryTemplate normalizeInventoryCategory inventoryCategoryLabel shortRest longRest toggleCondition useAbility consumeInventoryItem castMagicSpell rollD20 rollDefense rollInitiative rollDeathSave addDeathSuccesses addDeathFailures signed esc initials compactText equipmentCardLabel attrName bonusText changeLevelAttr finishCreation canFinishCreation changeBase toggleInitialSkill`.split(/\s+/).filter(Boolean);
+const STUB_PREFIXO = /^(render|bind)/;
+const STUBS = new Set(['notify', 'toast', 'save', 'saveLargeSheet', 'broadcastSaveStatus', 'byId', 'creationView', 'sheetView', 'syncShellChrome', 'layoutAbilityMasonry', 'switchSheetTab', 'applyExclusiveThemeNow', 'openExclusiveThemeDb', 'compactDataImage', 'chooseStoredImage', 'readImageToHistory', 'readBannerImage', 'openBannerCrop', 'load', 'safeStorage', 'storeSheetBackup', 'updateBackupButtonCount', 'imageEditorPreview', 'updateBannerCropPreview']);
+const ehStub = n => STUB_PREFIXO.test(n) || STUBS.has(n);
+const TELA = /\bdocument\.|\bbyId\(|localStorage|indexedDB|querySelector|innerHTML|\.onclick|addEventListener|location\.|setTimeout|confirm\(|alert\(|prompt\(/;
+
+const $ = id => document.getElementById(id);
+const saida = $('saida');
+let gerado = '';
+const log = (txt, cls) => { const s = document.createElement('span'); if (cls) s.className = cls; s.textContent = txt + '\n'; saida.append(s); };
+
+async function gerar() {
+  saida.textContent = '';
+  $('baixar').disabled = true;
+  const url = $('url').value.trim(), versao = $('versao').value.trim();
+  const arquivo = url.split('/').pop().split('?')[0];
+  log('Carregando o analisador (acorn 8.12.1)…');
+  const acorn = await import('https://cdn.jsdelivr.net/npm/acorn@8.12.1/dist/acorn.mjs');
+  const walk = await import('https://cdn.jsdelivr.net/npm/acorn-walk@8.3.4/dist/walk.mjs');
+  log('Lendo ' + url + ' …');
+  const src = await fetch(url + (url.includes('?') ? '&' : '?') + 'x=' + Date.now()).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); });
+  const ast = acorn.parse(src, { ecmaVersion: 'latest', sourceType: 'script', allowAwaitOutsideFunction: true });
+  const corpo = ast.body[0]?.expression?.callee?.body?.body;
+  if (!corpo) throw new Error('Formato inesperado: o arquivo não começa com um IIFE.');
+  const decls = corpo.map(st => ({
+    nomes: st.type === 'FunctionDeclaration' ? [st.id.name] : st.type === 'VariableDeclaration' ? st.declarations.flatMap(d => d.id.type === 'Identifier' ? [d.id.name] : []) : [],
+    no: st
+  }));
+  const porNome = new Map();
+  decls.forEach((d, i) => d.nomes.forEach(n => porNome.set(n, i)));
+  const deps = decls.map(d => { const s = new Set(); walk.full(d.no, n => { if (n.type === 'Identifier' && porNome.has(n.name)) s.add(n.name); }); return s; });
+
+  const ausentes = RAIZES.filter(r => !ehStub(r) && !porNome.has(r));
+  if (ausentes.length) log('Funções que sumiram da Ficha Oficial (a ficha do Guia usa): ' + ausentes.join(', '), 'erro');
+
+  const incl = new Set(), stubsUsados = new Set();
+  const pilha = RAIZES.filter(r => !ehStub(r) && porNome.has(r)).map(r => porNome.get(r));
+  while (pilha.length) {
+    const i = pilha.pop();
+    if (incl.has(i)) continue;
+    incl.add(i);
+    for (const n of deps[i]) {
+      if (ehStub(n)) { stubsUsados.add(n); continue; }
+      const j = porNome.get(n);
+      if (!incl.has(j)) pilha.push(j);
+    }
+  }
+  const lista = [...incl].sort((a, b) => a - b);
+  const extras = [...stubsUsados].filter(n => !['save', 'render', 'renderSheet', 'renderCreation', 'notify'].includes(n));
+  if (extras.length) log('Atenção: o código copiado chama funções de tela sem versão no motor: ' + extras.join(', ') + '. Elas ficariam indefinidas; revise antes de publicar.', 'erro');
+  const comTela = lista.filter(i => TELA.test(src.slice(decls[i].no.start, decls[i].no.end))).map(i => decls[i].nomes.join(','));
+  if (comTela.length) log('Declarações copiadas que mencionam tela/armazenamento (conferir se só usam window.prompt ou ganchos): ' + comTela.join(', '));
+
+  const partes = lista.map(i => '  ' + src.slice(decls[i].no.start, decls[i].no.end));
+  const nomes = [...new Set(lista.flatMap(i => decls[i].nomes))].filter(n => n !== 'state');
+  const cab = `/* ==========================================================================
+   GUIA DA DUODÉCIMA · Motor de regras da ficha
+   GERADO AUTOMATICAMENTE a partir de ficha-oficial-duodecima-rpg/${arquivo}
+   (Ficha Oficial ${versao}, ${new Date().toISOString().slice(0, 10)}): ${lista.length} declarações copiadas sem alteração,
+   na ordem original. Só as contas, sem tela: a ficha do Guia desenha por cima.
+   Não edite à mão; para atualizar, regenere a partir da Ficha Oficial.
+   ========================================================================== */
+(function () {
+'use strict';
+window.FichaMotor = function criarMotor(DADOS, ganchos) {
+  ganchos = ganchos || {};
+  // "window" local: o código copiado lê os dados por window.DUODECIMA_*; aqui eles vêm do Core já carregado.
+  const window = {
+    DUODECIMA_GODS: DADOS.gods, DUODECIMA_SKILLS: DADOS.skills, DUODECIMA_ABILITIES: DADOS.abilities,
+    DUODECIMA_SYSTEM: DADOS.system, DUODECIMA_TALENTS: DADOS.talents, DUODECIMA_MAGIC: DADOS.magic,
+    DUODECIMA_ROMA: DADOS.roma, DUODECIMA_FAMILIARS: DADOS.familiars, DUODECIMA_LINEAGE: DADOS.lineage,
+    prompt: function () { return ganchos.prompt ? ganchos.prompt.apply(null, arguments) : null; }
+  };
+  // Pontas que a ficha do Guia fornece (na Ficha Oficial elas desenham a tela e gravam no navegador).
+  function save() { if (ganchos.save) ganchos.save(state); }
+  function render() { if (ganchos.render) ganchos.render(); }
+  function renderSheet() { render(); }
+  function renderCreation() { render(); }
+  function notify(msg, tone) { if (ganchos.notify) ganchos.notify(msg, tone); }
+
+  // ---------------------------------------------------------------- código copiado
+`;
+  const rod = `
+  // ---------------------------------------------------------------- fim do código copiado
+  return {
+    get state() { return state; },
+    set state(v) { state = v; },
+    ${nomes.join(', ')}
+  };
+};
+window.FichaMotor.origem = { arquivo: '${arquivo}', versao: '${versao}', declaracoes: ${lista.length} };
+})();
+`;
+  gerado = cab + partes.join('\n') + rod;
+  log(`Gerado: ${lista.length} declarações, ${nomes.length} nomes expostos, ${Math.round(gerado.length / 1024)} KB.`, 'ok');
+
+  // Compara com o motor publicado ao lado (ignora a linha da data).
+  try {
+    const atual = await fetch(new URL('../principia/ficha/motor.js', location.href) + '?x=' + Date.now()).then(r => r.ok ? r.text() : '');
+    const semData = t => t.replace(/\r\n/g, '\n').replace(/\(Ficha Oficial [^,]+, \d{4}-\d{2}-\d{2}\)/, '');
+    if (!atual) log('Não achei o motor.js atual para comparar.');
+    else if (semData(atual) === semData(gerado)) log('Igual ao motor.js atual (fora a data). Não há nada para atualizar.', 'ok');
+    else {
+      const velhos = new Set((atual.match(/set state\(v\) \{ state = v; \},\s*([^\n]+)/) || [, ''])[1].split(/,\s*/));
+      const novos = new Set(nomes);
+      const add = nomes.filter(n => !velhos.has(n)), rem = [...velhos].filter(n => n && !novos.has(n));
+      log('Diferente do motor.js atual. Funções novas: ' + (add.join(', ') || 'nenhuma') + '. Funções que saíram: ' + (rem.join(', ') || 'nenhuma') + '.');
+      log('Baixe, substitua principia/ficha/motor.js, suba o ?v= do motor.js no principia.html e confira os números de alguns personagens contra a Ficha Oficial antes de publicar.');
+    }
+  } catch (e) { log('Comparação indisponível: ' + e.message); }
+  $('baixar').disabled = false;
+}
+
+$('gerar').addEventListener('click', () => gerar().catch(e => log('Erro: ' + (e?.message || e), 'erro')));
+$('baixar').addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([gerado], { type: 'text/javascript' }));
+  a.download = 'motor.js';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+</script>
+</body>
+</html>

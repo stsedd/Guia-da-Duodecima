@@ -219,7 +219,7 @@
   const WM = (() => {
     const wins = {};
     let z = 200;
-    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], ficha: [360, 420], conta: [360, 400], famae: [380, 420], praetorium: [560, 440] };
+    const MIN = { reader: [640, 460], tabularium: [520, 380], leiame: [380, 320], prefs: [380, 380], sobre: [340, 360], viewer: [320, 260], ficha: [420, 480], conta: [360, 400], famae: [380, 420], praetorium: [560, 440] };
     let saved = {};
     try { saved = JSON.parse(store.get('principia_wins', '{}')) || {}; } catch { saved = {}; }
     const barH = () => isMobile() ? 0 : ($('#osBar')?.offsetHeight || 40);
@@ -231,8 +231,8 @@
         const w = Math.min(1300, vw - 236);
         return { x: Math.round((vw - w) / 2), y: bar + g, w, h: vh - bar - g * 2 };
       }
-      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], ficha: [600, 860], conta: [560, 760], famae: [760, 800], praetorium: [1080, 820], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
-      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, ficha: -120, conta: -60, famae: 40, praetorium: 0 }[id] || 0;
+      const sizes = { tabularium: [920, 620], leiame: [580, 640], prefs: [520, 640], sobre: [420, 560], ficha: [1240, 900], conta: [560, 760], famae: [760, 800], praetorium: [1080, 820], viewer: [Math.min(1100, vw * .82), Math.min(860, (vh - bar) * .88)] };
+      const shift = { tabularium: 26, leiame: 70, prefs: 110, sobre: 0, viewer: 0, ficha: 0, conta: -60, famae: 40, praetorium: 0 }[id] || 0;
       const [w0, h0] = sizes[id] || [620, 480];
       const w = Math.round(Math.min(w0, vw - g * 2)), h = Math.round(Math.min(h0, vh - bar - g * 2));
       return { x: Math.round((vw - w) / 2 + shift), y: Math.round(bar + Math.max(g, (vh - bar - h) / 2 - 10) + shift * .35), w, h };
@@ -968,7 +968,7 @@
         <button class="os-dd-item" type="button" role="menuitem" data-app="leiame">${svg('note')}Leia-me</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="notes">${svg('note')}Notae · Bloco de notas</button>
         <button class="os-dd-item" type="button" role="menuitem" data-app="tabularium">${svg('folder')}Tabularium</button>
-        <button class="os-dd-item" type="button" role="menuitem" data-app="minhaficha"><img src="${APPS.minhaficha.art}" alt="">Minha Ficha<em>teste</em></button>
+        <button class="os-dd-item" type="button" role="menuitem" data-app="minhaficha"><img src="${APPS.minhaficha.art}" alt="">Minha Ficha</button>
         <a class="os-dd-item" role="menuitem" href="${IMESSAGE_URL}" target="_blank" rel="noopener noreferrer">${svg('phone')}iMessage<em>Discord</em></a>
         <div class="os-dd-sep" role="separator"></div>
         <button class="os-dd-item" type="button" role="menuitem" data-action="desktop">${svg('desktop')}Mostrar área de trabalho</button>
@@ -1624,7 +1624,7 @@
   P.open = openPage;
   P.WM = WM;
   P.hooks = P.hooks || {};
-  /* Interface usada por outros apps da Principia (ex.: principia-ficha.js). */
+  /* Interface usada por outros apps da Principia (ex.: principia/ficha/ficha.js). */
   P.api = {
     esc, svg, norm, store, WM, isMobile, reduced, toast,
     openPage, openUtil, openBeside: openBesideFicha, tile: tileFichaGuia, canTile,
