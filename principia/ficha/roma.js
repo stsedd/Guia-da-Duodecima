@@ -200,10 +200,31 @@
       FG.render();
     };
 
+    const ordensAfinidade = [['maior', 'Maior pontuação'], ['menor', 'Menor pontuação'], ['nome', 'Ordem alfabética']];
+    let ordemAfinidade = 'maior';
+    acoes['roma-ordem-afinidade'] = el => {
+      ordemAfinidade = el.value;
+      FG.render();
+    };
+    const coortes = ['Primeira', 'Segunda', 'Terceira', 'Quarta', 'Quinta'];
+    function seletorCoorte(valor) {
+      const chave = String(valor || '').trim().toLowerCase().replace(/\.+$/, '').replace(/\s+(coorte|cohort|corte)$/, '');
+      const indice = ['i', 'ii', 'iii', 'iv', 'v'].indexOf(chave);
+      const atual = coortes[indice] || coortes.find(nome => nome.toLowerCase() === chave) || valor || '';
+      const opcoes = [['', 'Selecione a coorte'], ['Sem coorte', 'Sem coorte'], ...coortes.map(nome => [nome, nome + ' Coorte'])];
+      if (!opcoes.some(([id]) => id === atual)) opcoes.push([atual, atual]);
+      return `<select data-a="campo" data-render data-path="roma.cohort">${opcoes.map(([id, nome]) => `<option value="${esc(id)}"${id === atual ? ' selected' : ''}${id === '' ? ' disabled' : ''}>${esc(nome)}</option>`).join('')}</select>`;
+    }
+
     FG.abas.roma = {
       render(c) {
         const { M, s, D } = c;
         const r = s.roma || {};
+        const totaisAfinidade = [...M.affinityTotals()].sort((a, b) => {
+          const porNome = a.target.localeCompare(b.target, 'pt-BR');
+          if (ordemAfinidade === 'nome') return porNome;
+          return (ordemAfinidade === 'menor' ? a.value - b.value : b.value - a.value) || porNome;
+        });
         const fama = M.fameTotal(), banda = M.fameBand();
         const prox = MARCOS.find(([n]) => fama < n);
         const ant = [...MARCOS].reverse().find(([n]) => fama >= n)?.[0] ?? Math.min(fama, -25);
@@ -269,7 +290,7 @@
             <div class="fg-sec">
               <div class="fg-sec-head"><h3 class="fg-h">Afinidades</h3><button class="fg-btn fg-btn--sm" type="button" data-a="roma-nova" data-t="afinidade">${ICO.plus}Registro</button></div>
               <p class="fg-muted" style="font-size:12.5px">Relação com deuses e figuras importantes. Cada registro soma no total da figura (de −100 a +100).</p>
-              ${M.affinityTotals().length ? `<div class="fg-rows">${M.affinityTotals().map(t => `<div class="fg-row"><div class="fg-row-main"><b>${esc(t.target)}</b><small>Faixa ${esc(M.affinityMark(t.value))}</small></div><span class="fg-row-num">${sinal(t.value)}</span></div>`).join('')}</div>` : ''}
+              ${totaisAfinidade.length ? `<label class="fg-field"><span>Ordenar totais</span><select data-a="roma-ordem-afinidade">${ordensAfinidade.map(([id, nome]) => `<option value="${id}"${id === ordemAfinidade ? ' selected' : ''}>${nome}</option>`).join('')}</select></label><div class="fg-rows">${totaisAfinidade.map(t => `<div class="fg-row"><div class="fg-row-main"><b>${esc(t.target)}</b><small>Faixa ${esc(M.affinityMark(t.value))}</small></div><span class="fg-row-num">${sinal(t.value)}</span></div>`).join('')}</div>` : ''}
               <div class="fg-rows">${(r.affinityEntries || []).map(x => linhaAfinidade(x)).join('') || '<p class="fg-empty-line">Nenhum registro de afinidade.</p>'}</div>
             </div>
           </div>
@@ -280,7 +301,7 @@
                 <label class="fg-field"><span>Patente na Legião</span>${sel(p + '.legionRank', D.roma.legionRanks || [], r.legionRank)}</label>
                 <label class="fg-field"><span>Patente na Religio</span>${sel(p + '.religioRank', D.roma.religioRanks || [], r.religioRank)}</label>
                 <label class="fg-field fg-wide"><span>Outro cargo</span><input data-a="campo" data-render data-path="${p}.customRank" value="${esc(r.customRank || '')}" placeholder="Opcional"></label>
-                <label class="fg-field"><span>Coorte</span><input data-a="campo" data-render data-path="${p}.cohort" value="${esc(r.cohort || '')}" placeholder="Ex.: V Coorte"></label>
+                <label class="fg-field"><span>Coorte</span>${seletorCoorte(r.cohort)}</label>
                 <label class="fg-field"><span>Situação de cidadania</span><input data-a="campo" data-path="${p}.citizenship" value="${esc(r.citizenship || '')}" placeholder="Cidadão, estrangeiro…"></label>
                 <label class="fg-field"><span>Anos de serviço</span><input type="number" min="0" step="1" data-a="campo" data-tipo="int" data-path="${p}.legionYears" value="${Number(r.legionYears) || 0}"></label>
                 <label class="fg-field"><span>Marcas de serviço</span><input type="number" min="0" step="1" data-a="campo" data-tipo="int" data-path="${p}.serviceMarks" value="${Number(r.serviceMarks) || 0}"></label>
