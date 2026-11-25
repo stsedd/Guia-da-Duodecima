@@ -12,7 +12,7 @@ Tudo de graça: Supabase no plano Free (sem cartão), login pelo Discord e autom
 - A validação do link de fama verifica formato, servidor e duplicidade; não lê o conteúdo da mensagem nem atesta o valor lançado.
 - O perfil passa a usar identidade confirmada pela API do Discord, não metadados editáveis do usuário.
 - **Ficha na conta ativada em 25/11/2026** (migração `duodecima_ficha_na_conta`, aplicada pelo conector do Supabase): colunas, versões, função de salvar, bucket privado `fichas` e permissões conferidos no banco real; contas e personagens intactos.
-- Ainda sem Dono: o passo 7 (virar dono) continua pendente.
+- Dono definido em 25/11/2026: @ezra_bdx (passo 7 concluído). Os outros papéis de Staff são dados pelo Praetorium, aba Jogadores.
 
 ## O que já está pronto no site
 
