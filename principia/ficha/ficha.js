@@ -532,7 +532,7 @@
       }).join('')}</nav>`;
     }
 
-    function ctx() { return { M: S.M, s: S.M.state, D: S.D, S, FG, esc, ICO, sinal, num, clamp, uid, attrsLista }; }
+    function ctx() { return { M: S.M, s: S.M?.state ?? null, D: S.D, S, FG, esc, ICO, sinal, num, clamp, uid, attrsLista }; }
     FG.ctx = ctx;
 
     function render() {
@@ -838,6 +838,11 @@
     fileEl.addEventListener('change', async () => {
       const files = [...(fileEl.files || [])];
       if (!files.length) return;
+      await garantirDados();
+      if (!S.dados || S.erroDados) {
+        toast('Não consegui carregar as regras da ficha. Tente novamente antes de importar.');
+        return;
+      }
       for (const f of files) {
         try {
           if (f.size > 25 * 1024 * 1024) throw new Error('arquivo grande demais (máx. 25 MB).');
@@ -852,7 +857,6 @@
           toast(`${rec.nome} importado.`);
         } catch (e) { toast(`Não consegui ler ${f.name}: ${e?.message || e}`); }
       }
-      S.criando = null;
       render();
     });
     body.addEventListener('dragover', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); win.classList.add('is-drop'); } });
