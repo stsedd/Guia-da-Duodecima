@@ -30,6 +30,9 @@
   const DEGRAUS = [[25, 'conhecido'], [50, 'influente'], [80, 'famoso'], [100, 'rebento']];
   const ORDEM = ['odiado', 'nenhum', 'conhecido', 'influente', 'famoso', 'rebento'];
   const COLS = 'id,jogador_id,nome,linhagem,panteao,divindade,coorte,publico,fama,titulo,elegivel_rebento,titulo_minimo,rebento_confirmado,criado_em,excluido_em';
+  // Celular: o login tenta abrir o app do Discord (ver entrar()). iPad novo se apresenta como Mac com toque.
+  const ANDROID = /Android/i.test(navigator.userAgent);
+  const CELULAR = ANDROID || /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   function start() {
     const P = window.PRINCIPIA;
@@ -156,8 +159,12 @@
       const erroUrl = new URLSearchParams(location.search).get('error_description');
       try {
         await carregarScript(SUPABASE_JS, SUPABASE_SRI);
+        // Login pelo app do Discord (celular) volta com a sessão no endereço (#access_token=…), o
+        // fluxo "implícito"; o login pelo navegador volta com ?code= (PKCE). O cliente só aceita o
+        // retorno do próprio fluxo, então o fluxo é escolhido pelo que chegou no endereço.
+        const voltaImplicita = /(^#|&)(access_token|error_description)=/.test(location.hash);
         S.sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, {
-          auth: { flowType: 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'duodecima-auth' }
+          auth: { flowType: voltaImplicita ? 'implicit' : 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'duodecima-auth' }
         });
         // O Supabase pede que o callback não chame o próprio cliente na mesma volta (evita travar).
         S.sb.auth.onAuthStateChange((ev, session) => setTimeout(() => aoMudarSessao(ev, session), 0));
@@ -205,11 +212,46 @@
       } catch (err) { S.erro = msgErro(err); }
       if (ehMembro()) carregarDeuses().then(() => renderConta());
     }
-    async function entrar() {
+    async function entrar(viaNavegador) {
       if (!S.sb) { toast(ON ? 'As contas ainda estão carregando. Tente de novo em instantes.' : 'As contas ainda não foram ativadas neste site.'); return; }
       try { sessionStorage.setItem('duodecima_pos_login', '1'); } catch {}
-      const { error } = await S.sb.auth.signInWithOAuth({ provider: 'discord', options: { scopes: 'guilds', redirectTo: location.origin + location.pathname } });
+      const volta = location.origin + location.pathname;
+      if (CELULAR && !viaNavegador) {
+        const web = await enderecoDoDiscord(volta);
+        if (web) { abrirNoApp(web); return; }
+      }
+      const { error } = await S.sb.auth.signInWithOAuth({ provider: 'discord', options: { scopes: 'guilds', redirectTo: volta } });
       if (error) toast(msgErro(error));
+    }
+    /* Login pelo app do Discord (celular).
+       O Discord não documenta abrir o login (OAuth) no app; o caminho discord://-/oauth2/authorize
+       funciona hoje e, se parar, o navegador entra no lugar sozinho. O endereço vem da função
+       "discord-app" do Supabase (supabase/functions/discord-app); sem ela, segue pelo navegador. */
+    async function enderecoDoDiscord(volta) {
+      try {
+        const r = await fetch(`${CFG.supabaseUrl}/functions/v1/discord-app?redirect_to=${encodeURIComponent(volta)}`, { headers: { apikey: CFG.supabaseKey }, cache: 'no-store' });
+        if (!r.ok) return null;
+        const url = (await r.json())?.url || '';
+        return /^https:\/\/((ptb|canary)\.)?discord(app)?\.com\//.test(url) ? url : null;
+      } catch { return null; }
+    }
+    function abrirNoApp(web) {
+      const q = new URL(web).searchParams;
+      q.set('prompt', 'consent'); // "none" trava a tela de autorizar no app do iPhone
+      const caminho = '-/oauth2/authorize?' + q.toString();
+      if (ANDROID) {
+        // O Chrome abre o app pelo intent e, sem o app instalado, vai para o site do Discord.
+        location.href = `intent://${caminho}#Intent;scheme=discord;package=com.discord;S.browser_fallback_url=${encodeURIComponent(web)};end`;
+        return;
+      }
+      // iPhone/iPad: se a página continuar visível depois de 2,5 s, o app não abriu; segue pelo navegador.
+      let t = 0;
+      const parar = () => { clearTimeout(t); document.removeEventListener('visibilitychange', aoSumir); window.removeEventListener('pagehide', parar); };
+      const aoSumir = () => { if (document.visibilityState === 'hidden') parar(); };
+      t = setTimeout(() => { parar(); location.href = web; }, 2500);
+      document.addEventListener('visibilitychange', aoSumir);
+      window.addEventListener('pagehide', parar);
+      location.href = 'discord://' + caminho;
     }
     async function sair() {
       try { await S.sb?.auth.signOut(); } catch {}
@@ -306,8 +348,11 @@
       return `<div class="on-login">
         <span class="on-empty-seal" aria-hidden="true"></span>
         <h2>Entre com o Discord</h2>
-        <p>Quem está no servidor da Duodécima entra como <b>membro</b>: cadastra personagens, lança fama e, na próxima etapa, guarda a ficha aqui. Quem não está entra como <b>visitante</b> e continua vendo o Guia inteiro e a Tabula Famae.</p>
-        <button class="os-btn on-btn-discord" type="button" data-on="entrar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5h4.5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H14"/><path d="M10 8l4 4-4 4M14 12H4.5"/></svg>Entrar com o Discord</button>
+        <p>Quem está no servidor da Duodécima entra como <b>membro</b>: cadastra personagens, lança fama e guarda a ficha na conta. Quem não está entra como <b>visitante</b> e continua vendo o Guia inteiro e a Tabula Famae.</p>
+        <button class="os-btn on-btn-discord" type="button" data-on="entrar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5h4.5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H14"/><path d="M10 8l4 4-4 4M14 12H4.5"/></svg>${CELULAR ? 'Entrar pelo app do Discord' : 'Entrar com o Discord'}</button>
+        ${CELULAR
+          ? '<p class="on-hint">O app do Discord abre para você tocar em <b>Autorizar</b> e depois volta para o Guia no navegador. Se o app não abrir, o login continua pelo navegador. <button class="on-link" type="button" data-on="entrar-navegador">Entrar pelo navegador</button></p>'
+          : '<p class="on-hint">No computador, o Discord pede o login no navegador. Na página dele, escolha <b>Entrar com QR Code</b> e escaneie com o app do Discord no celular: não precisa digitar senha.</p>'}
         <button class="os-btn os-btn--ghost" type="button" data-on="fechar">Continuar como visitante</button>
         <details class="on-privacy"><summary>O que o site guarda</summary>
           <p>O seu ID, @, nome de exibição e avatar do Discord, e se a conta está no servidor da Duodécima (sim ou não, conferido no login). O site não lê cargos nem mensagens. O Discord manda a lista dos seus servidores só para essa conferência: o banco procura a Duodécima e não guarda o resto. O e-mail da conta fica apenas no sistema de login (Supabase). Você pode excluir a conta, com tudo o que está nela, aqui mesmo.</p>
@@ -456,6 +501,7 @@
       const act = b.dataset.on;
       const id = b.closest('[data-id]')?.dataset.id;
       if (act === 'entrar') return entrar();
+      if (act === 'entrar-navegador') return entrar(true);
       if (act === 'fechar') return WM.close('conta');
       if (act === 'sair') return sair();
       if (act === 'novo') { S.novo = true; await carregarDeuses(); renderConta(); contaBody.querySelector('[data-on-form="novo"] input')?.focus(); return; }

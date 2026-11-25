@@ -698,3 +698,14 @@ html[data-motion="reduce"] .os-reader .content .os-reveal{opacity:1;transform:no
 .os-icons,.os-home-grid,.os-dock{--os-app-icon-size:64px;--os-app-icon-radius:15px}
 .os-ico>.os-ico-art{box-sizing:border-box;flex:0 0 var(--os-app-icon-size,64px);width:var(--os-app-icon-size,64px);height:var(--os-app-icon-size,64px);min-width:var(--os-app-icon-size,64px);min-height:var(--os-app-icon-size,64px);max-width:var(--os-app-icon-size,64px);max-height:var(--os-app-icon-size,64px);aspect-ratio:1/1;border-radius:var(--os-app-icon-radius,15px);border-width:3px;background-size:cover}
 .os-ico>.os-ico-art--phone>svg{width:42px;height:42px}
+
+/* Área de trabalho (25/11/2026)
+   - Linhas de altura fixa, com espaço para nomes de até duas linhas: nenhum nome invade o ícone de baixo.
+   - Ícones de símbolo (Leia-me, Notae, Ajustes…) no mesmo vermelho texturizado dos banners, como os demais. */
+.os-icons{grid-template-rows:repeat(auto-fill,110px)}
+.os-icons .os-ico{height:110px;padding:4px 4px 2px;gap:5px;justify-content:flex-start}
+.os-icons .os-ico-label{padding:2px 7px;line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.os-ico-art--glyph,.os-ico-art--phone{background:#8f0b17 url('../assets/principia/icons/fundo-vermelho.webp?v=2') center/cover no-repeat;color:#fffaf5}
+.os-ico-art--glyph .os-svg{filter:drop-shadow(0 1.5px 1.5px rgba(30,0,4,.6))}
+.os-phone-bubble path{fill:#fffaf5}
+.os-phone-bubble circle{fill:#b5101f}

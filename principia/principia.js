@@ -73,7 +73,9 @@
     phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.3h3"/><path d="M9.5 10.5h5M9.5 13.5h3.2"/>',
     user: '<circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.2-3.6 3.9-5.4 7-5.4s5.8 1.8 7 5.4"/>',
     laurel: '<path d="M8 4.5h8v4.2a4 4 0 0 1-8 0z"/><path d="M8 6H5.5v1.2a3 3 0 0 0 3 3M16 6h2.5v1.2a3 3 0 0 1-3 3"/><path d="M12 12.7v3.3M8.5 19.5h7M9.6 19.5l.7-3.5h3.4l.7 3.5"/>',
-    shield: '<path d="M12 3.5 5 6v5.5c0 4.2 2.9 7.5 7 9 4.1-1.5 7-4.8 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>'
+    shield: '<path d="M12 3.5 5 6v5.5c0 4.2 2.9 7.5 7 9 4.1-1.5 7-4.8 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>',
+    // Pena (Notae): diferente do documento do Leia-me.
+    quill: '<path d="M19.5 4.5C12.8 5 8.2 9.6 7 16.6L5.5 20"/><path d="M7.1 16.2c5-.4 9.3-4.6 10.6-9.6"/><path d="M10.3 12.6h4.2"/>'
   };
   const svg = (name, cls = 'os-svg') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${SVG[name] || ''}</svg>`;
 
@@ -81,7 +83,8 @@
   const FICHA_URL = 'https://stsedd.github.io/ficha-oficial-duodecima-rpg/';
   /* Canal do iMessage (mensagens entre personagens) no Discord da Duodécima. */
   const IMESSAGE_URL = 'https://discord.com/channels/1498461819902234624/1498486495668080761';
-  const ICON = n => `assets/principia/icons/${n}.webp`;
+  // ?v= muda quando os ícones mudam, para ninguém ficar com a imagem antiga no cache.
+  const ICON = n => `assets/principia/icons/${n}.webp?v=2`;
   /* As 11 abas vêm de principia-estrutura.js; sem ela, ficam as 7 páginas do motor. */
   const EST = window.PRINCIPIA_ESTRUTURA || null;
   const PAGES = EST?.order || ['sistema', 'combate', 'crafting', 'magia', 'deuses', 'roma', 'domus'];
@@ -105,7 +108,7 @@
     minhaficha: { kind: 'win', win: 'ficha', title: 'Minha Ficha', art: ICON('ficha'), tilt: -2 },
     ficha: { kind: 'external', title: 'Ficha Oficial', href: FICHA_URL, glyph: 'book', tilt: 2 },
     imessage: { kind: 'external', title: 'iMessage', href: IMESSAGE_URL, custom: 'phone', glyph: 'phone', tilt: -2 },
-    notes: { kind: 'win', win: 'notes', title: 'Notae · Bloco de notas', short: 'Notae', glyph: 'note', tilt: 0 },
+    notes: { kind: 'win', win: 'notes', title: 'Notae · Bloco de notas', short: 'Notae', glyph: 'quill', tilt: 0 },
     leiame: { kind: 'win', win: 'leiame', title: 'Leia-me', glyph: 'note', tilt: -3 },
     prefs: { kind: 'win', win: 'prefs', title: 'Preferências', short: 'Ajustes', glyph: 'gear', tilt: 2 },
     sobre: { kind: 'win', win: 'sobre', title: 'Sobre', glyph: 'info', tilt: 0 },

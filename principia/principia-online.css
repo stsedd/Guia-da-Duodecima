@@ -201,3 +201,8 @@ html[data-theme="light"] .on-badge--odiado{background:#3a2f33}
   .on-spin{animation-duration:2.4s}
   .on-bar i{transition:none}
 }
+
+/* Botão em forma de link dentro de textos (ex.: "Entrar pelo navegador"). */
+.on-link{all:unset;cursor:pointer;color:var(--os-red-hi,#e0283f);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.on-link:focus-visible{outline:2px solid var(--os-focus,#e0283f);outline-offset:2px;border-radius:3px}
+.on-login .on-hint{max-width:440px;font-size:12.5px;line-height:1.45}

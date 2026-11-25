@@ -119,3 +119,19 @@ A fileira de abas no topo da janela do Guia saiu (repetia os menus da barra e os
 
 - O painel "Nesta página" e os menus passam a mostrar o título visível de cada seção (por exemplo, **Status** em vez de "HP Sanidade Energia"). As palavras-chave continuam no `data-title` e seguem alimentando a busca.
 - Os ícones dos apps são recortes dos banners já existentes. Para trocar qualquer um por uma arte dedicada, basta substituir o arquivo correspondente em `assets/principia/icons/`, sem mexer no código.
+- **Padrão dos ícones (25/11/2026)**, a partir dos favoritos Character Archive, Combate e Magia: um adesivo de borda branca sobre o vermelho da Legião, de preferência com a letra grande do banner ao fundo, e nenhum símbolo repetido. O recorte é quadrado (256 px) e as origens são estas:
+
+  | Ícone | Símbolo | Banner | Recorte (x, y, lado) |
+  | --- | --- | --- | --- |
+  | Roma | Coliseu | `b-sistema-de-jogo` | 1020, 40, 360 |
+  | Cursus Honorum | Iustitia | `b-hierarquia` | 1040, 106, 300 |
+  | Deuses e Devoção | mãos em oração e chama | `b-devocao` | 1180, 20, 320 |
+  | Familiares | dragão-serpente | `b-afinidade` | 250, 10, 290 |
+  | Mapas | rosa dos ventos | `b-magia` | 130, 20, 320 |
+  | Extras | calendário | `b-tempo` | 270, 0, 220 |
+  | Tabularium | cartas e chaves | `b-coortes` | 1480, 106, 300 |
+  | Crafting | escudo do leão | `b-crafting` | 1030, 0, 360 |
+
+  - A loba fica só em Casa do Lobo.
+  - Os ícones de símbolo (Leia-me, Notae, Ajustes, Tabula Famae, Praetorium, Conta, Ficha Oficial, iMessage) usam o mesmo vermelho (`icons/fundo-vermelho.webp`, tirado de `b-nova-roma`) com o desenho em branco. A Notae tem pena própria; antes ela usava o mesmo documento do Leia-me.
+- **Nomes dos ícones na área de trabalho:** linhas de altura fixa (110 px), com espaço para nomes de até duas linhas. Nenhum nome invade o ícone de baixo.

@@ -12,7 +12,8 @@ Tudo de graça: Supabase no plano Free (sem cartão), login pelo Discord e autom
 - A validação do link de fama verifica formato, servidor e duplicidade; não lê o conteúdo da mensagem nem atesta o valor lançado.
 - O perfil passa a usar identidade confirmada pela API do Discord, não metadados editáveis do usuário.
 - **Ficha na conta ativada em 25/11/2026** (migração `duodecima_ficha_na_conta`, aplicada pelo conector do Supabase): colunas, versões, função de salvar, bucket privado `fichas` e permissões conferidos no banco real; contas e personagens intactos.
-- Dono definido em 25/11/2026: @ezra_bdx (passo 7 concluído). Os outros papéis de Staff são dados pelo Praetorium, aba Jogadores.
+- Donos definidos em 25/11/2026: @ezra_bdx e @hopefulnessispunk, ambos com permissão máxima (passo 7 concluído). Os outros papéis de Staff são dados pelo Praetorium, aba Jogadores.
+- **Login pelo app do Discord (celular):** o site já está pronto. Falta implantar a Edge Function `discord-app` ([código](supabase/functions/discord-app/index.ts)) no projeto, com "Verify JWT" desligado. Até lá, o login no celular segue pelo navegador, como antes.
 
 ## O que já está pronto no site
 
@@ -75,6 +76,17 @@ O plano Free não guarda backups. Para ligar o backup, crie dois segredos em **S
 
 Toda semana, o fluxo **Supabase · backup semanal** guarda um arquivo criptografado como artefato da execução, por 90 dias. Para abrir um backup: `gpg -d duodecima-AAAA-MM-DD.tar.gz.gpg > backup.tar.gz`. O backup leva as fichas (texto) e as versões; as imagens do Storage não entram nele.
 
+## Login pelo app do Discord
+
+- **Celular:** "Entrar pelo app do Discord" abre o app para a pessoa tocar em **Autorizar**, sem digitar senha. Depois o app devolve a pessoa ao navegador padrão do celular, já logada.
+  - O site pede o endereço de autorização à função `discord-app` do Supabase e troca `https://discord.com/…` por `discord://-/oauth2/authorize…`.
+  - **Android:** o Chrome abre o app; sem o app instalado, vai para o site do Discord.
+  - **iPhone:** se o app não abrir em 2,5 s, o login segue pelo navegador.
+  - Há também o link "Entrar pelo navegador".
+- **Ressalva:** o Discord não documenta esse caminho. A equipe dele diz que, de propósito, não abre o login (OAuth) no app, porque nem sempre consegue devolver a pessoa ao navegador certo. Por isso esse login volta com a sessão no próprio endereço (fluxo implícito), e funciona mesmo que caia em outro navegador. Se um dia o app parar de aceitar, o login continua pelo navegador sozinho.
+- **Atalho instalado na tela inicial:** se a pessoa estiver usando o Guia como atalho na tela inicial do iPhone, a volta cai no Safari, que tem outro armazenamento. Ela fica logada no Safari, não no atalho; nesse caso, vale usar "Entrar pelo navegador" dentro do atalho.
+- **Computador:** o app do Discord para desktop não aprova logins de sites. Na página do Discord, use **Entrar com QR Code** e escaneie com o app do celular: também não precisa digitar senha. Depois disso, o navegador fica logado no Discord e os próximos logins pedem só "Autorizar".
+
 ## Atualização: ficha na conta (25/11/2026)
 
 Uma vez só, uns 2 minutos:
@@ -130,6 +142,7 @@ As regras vêm do documento-mestre:
 | Arquivo | O que faz |
 | --- | --- |
 | `supabase/schema.sql` | Banco inteiro: tabelas, regras de acesso, fama, títulos, fichas e versões, bucket de imagens, auditoria e sinal de vida. Pode rodar de novo sem perder dados. |
+| `supabase/functions/discord-app/index.ts` | Edge Function do login pelo app do Discord no celular: devolve o endereço de autorização para o site abrir no app. |
 | `principia/ficha/nuvem.js` | Ficha na conta: envio, recebimento, conflitos entre aparelhos, imagens no Storage e a gaveta "Ficha na conta". |
 | `principia/online-config.js` | Endereço e chave pública do Supabase. |
 | `principia/principia-online.js` | Login, Minha Conta, Tabula Famae, Praetorium e trava da Minha Ficha. |
