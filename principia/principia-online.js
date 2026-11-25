@@ -392,7 +392,7 @@
         <label class="on-field"><span>Título mínimo (Staff)</span><select name="titulo_minimo">${opcoes([['conhecido', 'Conhecido'], ['influente', 'Influente (ex.: Centurião)'], ['famoso', 'Famoso']], p.titulo_minimo || '', 'Nenhum')}</select></label>
         <label class="on-check"><input type="checkbox" name="rebento_confirmado"${p.rebento_confirmado ? ' checked' : ''}> Rebento de Roma Aeterna confirmado</label>` : ''}
         <label class="on-check"><input type="checkbox" name="publico"${p.publico === false ? '' : ' checked'}> Aparece na Tabula Famae</label>
-        ${admin ? '' : '<p class="on-hint">Gregos começam com −10 de fama e celtas com −15; filhos de Iuppiter, Bellona e Marte Ultor recebem +15 e o título de Conhecido. Isso entra sozinho: não lance de novo. Depois de salvar, linhagem, panteão e divindade só mudam com a Staff (a divindade pode ser escolhida uma vez, na reclamação).</p>'}
+        ${admin ? '' : '<p class="on-hint">Gregos começam com −10 de fama e celtas com −15; filhos de Iuppiter, Bellona e Marte Ultor recebem +15 e o título de Conhecido. Filhos de Netuno perdem 15 de Fama ao serem reclamados. Esses ajustes entram automaticamente. Depois de salvar, linhagem, panteão e divindade só mudam com a Staff (a divindade pode ser escolhida uma vez, na reclamação).</p>'}
         <div class="on-actions"><button class="os-btn os-btn--primary" type="submit">${p.id ? 'Salvar' : 'Cadastrar personagem'}</button><button class="os-btn os-btn--ghost" type="button" data-on="${admin ? 'adm-cancelar' : 'cancelar-novo'}">Cancelar</button></div>
       </form>`;
     }
@@ -418,7 +418,7 @@
     }
     function detalhes(p) {
       const regs = S.fama[p.id];
-      const base = (p.panteao === 'grego' ? -10 : p.panteao === 'celta' ? -15 : 0) + (p.panteao === 'romano' && p.linhagem === 'prole' && ['iuppiter', 'bellona', 'marte'].includes(p.divindade) ? 15 : 0);
+      const base = regs ? p.fama - regs.filter(r => !r.removido_em).reduce((total, r) => total + r.quantidade, 0) : 0;
       const editando = S.editando === p.id;
       return `<div class="on-char-body">
         <form class="on-form on-form--fama" data-on-form="fama" data-id="${esc(p.id)}">

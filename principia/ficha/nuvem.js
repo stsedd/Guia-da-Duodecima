@@ -387,7 +387,7 @@
             <label class="fg-field fg-wide"><span>Divindade</span><select name="divindade">${deus ? `<option value="${esc(deus)}" selected>${esc(nomeDeus)} (da ficha)</option>` : ''}<option value="">Ainda não reclamado</option></select></label>
             <label class="fg-check fg-wide"><input type="checkbox" name="publico" checked> Aparece na Tabula Famae</label>
           </div>
-          <p class="fg-muted" style="font-size:12.5px">Gregos começam com −10 de fama e celtas com −15; filhos de Iuppiter, Bellona e Marte Ultor recebem +15. Depois de cadastrar, linhagem, panteão e divindade só mudam com a Staff.</p>
+          <p class="fg-muted" style="font-size:12.5px">Gregos começam com −10 de fama e celtas com −15; filhos de Iuppiter, Bellona e Marte Ultor recebem +15. Filhos de Netuno perdem 15 de Fama ao serem reclamados, automaticamente. Depois de cadastrar, linhagem, panteão e divindade só mudam com a Staff.</p>
           <div class="fg-actions"><button class="fg-btn fg-btn--pri" type="button" data-a="nuvem-cadastrar">Cadastrar e salvar a ficha</button></div>`);
       }
       const fora = (N.lista || []).filter(p => p.ficha_salva_em && !S.lista.some(r => r.nuvem?.dono === c.uid && r.nuvem.pid === p.id));
