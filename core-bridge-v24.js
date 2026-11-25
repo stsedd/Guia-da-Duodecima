@@ -10,6 +10,7 @@
   const guideSlug={marte:'marte-ultor',juno:'juno-mater'};
   const coreIdFromGuideSlug=slug=>slug==='marte-ultor'?'marte':slug==='juno-mater'?'juno':slug;
   const slugFor=d=>guideSlug[d.id]||d.id;
+  const fobetor = d => /\b(?:fobetor|phobetor|icelus)\b/i.test(`${d.id} ${d.name}`);
 
   async function getJSON(url){
     const r=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
@@ -218,6 +219,7 @@
     const narrative=deitySummaryFromFallback(fallback); narrative.who ||= esc(d.description||''); narrative.play ||= esc(d.playstyle||''); const cast=d.castingAttribute?attrName(d.castingAttribute,core):'—'; const hp=d.hp?`${d.hp.base}${d.hp.constitutionApplies?' + Constituição':''}; +${d.hp.perDecade}${d.hp.constitutionApplies?' + Constituição':''} a cada 10 níveis`:'—';
     return `<section class="section deity-detail searchable" data-deity="${esc(slugFor(d))}" data-core-id="${esc(d.id)}" data-title="${esc(d.name)}" hidden id="deus-${esc(slugFor(d))}">
       <div class="deity-title"><small>${esc(d.groupLabel||'PROLE DIVINA')}</small><h2>${esc(d.name)}</h2><p>Kit sincronizado pelo Duodécima Core · ${esc(core.manifest.contentVersion)}</p></div>
+      ${fobetor(d)?`<div class="core-kit-notes"><p><strong>Prole indisponível para novos personagens.</strong> Personagens atuais podem continuar usando o kit, que segue aberto para consulta e fichas de teste.</p></div>`:'' }
       <div class="deity-info-grid">${narrative.who?`<article class="deity-info"><small>QUEM ERA</small><p>${narrative.who}</p></article>`:''}${narrative.play?`<article class="deity-info deity-info--wide"><small>JOGANDO COM O KIT</small><p>${narrative.play}</p></article>`:''}<article class="deity-info"><small>CONJURAÇÃO</small><p><strong>${esc(cast)}</strong></p></article><article class="deity-info"><small>HP</small><p>${esc(hp)}</p></article><article class="deity-info"><small>BONIFICAÇÕES DIVINAS</small><p>${esc(bonusesText(d,core))}</p></article>${d.resource?`<article class="deity-info"><small>RECURSO</small><p><strong>${esc(d.resource.name)}</strong>${d.resource.maxFormula?` · ${esc(d.resource.maxFormula)}`:''}</p></article>`:''}</div>
       ${d.notes?.length?`<div class="core-kit-notes">${d.notes.map(n=>`<p>${esc(n)}</p>`).join('')}</div>`:''}
       <div class="deity-tools"><div><small>KIT</small><h3>Habilidades passivas</h3></div><button class="toggle-abilities" data-target="passivas-${esc(slugFor(d))}" type="button">Expandir todas</button></div><div class="deity-abilities" id="passivas-${esc(slugFor(d))}">${d.passives.map((a,i)=>renderAbility(a,d,i,'passive')).join('')}</div>
@@ -233,7 +235,7 @@
       const map=new Map();
       sec.querySelectorAll('.god-row').forEach(row=>{const href=row.querySelector('.god-name[href]')?.getAttribute('href')||'';const slug=href.replace('#deus-','');const id=coreIdFromGuideSlug(slug)||'';if(id)map.set(id,row.querySelector('p')?.innerHTML||'');else {const name=row.querySelector('.god-name')?.textContent.trim();if(name==='Minerva')map.set('minerva',row.querySelector('p')?.innerHTML||'');}});
       oldDescriptions.set(group.id,map);
-      const members=sec.querySelector('.pantheon-members'); if(members){members.innerHTML=core.gods.deities.filter(d=>d.group===group.id).map(d=>{const desc=map.get(d.id)||'Divindade integrante deste grupo do panteão romano.';return `<article class="god-row${d.kitAvailable?' is-ready':''}"><div>${d.kitAvailable?`<a class="god-name" href="#deus-${esc(slugFor(d))}">${esc(d.name)}</a>`:`<span class="god-name">${esc(d.name)}</span>`}<span class="god-state ${d.kitAvailable?'ready':'soon'}">${d.kitAvailable?'KIT DISPONÍVEL':'SEM KIT'}</span></div><p>${desc}</p></article>`;}).join('');}
+      const members=sec.querySelector('.pantheon-members'); if(members){members.innerHTML=core.gods.deities.filter(d=>d.group===group.id).map(d=>{const desc=map.get(d.id)||'Divindade integrante deste grupo do panteão romano.';return `<article class="god-row${d.kitAvailable?' is-ready':''}"><div>${d.kitAvailable?`<a class="god-name" href="#deus-${esc(slugFor(d))}">${esc(d.name)}</a>`:`<span class="god-name">${esc(d.name)}</span>`}<span class="god-state ${d.kitAvailable&&!fobetor(d)?'ready':'soon'}">${fobetor(d)?'PROLE INDISPONÍVEL PARA NOVOS PERSONAGENS':d.kitAvailable?'KIT DISPONÍVEL':'SEM KIT'}</span></div><p>${desc}</p></article>`;}).join('');}
     }
     const overview=box.querySelector('#panteoes .pantheon-grid'); if(overview){overview.querySelectorAll('.pantheon-card').forEach(card=>{const id=(card.getAttribute('href')||'').slice(1);const count=core.gods.deities.filter(d=>d.group===id&&d.kitAvailable).length;const b=card.querySelector('b');if(b)b.textContent=`${count} kits disponíveis`;});}
     box.querySelectorAll('.deity-detail').forEach(x=>x.remove());

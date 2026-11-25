@@ -51,7 +51,7 @@
       const grade = GRUPOS.map(gr => {
         const ds = D.gods.filter(x => x.group === gr);
         if (!ds.length) return '';
-        return `<div class="fg-sec-head" style="margin-top:8px"><b class="fg-label" style="color:var(--fg-accent)">${esc(NOME_GRUPO[gr] || gr)}</b></div><div class="fg-gods">${ds.map(x => `<button class="fg-god" type="button" data-a="cria-deus" data-id="${esc(x.id)}" aria-pressed="${s.godId === x.id}"><b>${esc(x.name)}</b><small>${esc(Object.entries(x.bonuses || {}).filter(([, v]) => v).map(([k, v]) => `${sinal(v)} ${k.toUpperCase()}`).join(' · '))}</small></button>`).join('')}</div>`;
+        return `<div class="fg-sec-head" style="margin-top:8px"><b class="fg-label" style="color:var(--fg-accent)">${esc(NOME_GRUPO[gr] || gr)}</b></div><div class="fg-gods">${ds.map(x => `<button class="fg-god" type="button" data-a="cria-deus" data-id="${esc(x.id)}" aria-pressed="${s.godId === x.id}"><b>${esc(x.name)}</b>${/\b(?:fobetor|phobetor|icelus)\b/i.test(`${x.id} ${x.name}`) ? '<small>Indisponível para novos personagens · ficha de teste liberada</small>' : ''}<small>${esc(Object.entries(x.bonuses || {}).filter(([, v]) => v).map(([k, v]) => `${sinal(v)} ${k.toUpperCase()}`).join(' · '))}</small></button>`).join('')}</div>`;
       }).join('');
       const tri = M.isTriumvir(s.godId);
       let linhagem = '';
