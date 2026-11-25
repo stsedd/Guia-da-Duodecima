@@ -13,7 +13,7 @@ Tudo de graça: Supabase no plano Free (sem cartão), login pelo Discord e autom
 - O perfil passa a usar identidade confirmada pela API do Discord, não metadados editáveis do usuário.
 - **Ficha na conta ativada em 25/11/2026** (migração `duodecima_ficha_na_conta`, aplicada pelo conector do Supabase): colunas, versões, função de salvar, bucket privado `fichas` e permissões conferidos no banco real; contas e personagens intactos.
 - Donos definidos em 25/11/2026: @ezra_bdx e @hopefulnessispunk, ambos com permissão máxima (passo 7 concluído). Os outros papéis de Staff são dados pelo Praetorium, aba Jogadores.
-- **Login pelo app do Discord (celular):** o site já está pronto. Falta implantar a Edge Function `discord-app` ([código](supabase/functions/discord-app/index.ts)) no projeto, com "Verify JWT" desligado. Até lá, o login no celular segue pelo navegador, como antes.
+- **Login pelo app do Discord (celular):** Edge Function `discord-app` ([código](supabase/functions/discord-app/index.ts)) implantada em 25/11/2026, com "Verify JWT" desligado (ela é chamada antes do login e só devolve o endereço público de autorização). Testada pelo site: devolve o endereço do Discord e recusa voltas para outros sites. Falta só o teste num celular de verdade.
 
 ## O que já está pronto no site
 
