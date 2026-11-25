@@ -11,6 +11,7 @@ Tudo de graça: Supabase no plano Free (sem cartão), login pelo Discord e autom
 - Site URL e redirect permitido no Supabase: `https://stsedd.github.io/Guia-da-Duodecima/principia.html`.
 - A validação do link de fama verifica formato, servidor e duplicidade; não lê o conteúdo da mensagem nem atesta o valor lançado.
 - O perfil passa a usar identidade confirmada pela API do Discord, não metadados editáveis do usuário.
+- **Pendente (25/11/2026): rodar de novo o `supabase/schema.sql`** para ligar a ficha na conta (ver "Atualização: ficha na conta" abaixo). Até lá, a Minha Ficha continua salvando só no navegador, sem erro.
 
 ## O que já está pronto no site
 
@@ -18,6 +19,7 @@ Tudo de graça: Supabase no plano Free (sem cartão), login pelo Discord e autom
 - **Membro ou visitante:** no login, o banco confere se a conta do Discord está no servidor da Duodécima. Ninguém lê cargos. Quem não está no servidor entra como visitante: vê o Guia inteiro e a Tabula Famae, mas não usa a ficha nem cadastra personagens.
 - **Personagens e fama:** cada membro cadastra os personagens e lança a fama com o link da mensagem no Discord. A barra e o título atualizam sozinhos.
 - **Tabula Famae:** ranking público de fama com título automático. O @ dos jogadores só aparece para membros logados.
+- **Ficha na conta:** a Minha Ficha fica guardada no personagem da conta e abre em qualquer aparelho. Mudanças sobem sozinhas alguns segundos depois; se dois aparelhos mexerem ao mesmo tempo, o jogador escolhe qual versão fica e a outra vai para as versões da conta (as 20 mais recentes). Imagens da ficha vão para o Storage, em pasta privada de cada conta.
 - **Praetorium:** painel da Staff com personagens, fama, jogadores e auditoria. Aparece só para quem tem papel de Staff ou Dono, e o banco confere o papel de novo a cada ação.
 - **Automações:** sinal diário para o Supabase não pausar, lembrete a cada 5 dias e backup semanal opcional.
 
@@ -70,7 +72,25 @@ O plano Free não guarda backups. Para ligar o backup, crie dois segredos em **S
 - `SUPABASE_DB_URL`: a connection string do **Session pooler** (Supabase → **Connect**), com a senha do banco do passo 1.
 - `BACKUP_PASSPHRASE`: uma senha longa só para os backups.
 
-Toda semana, o fluxo **Supabase · backup semanal** guarda um arquivo criptografado como artefato da execução, por 90 dias. Para abrir um backup: `gpg -d duodecima-AAAA-MM-DD.tar.gz.gpg > backup.tar.gz`.
+Toda semana, o fluxo **Supabase · backup semanal** guarda um arquivo criptografado como artefato da execução, por 90 dias. Para abrir um backup: `gpg -d duodecima-AAAA-MM-DD.tar.gz.gpg > backup.tar.gz`. O backup leva as fichas (texto) e as versões; as imagens do Storage não entram nele.
+
+## Atualização: ficha na conta (25/11/2026)
+
+Uma vez só, uns 2 minutos:
+
+1. Supabase → **SQL Editor** → **New query**.
+2. Cole o conteúdo inteiro de [`supabase/schema.sql`](supabase/schema.sql) (a versão nova) e clique em **Run**. Deve terminar com "Success". Os dados atuais (contas, personagens, fama, papéis) continuam intactos; o arquivo foi testado rodando por cima do esquema anterior com dados.
+3. Confira em **Storage** que apareceu o bucket **fichas**, marcado como privado.
+4. Recarregue o site. Na Minha Ficha, o selo ao lado do nome passa a mostrar a conta: "Só neste navegador" → toque nele e escolha **Guardar aqui** (num personagem que já existe) ou **Cadastrar e guardar a ficha**.
+
+O que o arquivo acrescenta:
+- **Colunas:** `ficha_revisao`, `ficha_salva_em` e `ficha_salva_por` em `personagens`, preenchidas só pelo banco.
+- **Tabela de versões:** `fichas_versoes`, com as 20 últimas versões de cada ficha. Ninguém escreve nela direto; só o banco.
+- **Função de salvar:** `salvar_ficha`, que detecta quando outro aparelho salvou antes.
+- **Bucket de imagens:** `fichas` no Storage, privado, até 1 MB por imagem e cota de 400 imagens / 100 MB por conta.
+- **Auditoria:** salvar a ficha não gera registro na auditoria, porque a ficha tem o próprio histórico.
+
+Se algo der erro na parte do Storage, mande só a mensagem de erro; nenhuma chave é necessária.
 
 ## Segurança
 
@@ -79,6 +99,11 @@ Toda semana, o fluxo **Supabase · backup semanal** guarda um arquivo criptograf
   - Ninguém vê ou altera personagens de outra conta.
   - Linhagem, panteão, divindade e títulos especiais só mudam com a Staff. A divindade pode ser escolhida uma única vez, na reclamação.
   - Lançamentos de fama não são editados nem apagados: a remoção fica marcada, com autor e motivo.
+- **Fichas:**
+  - Só o dono do personagem e a Staff leem a ficha e as versões dela. Salvar exige ser o dono e membro do servidor, ou Staff; quem salvou por último fica registrado.
+  - As imagens ficam numa pasta com o ID da conta, num bucket privado. Ninguém envia para a pasta de outra conta, e só o dono e a Staff baixam.
+  - Num computador compartilhado, a Minha Ficha esconde as fichas ligadas a outra conta.
+  - Excluir a conta apaga também as imagens da pessoa.
 - **Papéis e auditoria:** só o Dono dá ou tira papéis, e o banco impede que o último Dono saia. Toda mudança em personagens, fama, papéis e contas vai para a auditoria, que só a Staff lê.
 - **Dados guardados:** ID, @, nome e avatar do Discord, mais "está no servidor: sim/não". O e-mail fica só no sistema de login do Supabase. Cada pessoa pode excluir a própria conta, com personagens e fama.
 - **Validade da confirmação:** vale por 90 dias (`membro_validade_dias` na tabela `config`). Depois disso, o site pede um novo login com o Discord.
@@ -103,7 +128,8 @@ As regras vêm do documento-mestre:
 
 | Arquivo | O que faz |
 | --- | --- |
-| `supabase/schema.sql` | Banco inteiro: tabelas, regras de acesso, fama, títulos, auditoria e sinal de vida. Pode rodar de novo sem perder dados. |
+| `supabase/schema.sql` | Banco inteiro: tabelas, regras de acesso, fama, títulos, fichas e versões, bucket de imagens, auditoria e sinal de vida. Pode rodar de novo sem perder dados. |
+| `principia/ficha/nuvem.js` | Ficha na conta: envio, recebimento, conflitos entre aparelhos, imagens no Storage e a gaveta "Ficha na conta". |
 | `principia/online-config.js` | Endereço e chave pública do Supabase. |
 | `principia/principia-online.js` | Login, Minha Conta, Tabula Famae, Praetorium e trava da Minha Ficha. |
 | `principia/principia-online.css` | Visual das janelas novas. |

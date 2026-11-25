@@ -226,6 +226,8 @@
       html.classList.toggle('on-staff', ehStaff());
       renderChip();
       travarFicha();
+      // A Minha Ficha (principia/ficha/nuvem.js) escuta isto para sincronizar com a conta certa.
+      window.dispatchEvent(new CustomEvent('duodecima:conta'));
       if (WM.isOpen('conta')) renderConta();
       if (WM.isOpen('famae')) { renderFamae(); if (!S.tabula) carregarTabula(); }
       if (WM.isOpen('praetorium')) renderPraetorium();
@@ -401,6 +403,18 @@
       try { S.fama[id] = await db.fama(id); } catch (err) { S.fama[id] = []; toast(msgErro(err)); }
       renderConta();
     }
+    // Imagens das fichas (Storage) não somem junto com a conta no banco: apaga antes, pasta por pasta.
+    async function apagarImagensDaConta() {
+      const pasta = uid();
+      if (!S.sb || !pasta) return;
+      const st = S.sb.storage.from('fichas');
+      for (let volta = 0; volta < 20; volta++) {
+        const { data, error } = await st.list(pasta, { limit: 100 });
+        if (error || !data?.length) return;
+        const { error: e2 } = await st.remove(data.map(f => `${pasta}/${f.name}`));
+        if (e2) return;
+      }
+    }
     async function recarregarMeus() {
       try { S.meus = await db.meus(uid()); } catch (err) { toast(msgErro(err)); }
       S.tabula = null;
@@ -463,7 +477,7 @@
       if (act === 'excluir-conta') {
         if (!confirm('Excluir a sua conta, todos os seus personagens e os lançamentos de fama deles? Não dá para desfazer.')) return;
         if (prompt('Para confirmar, digite EXCLUIR') !== 'EXCLUIR') { toast('Exclusão cancelada.'); return; }
-        try { await db.excluirConta(); await sair(); toast('Conta excluída.'); } catch (err) { toast(msgErro(err)); }
+        try { await apagarImagensDaConta(); await db.excluirConta(); await sair(); toast('Conta excluída.'); } catch (err) { toast(msgErro(err)); }
       }
     });
 
@@ -683,7 +697,7 @@
     if (fichaHook) P.hooks.ficha = { ...fichaHook, open() { travarFicha(); return fichaHook.open?.(); } };
 
     // Para depuração no console e testes: o estado e as funções de dados.
-    P.online = { ativo: ON, estado: S, db, aplicar, entrar, sair };
+    P.online = { ativo: ON, estado: S, db, aplicar, entrar, sair, recarregarMeus: () => (uid() && ehMembro() ? recarregarMeus() : null) };
     iniciar();
   }
 

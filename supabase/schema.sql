@@ -112,12 +112,16 @@ create table if not exists public.personagens (
   titulo_minimo text check (titulo_minimo is null or titulo_minimo in ('conhecido', 'influente', 'famoso')),  -- só a Staff (ex.: Centurião → influente)
   rebento_confirmado boolean not null default false,                                                       -- só a Staff
   publico boolean not null default true,      -- aparece na Tabula Famae
-  dados jsonb not null default '{}'::jsonb check (pg_column_size(dados) < 600000),  -- a ficha, na próxima etapa
+  dados jsonb not null default '{}'::jsonb check (pg_column_size(dados) < 600000),  -- a ficha (JSON da Ficha Oficial; imagens no Storage)
   criado_em timestamptz not null default now(),
   atualizado_em timestamptz not null default now(),
   excluido_em timestamptz
 );
 create index if not exists personagens_jogador on public.personagens (jogador_id) where excluido_em is null;
+-- Ficha na conta: revisão, data e autor do último salvamento (preenchidos pelo banco, ver seção 3.1).
+alter table public.personagens add column if not exists ficha_revisao integer not null default 0;
+alter table public.personagens add column if not exists ficha_salva_em timestamptz;
+alter table public.personagens add column if not exists ficha_salva_por uuid references public.perfis(id) on delete set null;
 
 create or replace function public.proteger_personagem() returns trigger
 language plpgsql security definer set search_path = '' as $$
@@ -172,6 +176,136 @@ drop policy if exists "personagens: editar" on public.personagens;
 create policy "personagens: editar" on public.personagens
   for update using ((jogador_id = (select auth.uid()) and (select public.eh_membro())) or (select public.eh_admin()))
   with check ((jogador_id = (select auth.uid()) and (select public.eh_membro())) or (select public.eh_admin()));
+
+-- ---------------------------------------------------------------------
+-- 3.1 Ficha na conta
+-- A ficha é o mesmo JSON da Ficha Oficial, guardado em personagens.dados.
+-- As imagens (retrato, capa, artes) vão para o Storage, no bucket privado
+-- "fichas"; o JSON guarda só a referência ("duo-img:<id da conta>/<hash>.webp").
+-- Quem lê: o dono e a Staff. Quem salva: o dono (membro do servidor) e a Staff.
+-- ---------------------------------------------------------------------
+create table if not exists public.fichas_versoes (
+  id bigint generated always as identity primary key,
+  personagem_id uuid not null references public.personagens(id) on delete cascade,
+  revisao integer not null,
+  dados jsonb not null,
+  motivo text check (motivo is null or char_length(motivo) <= 80),
+  salva_em timestamptz,
+  salva_por uuid references public.perfis(id) on delete set null,
+  criada_em timestamptz not null default now()
+);
+create index if not exists fichas_versoes_personagem on public.fichas_versoes (personagem_id, id desc);
+
+-- Revisão, data e autor da ficha são do banco: o site não consegue forjar.
+-- Antes de cada troca, a ficha anterior vira uma versão: no máximo uma a cada 15 minutos,
+-- ou sempre que o site informar o motivo (ex.: "antes de restaurar"). Ficam as 20 mais recentes.
+create or replace function public.versionar_ficha() returns trigger
+language plpgsql security definer set search_path = '' as $$
+declare
+  motivo text := nullif(current_setting('duodecima.motivo_versao', true), '');
+begin
+  if tg_op = 'INSERT' then
+    new.ficha_revisao := case when new.dados = '{}'::jsonb then 0 else 1 end;
+    new.ficha_salva_em := case when new.dados = '{}'::jsonb then null else now() end;
+    new.ficha_salva_por := case when new.dados = '{}'::jsonb then null else auth.uid() end;
+    return new;
+  end if;
+  if new.dados is not distinct from old.dados then
+    new.ficha_revisao := old.ficha_revisao;
+    new.ficha_salva_em := old.ficha_salva_em;
+    new.ficha_salva_por := old.ficha_salva_por;
+    return new;
+  end if;
+  -- A revisão só cresce (nunca volta a 0), para nenhum aparelho confundir uma ficha nova com a antiga.
+  -- Ficha tirada da conta (dados = {}) fica sem data: "ficha_salva_em vazio" = sem ficha na conta.
+  new.ficha_revisao := old.ficha_revisao + 1;
+  new.ficha_salva_em := case when new.dados = '{}'::jsonb then null else now() end;
+  new.ficha_salva_por := auth.uid();
+  if old.dados is distinct from '{}'::jsonb and (motivo is not null or not exists (
+       select 1 from public.fichas_versoes v where v.personagem_id = old.id and v.criada_em > now() - interval '15 minutes')) then
+    insert into public.fichas_versoes (personagem_id, revisao, dados, motivo, salva_em, salva_por)
+    values (old.id, old.ficha_revisao, old.dados, coalesce(motivo, 'automática'), old.ficha_salva_em, old.ficha_salva_por);
+    delete from public.fichas_versoes v
+     where v.personagem_id = old.id
+       and v.id not in (select x.id from public.fichas_versoes x where x.personagem_id = old.id order by x.id desc limit 20);
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists versionar_ficha on public.personagens;
+create trigger versionar_ficha
+  before insert or update on public.personagens
+  for each row execute function public.versionar_ficha();
+
+alter table public.fichas_versoes enable row level security;
+drop policy if exists "versões: as dos seus personagens" on public.fichas_versoes;
+create policy "versões: as dos seus personagens" on public.fichas_versoes
+  for select using (
+    (select public.eh_admin())
+    or exists (select 1 from public.personagens p where p.id = personagem_id and p.jogador_id = (select auth.uid()))
+  );
+-- Sem INSERT/UPDATE/DELETE para o site: as versões só nascem pelo gatilho acima.
+
+-- Salva a ficha se ninguém salvou outra por cima desde a revisão que o aparelho conhece.
+-- Se outro aparelho salvou antes, devolve {conflito: true} e o site pergunta qual versão manter.
+create or replace function public.salvar_ficha(personagem uuid, ficha jsonb, revisao_base integer, motivo text default null)
+returns jsonb
+language plpgsql security invoker set search_path = '' as $$
+declare
+  p record;
+  nova integer;
+  em timestamptz;
+begin
+  if auth.uid() is null then raise exception 'Entre com o Discord primeiro.' using errcode = '28000'; end if;
+  if ficha is null or jsonb_typeof(ficha) <> 'object' then raise exception 'Ficha inválida.' using errcode = '22023'; end if;
+  -- Roda com as permissões de quem chamou: o RLS só mostra os próprios personagens (ou todos, para a Staff).
+  select x.jogador_id, x.ficha_revisao, x.ficha_salva_em, x.excluido_em into p
+    from public.personagens x where x.id = personagem;
+  if not found then raise exception 'Personagem não encontrado na sua conta.' using errcode = '42501'; end if;
+  if not (public.eh_admin() or (p.jogador_id = auth.uid() and public.eh_membro())) then
+    raise exception 'Só o dono do personagem (membro do servidor) ou a Staff salva esta ficha.' using errcode = '42501';
+  end if;
+  if p.excluido_em is not null then raise exception 'Este personagem foi excluído da conta.' using errcode = '42501'; end if;
+  if p.ficha_revisao is distinct from revisao_base then
+    return jsonb_build_object('ok', false, 'conflito', true, 'revisao', p.ficha_revisao, 'salva_em', p.ficha_salva_em);
+  end if;
+  perform set_config('duodecima.motivo_versao', coalesce(left(btrim(motivo), 80), ''), true);
+  update public.personagens x set dados = ficha
+   where x.id = personagem and x.ficha_revisao = revisao_base
+  returning x.ficha_revisao, x.ficha_salva_em into nova, em;
+  perform set_config('duodecima.motivo_versao', '', true);
+  if nova is null then
+    select x.ficha_revisao, x.ficha_salva_em into nova, em from public.personagens x where x.id = personagem;
+    return jsonb_build_object('ok', false, 'conflito', true, 'revisao', nova, 'salva_em', em);
+  end if;
+  return jsonb_build_object('ok', true, 'revisao', nova, 'salva_em', em);
+exception when check_violation then
+  raise exception 'A ficha passou do limite de tamanho da conta (600 KB sem as imagens).' using errcode = '54000';
+end $$;
+
+-- Imagens das fichas: bucket privado; cada conta escreve só na própria pasta (<id da conta>/…),
+-- até 1 MB por imagem e uma cota por conta. Ler: o dono e a Staff.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('fichas', 'fichas', false, 1048576, array['image/webp', 'image/jpeg', 'image/png', 'image/gif'])
+on conflict (id) do update set public = false, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+
+create or replace function public.cota_imagens_ok() returns boolean
+language sql stable security definer set search_path = '' as $$
+  select count(*) < 400 and coalesce(sum((o.metadata->>'size')::bigint), 0) < 100 * 1024 * 1024
+  from storage.objects o
+  where o.bucket_id = 'fichas' and (storage.foldername(o.name))[1] = auth.uid()::text;
+$$;
+
+drop policy if exists "fichas: ver imagens" on storage.objects;
+create policy "fichas: ver imagens" on storage.objects for select to authenticated
+  using (bucket_id = 'fichas' and ((storage.foldername(name))[1] = (select auth.uid())::text or (select public.eh_admin())));
+drop policy if exists "fichas: enviar imagens" on storage.objects;
+create policy "fichas: enviar imagens" on storage.objects for insert to authenticated
+  with check (bucket_id = 'fichas' and (storage.foldername(name))[1] = (select auth.uid())::text
+              and (select public.eh_membro()) and (select public.cota_imagens_ok()));
+drop policy if exists "fichas: apagar imagens" on storage.objects;
+create policy "fichas: apagar imagens" on storage.objects for delete to authenticated
+  using (bucket_id = 'fichas' and ((storage.foldername(name))[1] = (select auth.uid())::text or (select public.eh_admin())));
 
 -- ---------------------------------------------------------------------
 -- 4. Fama: cada ganho ou perda é um registro com o link da mensagem no Discord
@@ -302,8 +436,12 @@ begin
 end $$;
 
 -- Personagens com fama total e título (respeita as permissões de quem pergunta).
-create or replace view public.personagens_fama with (security_invoker = true) as
-select p.*, t.fama,
+-- Colunas explícitas: a ficha (dados) não passa por aqui. Recriada do zero porque as colunas mudaram.
+drop view if exists public.personagens_fama;
+create view public.personagens_fama with (security_invoker = true) as
+select p.id, p.jogador_id, p.nome, p.linhagem, p.panteao, p.divindade, p.coorte, p.titulo_minimo,
+       p.rebento_confirmado, p.publico, p.criado_em, p.atualizado_em, p.excluido_em,
+       p.ficha_revisao, p.ficha_salva_em, t.fama,
        public.titulo_fama(t.fama, p.panteao, p.linhagem, p.divindade, p.titulo_minimo, p.rebento_confirmado) as titulo,
        (t.fama >= 100 and not p.rebento_confirmado) as elegivel_rebento
 from public.personagens p
@@ -462,7 +600,8 @@ create index if not exists auditoria_quando on public.auditoria (quando desc);
 create or replace function public.registrar_auditoria() returns trigger
 language plpgsql security definer set search_path = '' as $$
 declare
-  ignorar text[] := array['dados', 'atualizado_em', 'membro_verificado_em'];
+  -- A ficha tem o próprio histórico (fichas_versoes); salvar a ficha não enche a auditoria.
+  ignorar text[] := array['dados', 'atualizado_em', 'membro_verificado_em', 'ficha_revisao', 'ficha_salva_em', 'ficha_salva_por'];
   a jsonb;
   d jsonb;
 begin
@@ -525,6 +664,11 @@ grant select on public.config, public.sinal_vida to anon, authenticated;
 grant select on public.perfis, public.papeis, public.auditoria, public.personagens_fama to authenticated;
 grant select, insert, update on public.personagens to authenticated;
 grant select, insert on public.fama_registros to authenticated;
+revoke all on public.fichas_versoes from anon, authenticated;
+grant select on public.fichas_versoes to authenticated;
+revoke execute on function public.salvar_ficha(uuid, jsonb, integer, text), public.cota_imagens_ok() from public, anon;
+grant execute on function public.salvar_ficha(uuid, jsonb, integer, text), public.cota_imagens_ok() to authenticated;
+revoke execute on function public.versionar_ficha() from public, anon, authenticated;
 
 -- Funções que mexem em conta, papéis ou fama: só para quem está logado (o banco ainda confere quem é).
 revoke execute on function public.verificar_membro(text), public.minha_conta(),

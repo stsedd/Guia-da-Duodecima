@@ -11,7 +11,7 @@
 (() => {
   'use strict';
 
-  const VERSAO = '1.0.0';
+  const VERSAO = '1.1.0';
   const DB_NOME = 'guia_fichas_v2';
   const DB_ANTIGO = 'principia_fichas_v1';
   const HQ = 'assets/principia/hq/';
@@ -124,7 +124,11 @@
       } catch (e) { console.warn('[Ficha] versão não guardada', e); }
     }
     const versoesDe = id => tx('versoes', 'readonly', st => st.index('ficha').getAll(id)).then(v => (v || []).sort((a, b) => b.vid - a.vid));
-    FG.versoesDe = versoesDe;
+    Object.assign(FG, { versoesDe, dbPut, guardarVersao });
+    // Fichas guardadas na conta de outra pessoa (computador compartilhado) não aparecem para quem está logado agora.
+    const visivel = r => !FG.nuvem?.visivel || FG.nuvem.visivel(r);
+    const lista = () => S.lista.filter(visivel);
+    FG.listaVisivel = lista;
 
     /* Fichas importadas na prévia antiga (principia_fichas_v1) entram aqui uma única vez. */
     async function migrarPreviaAntiga() {
@@ -192,6 +196,8 @@
       if (!(data.baseAttributes || data.godId || data.originType || data.name)) throw new Error('O arquivo não parece uma ficha da Duodécima.');
       return data;
     }
+    // Passa qualquer JSON de ficha pela migração oficial e devolve o estado pronto para guardar.
+    FG.normalizar = data => JSON.parse(JSON.stringify(criarMotor(validarJson(data)).M.state));
 
     /* ---------------------------------------------------------------- carregar e abrir */
     async function garantirDados() {
@@ -204,8 +210,9 @@
         await migrarPreviaAntiga();
         S.lista = (await dbTodas()).sort((a, b) => String(b.atualizadoEm).localeCompare(String(a.atualizadoEm)));
         S.oficial = await lerFichasOficiais();
-        const alvo = store.get('guia_ficha_atual', '') || S.lista[0]?.id;
-        if (alvo && S.lista.some(r => r.id === alvo)) await abrir(alvo, true);
+        const alvo = store.get('guia_ficha_atual', '') || lista()[0]?.id;
+        if (alvo && lista().some(r => r.id === alvo)) await abrir(alvo, true);
+        else if (lista()[0]) await abrir(lista()[0].id, true);
         S.erroDados = null;
       } catch (e) {
         console.error('[Ficha]', e);
@@ -213,6 +220,7 @@
       }
       S.carregando = false;
       render();
+      if (S.dados) FG.nuvem?.sincronizar?.();
     }
     async function abrir(id, silencioso) {
       const rec = S.lista.find(r => r.id === id);
@@ -224,24 +232,29 @@
       if (!silencioso) render();
     }
     FG.abrir = abrir;
-    async function adicionarFicha(data, origem) {
+    async function adicionarFicha(data, origem, opcoes = {}) {
       const x = criarMotor(validarJson(data));
       const rec = { id: uid('ficha'), nome: x.M.state.name || 'Personagem sem nome', atualizadoEm: new Date().toISOString(), origem, data: JSON.parse(JSON.stringify(x.M.state)) };
+      if (opcoes.nuvem) rec.nuvem = opcoes.nuvem;
       await dbPut(rec);
       S.lista.unshift(rec);
-      await abrir(rec.id, true);
+      if (opcoes.abrir !== false) await abrir(rec.id, true);
       return rec;
     }
     FG.adicionarFicha = adicionarFicha;
-    async function substituirFicha(rec, data) {
-      await guardarVersao(rec, 'Antes de substituir por JSON');
+    async function substituirFicha(rec, data, motivo = 'Antes de substituir por JSON') {
+      await guardarVersao(rec, motivo);
       const x = criarMotor(validarJson(data));
       rec.data = JSON.parse(JSON.stringify(x.M.state));
+      // Conteúdo novo: data própria, para a conta saber que precisa receber esta ficha.
+      rec.data.updatedAt = new Date().toISOString();
       rec.nome = x.M.state.name || rec.nome;
-      rec.atualizadoEm = new Date().toISOString();
+      rec.atualizadoEm = rec.data.updatedAt;
       await dbPut(rec);
       await abrir(rec.id, true);
+      FG.nuvem?.aoSalvar?.(rec, motivo);
     }
+    FG.substituirFicha = substituirFicha;
 
     /* ---------------------------------------------------------------- salvar */
     let timerSalvar = null;
@@ -268,6 +281,7 @@
         S.salvando = false;
         const ultima = Number(store.get('guia_ficha_versao_' + rec.id, '0'));
         if (Date.now() - ultima > 15 * 60 * 1000) { store.set('guia_ficha_versao_' + rec.id, String(Date.now())); guardarVersao(rec, 'Automática'); }
+        FG.nuvem?.aoSalvar?.(rec);
       } catch (e) {
         S.salvando = false;
         toast('Não consegui salvar a ficha neste navegador: ' + (e?.message || e));
@@ -277,9 +291,13 @@
     function marcarSalvo() {
       const el = $('.fg-save', body);
       if (!el) return;
-      el.classList.toggle('is-saving', S.salvando);
-      el.lastElementChild.textContent = S.salvando ? 'Salvando…' : S.salvoEm ? 'Salva neste navegador' : 'Salva';
+      // Com a conta ativa, o selo mostra o estado da sincronização (nuvem.js); sem ela, o do navegador.
+      const n = FG.nuvem?.rotulo?.(S.rec, S.salvando);
+      for (const c of ['is-saving', 'is-ok', 'is-warn', 'is-bad', 'is-local']) el.classList.toggle(c, n ? n.classe === c : c === 'is-saving' && S.salvando);
+      el.lastElementChild.textContent = n ? n.texto : S.salvando ? 'Salvando…' : S.salvoEm ? 'Salva neste navegador' : 'Salva';
+      el.title = n?.dica || '';
     }
+    FG.marcarSalvo = marcarSalvo;
     window.addEventListener('beforeunload', () => { if (S.salvando) salvarAgora(); });
 
     /* ---------------------------------------------------------------- desenho */
@@ -301,16 +319,20 @@
     }
 
     function topo() {
-      const opts = S.lista.map(r => `<option value="${esc(r.id)}"${r.id === S.atual ? ' selected' : ''}>${esc(r.nome)}</option>`).join('');
+      const opts = lista().map(r => `<option value="${esc(r.id)}"${r.id === S.atual ? ' selected' : ''}>${esc(r.nome)}</option>`).join('');
+      const nuvem = !!FG.nuvem?.ativa?.();
       return `<div class="fg-top">
-        ${S.lista.length ? `<select class="fg-in" data-a="trocar" aria-label="Personagem">${S.criando?.nova ? '<option selected>Nova ficha (em criação)</option>' : ''}${opts}</select>` : '<b class="fg-anton" style="font-size:20px">Minha Ficha</b>'}
+        ${lista().length ? `<select class="fg-in" data-a="trocar" aria-label="Personagem">${S.criando?.nova ? '<option selected>Nova ficha (em criação)</option>' : ''}${opts}</select>` : '<b class="fg-anton" style="font-size:20px">Minha Ficha</b>'}
         <button class="fg-btn fg-btn--sm" type="button" data-a="nova">${ICO.plus}Nova</button>
         <button class="fg-btn fg-btn--sm" type="button" data-a="importar">Importar JSON</button>
         <span class="fg-spacer"></span>
-        ${S.M && S.rec && !S.criando ? `<span class="fg-save" role="status"><i></i><span>Salva neste navegador</span></span>` : ''}
+        ${S.M && S.rec && !S.criando ? (nuvem
+          ? `<button class="fg-save fg-save--btn" type="button" data-a="nuvem" role="status"><i></i><span>Salva neste navegador</span></button>`
+          : `<span class="fg-save" role="status"><i></i><span>Salva neste navegador</span></span>`) : ''}
         <div class="fg-menu">
           <button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="menu" aria-label="Mais opções" aria-expanded="${S.menu}">${ICO.more}</button>
           <div class="fg-menu-list" role="menu"${S.menu ? '' : ' hidden'}>
+            ${nuvem ? `<button class="fg-btn" type="button" role="menuitem" data-a="nuvem">Ficha na conta${FG.nuvem.faltando?.() ? ` (${FG.nuvem.faltando()} para baixar)` : ''}</button>` : ''}
             ${S.M ? `<button class="fg-btn" type="button" role="menuitem" data-a="exportar">Exportar JSON</button>
             <button class="fg-btn" type="button" role="menuitem" data-a="versoes">Versões salvas</button>
             <button class="fg-btn" type="button" role="menuitem" data-a="aparencia">Cor de destaque</button>` : ''}
@@ -332,7 +354,7 @@
           <button class="fg-btn" type="button" data-a="importar">Importar JSON</button>
           ${S.oficial.length ? `<button class="fg-btn" type="button" data-a="oficial">Trazer da Ficha Oficial (${S.oficial.length})</button>` : ''}
         </div>
-        <p class="fg-muted" style="font-size:12.5px">A ficha fica salva neste navegador, com cópias automáticas das últimas versões. Exportar o JSON continua sendo a cópia de segurança fora dele.</p>
+        <p class="fg-muted" style="font-size:12.5px">${FG.nuvem?.ativa?.() ? 'Com a conta do Discord, a ficha fica guardada na sua conta e abre em qualquer aparelho. Exportar o JSON continua sendo uma cópia de segurança extra.' : 'A ficha fica salva neste navegador, com cópias automáticas das últimas versões. Exportar o JSON continua sendo a cópia de segurança fora dele.'}</p>
       </div>`;
     }
 
@@ -549,16 +571,19 @@
     acoes.excluir = async () => {
       S.menu = false; render();
       if (!S.rec) return;
-      const ok = await FG.confirmar('Excluir esta ficha?', `${S.rec.nome} sai deste navegador. As versões salvas ficam guardadas por segurança; exporte o JSON antes se quiser uma cópia.`, 'Excluir', true);
+      // Ficha guardada na conta: a pergunta é outra (só daqui ou também da conta) e fica com nuvem.js.
+      const naConta = FG.nuvem?.ligada?.(S.rec);
+      const ok = naConta ? await FG.nuvem.confirmarExclusao(S.rec)
+        : await FG.confirmar('Excluir esta ficha?', `${S.rec.nome} sai deste navegador. As versões salvas ficam guardadas por segurança; exporte o JSON antes se quiser uma cópia.`, 'Excluir', true);
       if (!ok) return;
       await guardarVersao(S.rec, 'Antes de excluir');
       await dbDel(S.rec.id);
       S.lista = S.lista.filter(r => r.id !== S.rec.id);
       S.M = null; S.rec = null; S.atual = null;
       store.del('guia_ficha_atual');
-      if (S.lista[0]) await abrir(S.lista[0].id, true);
+      if (lista()[0]) await abrir(lista()[0].id, true);
       render();
-      toast('Ficha excluída deste navegador.');
+      toast(ok === 'conta' ? 'Ficha excluída deste navegador e da conta.' : 'Ficha excluída deste navegador.');
     };
     acoes.oficial = () => {
       S.menu = false;
@@ -578,13 +603,20 @@
       S.drawer = null;
       render();
     };
-    acoes.versoes = async () => { S.menu = false; render(); FG.abrirGaveta('versoes', { lista: await versoesDe(S.rec.id) }); };
+    acoes.versoes = async () => {
+      S.menu = false; render();
+      FG.abrirGaveta('versoes', { lista: await versoesDe(S.rec.id), conta: FG.nuvem?.ligada?.(S.rec) ? 'carregando' : null });
+      if (FG.nuvem?.ligada?.(S.rec)) {
+        const conta = await FG.nuvem.versoes(S.rec).catch(e => ({ erro: e?.message || String(e) }));
+        if (S.drawer?.tipo === 'versoes') { S.drawer.conta = conta; renderCamada(); }
+      }
+    };
     acoes['restaurar-versao'] = async el => {
       const v = (S.drawer?.lista || []).find(x => String(x.vid) === el.dataset.vid);
       if (!v) return;
       const ok = await FG.confirmar('Restaurar esta versão?', `A ficha volta ao estado de ${new Date(v.em).toLocaleString('pt-BR')}. A versão atual fica guardada antes.`, 'Restaurar');
       if (!ok) return;
-      await substituirFicha(S.rec, v.data);
+      await substituirFicha(S.rec, v.data, 'Antes de restaurar uma versão');
       S.drawer = null;
       render();
       toast('Versão restaurada.');
@@ -674,6 +706,12 @@
     FG.gavetas.versoes = (c, d) => `<div class="fg-drawer-body">
       <div style="display:flex;justify-content:space-between;align-items:center"><span class="fg-kicker">Segurança</span><button class="fg-btn fg-btn--sm fg-btn--icon" type="button" data-a="fechar-gaveta" aria-label="Fechar">${ICO.close}</button></div>
       <h3>Versões salvas</h3>
+      ${d.conta ? `<div class="fg-sec-head"><b class="fg-label">Na conta</b></div>
+      <p class="fg-muted" style="font-size:12.5px">A conta guarda a ficha anterior a cada 15 minutos de uso e antes de restaurar, substituir ou tirar da conta. Ficam as 20 mais recentes, em qualquer aparelho.</p>
+      <div class="fg-rows">${d.conta === 'carregando' ? '<p class="fg-empty-line">Consultando a conta…</p>'
+        : d.conta.erro ? `<p class="fg-empty-line">${esc(d.conta.erro)}</p>`
+        : d.conta.map(v => `<div class="fg-row"><div class="fg-row-main"><b>${v.salva_em ? new Date(v.salva_em).toLocaleString('pt-BR') : 'Sem data'}</b><small>${esc(v.motivo || '')} · revisão ${num(v.revisao)}</small></div><button class="fg-btn fg-btn--sm" type="button" data-a="restaurar-versao-conta" data-id="${esc(v.id)}">Restaurar</button></div>`).join('') || '<p class="fg-empty-line">Nenhuma versão na conta ainda.</p>'}</div>
+      <div class="fg-sec-head"><b class="fg-label">Neste navegador</b></div>` : ''}
       <p class="fg-muted">O Guia guarda uma cópia ao abrir a ficha, a cada 15 minutos de uso e antes de substituir ou excluir. Ficam as 12 mais recentes.</p>
       <div class="fg-rows">${(d.lista || []).map(v => `<div class="fg-row"><div class="fg-row-main"><b>${new Date(v.em).toLocaleString('pt-BR')}</b><small>${esc(v.motivo || '')} · nível ${num(v.data?.level) || 1} · ${num(v.data?.currentHp)} HP</small></div><button class="fg-btn fg-btn--sm" type="button" data-a="restaurar-versao" data-vid="${v.vid}">Restaurar</button></div>`).join('') || '<p class="fg-empty-line">Nenhuma versão ainda.</p>'}</div>
     </div>`;
@@ -747,11 +785,12 @@
 
     /* ---------------------------------------------------------------- janela */
     P.hooks = P.hooks || {};
-    P.hooks.ficha = { open() { if (!S.dados) garantirDados(); else render(); } };
+    P.hooks.ficha = { open() { if (!S.dados) garantirDados(); else { render(); FG.nuvem?.sincronizar?.(); } } };
     // A Visão geral do Guia ("Lado a lado") e os links de regra abrem o Guia ao lado.
     FG.abrirRegra = (pagina, ancora) => (A.openBeside ? A.openBeside(pagina, ancora || null) : A.openPage(pagina, ancora || null));
     FG.salvarAgora = salvarAgora;
     FG.carregarDados = garantirDados;
+    FG.renderCamada = renderCamada;
     window.dispatchEvent(new CustomEvent('fichaguia:pronta'));
   }
 

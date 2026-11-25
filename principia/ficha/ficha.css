@@ -49,6 +49,16 @@ html[data-theme="light"] .os-ficha{--fg-gold:#a77a1e;--fg-ok:#2f8a46;--fg-warn:#
 .fg-save{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 Inter,sans-serif;color:var(--os-win-muted);white-space:nowrap}
 .fg-save i{width:7px;height:7px;border-radius:50%;background:var(--fg-ok)}
 .fg-save.is-saving i{background:var(--fg-warn);animation:fg-pulse 1s infinite}
+/* Selo da conta: botão que abre "Ficha na conta" (estado da sincronização). */
+.fg-save--btn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 11px;border-radius:999px;border:1px solid var(--os-win-line);cursor:pointer;font:600 12px/1 Inter,sans-serif;color:var(--os-win-muted);white-space:nowrap;transition:border-color .2s,color .2s}
+.fg-save--btn:hover{border-color:var(--fg-accent);color:var(--os-win-ink)}
+.fg-save--btn:focus-visible{outline:2px solid var(--fg-accent);outline-offset:2px}
+.fg-save.is-local i{background:transparent;box-shadow:inset 0 0 0 1.5px var(--os-win-muted)}
+.fg-save.is-warn i{background:var(--fg-warn)}
+.fg-save.is-warn{color:var(--fg-warn)}
+.fg-save.is-bad i{background:var(--fg-accent);animation:fg-pulse 1.2s infinite}
+.fg-save.is-bad{color:var(--fg-accent);border-color:var(--fg-accent)}
+.fg-nuvem-conflito{display:flex;flex-direction:column;gap:8px;border-color:var(--fg-accent)}
 .fg-menu{position:relative}
 .fg-menu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:230px;display:grid;gap:2px;padding:6px;border-radius:12px;border:1px solid var(--os-win-line);background:var(--os-win-bg);box-shadow:0 18px 40px rgba(0,0,0,.35)}
 .fg-menu-list[hidden]{display:none}
