@@ -392,7 +392,7 @@
         <label class="on-field"><span>Título mínimo (Staff)</span><select name="titulo_minimo">${opcoes([['conhecido', 'Conhecido'], ['influente', 'Influente (ex.: Centurião)'], ['famoso', 'Famoso']], p.titulo_minimo || '', 'Nenhum')}</select></label>
         <label class="on-check"><input type="checkbox" name="rebento_confirmado"${p.rebento_confirmado ? ' checked' : ''}> Rebento de Roma Aeterna confirmado</label>` : ''}
         <label class="on-check"><input type="checkbox" name="publico"${p.publico === false ? '' : ' checked'}> Aparece na Tabula Famae</label>
-        ${admin ? '' : '<p class="on-hint">Gregos começam com −10 de fama e celtas com −15; filhos de Iuppiter, Bellona e Marte Ultor recebem +15 e o título de Conhecido. Filhos de Netuno perdem 15 de Fama ao serem reclamados. Esses ajustes entram automaticamente. Depois de salvar, linhagem, panteão e divindade só mudam com a Staff (a divindade pode ser escolhida uma vez, na reclamação).</p>'}
+        ${admin ? '' : '<p class="on-hint">Gregos começam com −10 de fama e celtas com −15; entre romanos, filhos de Iuppiter, Bellona e Marte Ultor recebem +15 e o título de Conhecido. Somente proles romanas de Netuno perdem 15 de fama na reclamação. Esses ajustes entram automaticamente. Depois de salvar, linhagem, panteão e divindade só mudam com a Staff (a divindade pode ser escolhida uma vez, na reclamação).</p>'}
         <div class="on-actions"><button class="os-btn os-btn--primary" type="submit">${p.id ? 'Salvar' : 'Cadastrar personagem'}</button><button class="os-btn os-btn--ghost" type="button" data-on="${admin ? 'adm-cancelar' : 'cancelar-novo'}">Cancelar</button></div>
       </form>`;
     }
