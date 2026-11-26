@@ -48,6 +48,52 @@
       </button>`;
     };
 
+
+    function kitSpaces(c) {
+      const slots = c.M.divineSlots();
+      if (!slots.length) return '';
+      return `<details class="fg-sec"><summary class="fg-label">Configurar espaços de habilidades (${slots.length})</summary>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:8px;margin-top:10px">
+        ${slots.map((slot, i) => {
+          const power = window.FichaKits.chosen(slot, c.s.divineSelections);
+          return `<button type="button" class="fg-row" data-a="kit-catalogo" data-slot="${esc(slot.key)}"><span class="fg-row-main"><small>${i + 1}º espaço · nível ${Number(slot.level)}${slot.level > c.s.level ? ' · bloqueado' : ''}</small><b>${esc(power.name)}</b><small>${slot.options.length} opção(ões)</small></span></button>`;
+        }).join('')}</div></details>`;
+    }
+    acoes['kit-catalogo'] = el => FG.abrirGaveta('kit', { slot: el.dataset.slot, filtro: '' });
+    acoes['kit-filtro'] = (el, ev) => {
+      if (ev.type !== 'change') return;
+      FG.S.drawer.filtro = el.value;
+      FG.render();
+    };
+    acoes['kit-escolher'] = el => {
+      const erro = FG.S.M.selectDivineAbility(el.dataset.slot, el.dataset.id);
+      if (erro) window.PRINCIPIA.api.toast(erro);
+      else { FG.salvar(); FG.render(); }
+    };
+    FG.gavetas.kit = (c, d) => {
+      const slots = c.M.divineSlots();
+      const slot = slots.find(s => s.key === d.slot);
+      if (!slot) return '';
+      const current = window.FichaKits.chosen(slot, c.s.divineSelections);
+      const tags = a => [...(a.domains || []), ...(a.effects || [])];
+      const filters = [...new Set(slot.options.flatMap(tags))];
+      M2 = c.M;
+      return `<div class="fg-drawer-body"><button type="button" class="fg-btn" data-a="fechar-gaveta">Fechar</button>
+        <h2>Escolha do ${slots.indexOf(slot) + 1}º espaço</h2>
+        ${filters.length ? `<label class="fg-label">Domínio ou efeito<select class="fg-in" data-a="kit-filtro"><option value="">Todos</option>${filters.map(t => `<option ${d.filtro === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label>` : ''}
+        ${slot.options.filter(a => !d.filtro || tags(a).includes(d.filtro)).map(a => {
+          const reason = window.FichaKits.check(slots, c.s.divineSelections, slot.key, a.id, c.s.level);
+          const stakes = c.M.stakesOf(a);
+          const status = a.id === slot.base.id ? 'Original' : a.playtest ? 'Alternativa em playtest' : 'Alternativa';
+          return `<article class="fg-sec"><small class="fg-label">✦ ${esc(status)} · ${current.id === a.id ? 'Selecionada' : reason ? 'Bloqueada' : 'Disponível'}</small>
+            <h3>${esc(a.name)}</h3><p>${esc([...(a.domains || []), ...(a.effects || []), 'Nv. ' + a.level, (a.cost ?? 0) + ' EN', a.activation || 'Ativa'].join(' · '))}</p>
+            <p>${esc(a.summary || resumoCarta(c.M, a))}</p>${a.tiers ? `<p><b>Estaca ${stakes}</b> · ${esc(c.M.tierText(a, stakes))}</p>` : ''}
+            <details><summary>Mecânica completa</summary>${blocos(c.M, a, stakes) || esc(a.summary || a.extra || '')}</details>
+            ${reason ? `<p>${esc(reason)}</p>` : ''}
+            <button type="button" class="fg-btn" data-a="kit-escolher" data-slot="${esc(slot.key)}" data-id="${esc(a.id)}" ${reason || current.id === a.id ? 'disabled' : ''}>${current.id === a.id ? 'Selecionada' : 'Escolher'}</button></article>`;
+        }).join('')}</div>`;
+    };
+
     FG.abas.poderes = {
       render(c) {
         const { M, s } = c;
@@ -68,6 +114,7 @@
               <input class="fg-in" type="search" data-a="busca-poder" data-vivo value="${esc(f.q)}" placeholder="Buscar habilidade" aria-label="Buscar habilidade" style="width:200px">
             </div>
           </div>
+          ${kitSpaces(c)}
           ${alvo.length ? `<div class="fg-rows">${alvo.map(r => `<div class="fg-row"><div class="fg-row-main"><b>${esc(r.name)}</b><small>Recurso de alvo${r.reset?.text ? ' · zera: ' + esc(r.reset.text) : ''}</small></div><div class="fg-stepper"><button type="button" data-a="recurso" data-key="${esc(M.resourceKey(r))}" data-d="-1" aria-label="Menos 1">−</button><b>${M.resourceValue(r)}</b><button type="button" data-a="recurso" data-key="${esc(M.resourceKey(r))}" data-d="1" aria-label="Mais 1">+</button><small class="fg-muted">/ ${M.resourceMaxFor(r)}</small></div></div>`).join('')}</div>` : ''}
           ${visiveis.length ? `<div class="fg-deck">${visiveis.map((a, i) => FG.carta(c, a, { atraso: Math.min(i * 35, 700) + 'ms' })).join('')}</div>` : '<p class="fg-empty-line">Nenhuma carta com esse filtro.</p>'}
           <p class="fg-muted" style="font-size:12.5px">Toque numa carta para ver o texto completo, mexer nas estacas e usar. Os três traços na base da carta mostram a faixa de estacas atual.</p>
