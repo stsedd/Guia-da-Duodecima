@@ -69,7 +69,7 @@
       aba: (a => a === 'evolucao' ? 'geral' : a)(store.get('guia_ficha_aba', 'geral')),
       drawer: null, dialog: null, menu: false,
       criando: null, oficial: [], salvoEm: null, salvando: false,
-      fx: {}, prev: {}, versaoSessao: new Set(), hudAberto: false
+      fx: {}, prev: {}, versaoSessao: new Set(), hudAberto: true
     };
     const FG = window.FichaGuia = { S, abas: {}, acoes: {}, ICO, esc, VERSAO };
 
@@ -474,14 +474,14 @@
     function stat(kind, rotulo, icone, valor, max, nota, notaCls, barra, ajuste) {
       const fx = S.fx[kind] || '';
       return `<div class="fg-stat ${fx}" data-stat="${kind}">
-        <div class="fg-stat-top"><span class="fg-label" style="display:inline-flex;align-items:center;gap:6px">${icone}${esc(rotulo)}</span>${['hp','en','san'].includes(kind) && ajuste ? `<button class="fg-edit-stat" type="button" data-a="editar-recurso" aria-expanded="false" aria-label="Ajustar ${esc(rotulo)}">±</button>` : ajuste ? '<span class="fg-label" aria-hidden="true" style="opacity:.6">±</span>' : ''}</div>
+        <div class="fg-stat-top"><span class="fg-label" style="display:inline-flex;align-items:center;gap:6px">${icone}${esc(rotulo)}</span>${ajuste && !['hp','en','san'].includes(kind) ? '<span class="fg-label" aria-hidden="true" style="opacity:.6">±</span>' : ''}</div>
         <div class="fg-stat-num"><b>${valor}</b>${max != null ? `<small>/ ${max}</small>` : ''}</div>
         ${barra || ''}
         ${nota ? `<span class="fg-stat-note ${notaCls || ''}" title="${esc(nota)}">${esc(nota)}</span>` : ''}
         ${ajuste || ''}
       </div>`;
     }
-    const ajusteBtns = alvo => `<div class="fg-stat-editor" hidden>
+    const ajusteBtns = alvo => `<div class="fg-stat-editor">
       <input type="text" inputmode="text" enterkeyhint="done" data-a="ajuste-campo" data-tecla data-alvo="${alvo}" placeholder="−7 / +3" aria-label="Variação de ${({hp:'vida',en:'energia',san:'sanidade'})[alvo]}">
       <button type="button" class="fg-edit-stat" data-a="aplicar-recurso" aria-label="Aplicar ajuste">✓</button>
     </div>`;
@@ -509,7 +509,7 @@
       partes.push(stat('def', 'Defesa', ICO.shield, sinal(M.defenseBonus()), null, `RD ${M.damageReduction()} · rolar 1d20 ${sinal(M.defenseBonus())}`, '', ''));
       partes.push(stat('dt', M.hasSheetCasting() ? 'DT' : 'Iniciativa', ICO.target, M.hasSheetCasting() ? M.castDT() : sinal(M.initiativeBonus()), null,
         M.hasSheetCasting() ? `Conjuração 1d20 ${sinal(M.castAttack())}${M.fortuneSuffix()}` : 'Sem conjuração', '', ''));
-      return `<div class="fg-hud${S.hudAberto ? ' is-open' : ''}" data-a="hud-toque">${partes.join('')}</div>`;
+      return `<div class="fg-hud${S.hudAberto ? ' is-open' : ''}" aria-label="Recursos da ficha"><button type="button" class="fg-btn fg-btn--sm fg-hud-toggle" data-a="hud-alternar" aria-expanded="${S.hudAberto}">${S.hudAberto ? '▴ Recolher recursos' : '▾ Mostrar recursos'}</button>${S.hudAberto ? partes.join('') : ''}</div>`;
     }
 
     function abas() {
@@ -708,7 +708,11 @@
     acoes['sair-temporaria'] = async () => { const v = lista()[0]; if (v) await abrir(v.id, true); else { S.M = null; S.rec = null; S.atual = null; } render(); };
     acoes['aviso-conta-fechar'] = () => { if (S.rec) store.set('guia_ficha_aviso_conta_' + S.rec.id, '1'); render(); };
     acoes['nivel-foco'] = () => { const i = body.querySelector('.fg-nivel input'); if (i) { i.focus(); i.select(); } };
-    acoes['hud-toque'] =(el, ev) => { if (ev.type !== 'click' || ev.target.closest('button,input')) return; if (window.matchMedia('(max-width: 760px)').matches || body.clientWidth < 760) { S.hudAberto = !S.hudAberto; render(); } };
+    acoes['hud-alternar'] = () => {
+      S.hudAberto = !S.hudAberto;
+      render();
+      body.querySelector('[data-a="hud-alternar"]')?.focus({preventScroll:true});
+    };
     function aplicarAjuste(alvo, delta, absoluto) {
       const M = S.M, s = M.state;
       if (alvo === 'hp') {
@@ -726,12 +730,6 @@
       }
       agendarSalvar(); render();
     }
-    acoes['editar-recurso'] = el => {
-      const editor = el.closest('.fg-stat').querySelector('.fg-stat-editor');
-      editor.hidden = !editor.hidden;
-      el.setAttribute('aria-expanded', String(!editor.hidden));
-      if (!editor.hidden) editor.querySelector('input').focus();
-    };
     function confirmarAjuste(el) {
       const t = el.value.trim().replace('−', '-');
       if (!/^[=+-]?\d+$/.test(t) || !Number.isSafeInteger(Number(t.replace(/^=/, '')))) {

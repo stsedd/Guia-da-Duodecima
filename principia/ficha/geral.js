@@ -43,10 +43,22 @@
       return `${ultima}<div class="fg-rolls">${lista.map(([id, n, v]) => `<button class="fg-roll" type="button" data-a="rolar" data-r="${esc(id)}">${ICO.d20}<span>${esc(n)}</span><b>${esc(v)}</b></button>`).join('')}</div>`;
     }
 
+    function linhaResistencia(M, k) {
+      const nome = attrsLista.find(a => a[0] === k)[2];
+      const prof = M.resistanceIsProficient(k);
+      const fonte = prof ? 'Proficiência concedida por Resiliente' : 'Requer Resiliente neste atributo';
+      return `<div class="fg-skill${prof ? ' is-prof' : ''}">
+        <button type="button" class="fg-pe is-auto${prof ? ' on' : ''}" title="${fonte}" aria-pressed="${prof}" aria-label="${fonte}: ${esc(nome)}" disabled>P</button>
+        <span>Resistência de ${esc(nome)}</span>
+        <b>${sinal(M.resistanceBonus(k))}${M.fortuneSuffix()}${M.receivedBonuses().advantage ? ' · vantagem' : ''}</b>
+        <button class="fg-btn fg-btn--sm fg-btn--ghost fg-btn--icon" type="button" data-a="resistir" data-k="${k}" aria-label="Rolar resistência de ${esc(nome)}" style="min-height:26px;width:26px">${ICO.d20}</button>
+      </div>`;
+    }
+
     function pericias(c) {
       const { M, D } = c;
-      const grupos = ORDEM_PERICIAS.map(k => ({ k, ab: attrsLista.find(a => a[0] === k)[1], itens: D.skills.filter(sk => sk.attr === k) })).filter(g => g.itens.length);
-      return `<div class="fg-skills">${grupos.map(g => `<div class="fg-skill-group"><div>${g.ab}</div>${g.itens.map(sk => {
+      const grupos = ORDEM_PERICIAS.map(k => ({ k, ab: attrsLista.find(a => a[0] === k)[1], itens: D.skills.filter(sk => sk.attr === k) }));
+      return `<div class="fg-skills">${grupos.map(g => `<div class="fg-skill-group"><div>${g.ab}</div>${linhaResistencia(M, g.k)}${g.itens.map(sk => {
         const auto = M.automaticSkillSources(sk.name);
         const prof = M.skillIsProficient(sk.name), exp = M.skillHasExpertise(sk.name), autoE = M.skillHasAutomaticExpertise(sk.name);
         const fontes = M.skillSources(sk.name);
@@ -245,7 +257,6 @@
 
     FG.abas.geral = {
       render(c) {
-        const { M } = c;
         return `<div class="fg-cols">
           <div class="fg-sec">
             <div class="fg-sec-head"><h3 class="fg-h">Atributos</h3><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="regra" data-p="personagem" data-anc="criacao">Regras</button></div>
@@ -255,8 +266,6 @@
           </div>
           <div class="fg-sec">
             <div class="fg-sec-head"><h3 class="fg-h">Perícias</h3><span class="fg-label">P = proficiente · E = expertise</span></div>
-            <h4 class="fg-label">Testes de resistência</h4>
-            <div class="fg-rolls">${attrsLista.map(([k, ab, nome]) => `<button type="button" class="fg-btn fg-btn--sm" data-a="resistir" data-k="${esc(k)}" aria-label="Rolar resistência de ${esc(nome)}">${esc(nome)} ${sinal(M.resistanceBonus(k))}${M.fortuneSuffix()}${M.receivedBonuses().advantage ? ' · vantagem' : ''}</button>`).join('')}</div>
             ${pericias(c)}
           </div>
           <div class="fg-sec fg-col-hand">
