@@ -25,7 +25,7 @@
       const { M } = c;
       const mat = M.material(w.material);
       const img = arte('arma', w.imageUrl);
-      return `<button class="fg-icard${w.equipped ? '' : ' is-off'}" type="button" data-a="abrir-item" data-tipo="arma" data-id="${esc(w.id)}" style="--metal:${METAL[w.material] || NEUTRO};animation-delay:${i * 70}ms" aria-label="${esc(w.name || 'Arma')}${w.equipped ? ', equipada' : ''}">
+      return `<button data-ordem="arma:${esc(w.id)}" class="fg-icard${w.equipped ? '' : ' is-off'}" type="button" data-a="abrir-item" data-tipo="arma" data-id="${esc(w.id)}" style="--metal:${METAL[w.material] || NEUTRO};animation-delay:${i * 70}ms" aria-label="${esc(w.name || 'Arma')}${w.equipped ? ', equipada' : ''}">
         <span class="fg-icard-in">
           <span class="fg-icard-art"><img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:50% 15%"></span>
           <span class="fg-icard-chips"><span class="fg-icard-tag">${w.equipped ? 'ARMA' : 'GUARDADA'}</span><span class="fg-icard-mat" title="${esc(mat.name || '')}">${esc(mat.name || '')}</span></span>
@@ -54,7 +54,7 @@
       const img = arte(tipo, it.imageUrl);
       const def = tipo === 'armadura' ? M.armorDefense() : M.shieldDefense();
       const k2 = tipo === 'armadura' ? ['REDUÇÃO', 'RD ' + M.armorReduction()] : ['ESTACAS', `${it.stakes || 0} / 30`];
-      return `<button class="fg-icard${it.equipped ? '' : ' is-off'}" type="button" data-a="abrir-item" data-tipo="${tipo}" style="--metal:${METAL[it.material] || NEUTRO};animation-delay:${i * 70}ms" aria-label="${esc(it.name || tipo)}${it.equipped ? ', equipada' : ', não equipada'}">
+      return `<button data-ordem="${tipo}" class="fg-icard${it.equipped ? '' : ' is-off'}" type="button" data-a="abrir-item" data-tipo="${tipo}" style="--metal:${METAL[it.material] || NEUTRO};animation-delay:${i * 70}ms" aria-label="${esc(it.name || tipo)}${it.equipped ? ', equipada' : ', não equipada'}">
         <span class="fg-icard-in">
           <span class="fg-icard-art"><img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:${tipo === 'armadura' ? '40% 40%' : '45% 78%'}"></span>
           <span class="fg-icard-chips"><span class="fg-icard-tag">${tipo === 'armadura' ? 'ARMADURA' : 'ESCUDO'}${it.equipped ? '' : ' · GUARDADO'}</span><span class="fg-icard-mat" title="${esc(mat.name || '')}">${esc(mat.name || '')}</span></span>
@@ -71,7 +71,7 @@
       const img = arte(it.category, it.imageUrl);
       const qtd = Math.max(0, Number(it.qty) || 0);
       const metal = consumivel ? VIDRO : METAL[it.material] || NEUTRO;
-      return `<div class="fg-icard${consumivel && qtd > 1 ? ' fg-icard--stack' : ''}" style="--metal:${metal};width:190px;height:262px;animation-delay:${i * 60}ms">
+      return `<div ${consumivel ? `data-ordem="${esc(it.id)}"` : ''} class="fg-icard${consumivel && qtd > 1 ? ' fg-icard--stack' : ''}" style="--metal:${metal};width:190px;height:262px;animation-delay:${i * 60}ms">
         <span class="fg-icard-in" data-a="abrir-item" data-tipo="item" data-id="${esc(it.id)}" role="button" tabindex="0" aria-label="${esc(it.name || 'Item')}" style="display:block;cursor:pointer">
           <span class="fg-icard-art" style="height:36%"><img src="${FG.src(img.src)}" alt=""${img.propria ? ' class="is-own"' : ''} style="object-position:${30 + (i * 17) % 50}% ${30 + (i * 11) % 40}%"></span>
           <span class="fg-icard-tag">${esc((c.M.inventoryCategoryLabel(it.category) || 'Item').toUpperCase())}</span>
@@ -88,9 +88,11 @@
         if (temProtecao(tipo === 'armadura' ? c.s.armor : c.s.shield, tipo))
           cartas.set(tipo, cartaProtecao(c, tipo, cartas.size));
       }
-      const ordemSalva = c.s.inventory?.arsenalOrder;
+      return ordenar(cartas, c.s.inventory?.arsenalOrder);
+    }
+    function ordenar(cartas, ordemSalva) {
       const ordem = [...new Set([...(Array.isArray(ordemSalva) ? ordemSalva : []), ...cartas.keys()])].filter(k => cartas.has(k));
-      return ordem.map(k => `<div class="fg-ordem-item" data-ordem="${esc(k)}">${cartas.get(k)}${ordem.length > 1 ? '<button type="button" class="fg-btn fg-btn--sm" data-mover-carta title="Arraste ou use as setas esquerda e direita">↔ Mover</button>' : ''}</div>`).join('');
+      return ordem.map(k => cartas.get(k)).join('');
     }
     function mover(origem, destino) {
       if (!origem || !destino || origem === destino || origem.parentElement !== destino.parentElement) return;
@@ -98,43 +100,81 @@
       const pos = cartas.indexOf(destino);
       cartas.splice(cartas.indexOf(origem), 1);
       cartas.splice(pos, 0, origem);
-      S.M.state.inventory.arsenalOrder = cartas.map(c => c.dataset.ordem);
+      S.M.state.inventory[origem.parentElement.dataset.baralho] = cartas.map(c => c.dataset.ordem);
       FG.salvar();
       FG.render();
     }
     let arraste;
-    document.addEventListener('pointerdown', ev => {
-      const botao = ev.target.closest('[data-mover-carta]');
-      if (!botao || ev.button !== 0 || arraste) return;
-      botao.setPointerCapture(ev.pointerId);
-      arraste = { id: ev.pointerId, origem: botao.parentElement };
+    let bloquearClique = false;
+    document.addEventListener('click', ev => {
+      if (bloquearClique && ev.detail !== 0) {
+        bloquearClique = false;
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+      }
+    }, true);
+    document.addEventListener('dragstart', ev => {
+      if (ev.target.closest('[data-baralho] [data-ordem]')) ev.preventDefault();
     });
-    function alvo(ev) {
+    document.addEventListener('pointerdown', ev => {
+      bloquearClique = false;
+      const origem = ev.target.closest('[data-baralho] [data-ordem]');
+      if (!origem || !ev.isPrimary || ev.button !== 0 || ev.target.closest('[data-a="consumir"]') || arraste) return;
+      if (origem.parentElement.children.length < 2) return;
+      arraste = { id: ev.pointerId, origem, x: ev.clientX, y: ev.clientY, ativo: false };
+    }, true);
+    function destino(ev) {
+      const { origem, x, y } = arraste;
       const carta = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-ordem]');
-      return carta?.parentElement === arraste.origem.parentElement ? carta : null;
+      if (carta && carta !== origem && carta.parentElement === origem.parentElement) return carta;
+      const limite = origem.getBoundingClientRect();
+      const dx = ev.clientX - x;
+      if (ev.pointerType === 'touch' && Math.abs(dx) >= 48 && Math.abs(ev.clientY - y) < 40 &&
+          ev.clientY >= limite.top && ev.clientY <= limite.bottom && (!carta || carta === origem))
+        return dx < 0 ? origem.previousElementSibling : origem.nextElementSibling;
+      return null;
     }
     document.addEventListener('pointermove', ev => {
       if (arraste?.id !== ev.pointerId) return;
+      const { origem, x, y } = arraste;
+      const dx = ev.clientX - x, dy = ev.clientY - y;
+      if (!arraste.ativo) {
+        if (Math.hypot(dx, dy) < 8) return;
+        if (ev.pointerType === 'touch' && Math.abs(dy) > Math.abs(dx)) { arraste = null; return; }
+        arraste.ativo = true;
+        origem.setPointerCapture(ev.pointerId);
+        origem.classList.add('fg-arrastando');
+      }
       arraste.destino?.classList.remove('fg-destino');
-      arraste.destino = alvo(ev);
+      arraste.destino = destino(ev);
       arraste.destino?.classList.add('fg-destino');
     });
     function fim(ev) {
       if (arraste?.id !== ev.pointerId) return;
+      const { origem, ativo } = arraste;
+      const alvo = ativo && ev.type === 'pointerup' ? destino(ev) : null;
       arraste.destino?.classList.remove('fg-destino');
-      if (ev.type === 'pointerup') mover(arraste.origem, alvo(ev));
+      origem.classList.remove('fg-arrastando');
       arraste = null;
+      bloquearClique = ativo && ev.type === 'pointerup';
+      if (alvo) mover(origem, alvo);
     }
     document.addEventListener('pointerup', fim);
-    document.addEventListener('lostpointercapture', fim);
     document.addEventListener('pointercancel', fim);
+    document.addEventListener('lostpointercapture', ev => {
+      if (arraste?.ativo && ev.target === arraste.origem) fim(ev);
+    });
+    window.addEventListener('blur', () => { if (arraste) fim({pointerId: arraste.id}); });
     document.addEventListener('keydown', ev => {
-      const botao = ev.target.closest('[data-mover-carta]');
-      if (!botao || !['ArrowLeft','ArrowRight'].includes(ev.key)) return;
+      const origem = ev.target.closest('[data-baralho] [data-ordem]');
+      if (!origem || ev.target.closest('[data-a="consumir"]') || !['ArrowLeft','ArrowRight'].includes(ev.key)) return;
       ev.preventDefault();
-      const origem = botao.parentElement;
+      const grupo = origem.parentElement.dataset.baralho;
       mover(origem, ev.key === 'ArrowLeft' ? origem.previousElementSibling : origem.nextElementSibling);
-      requestAnimationFrame(() => document.querySelector('[data-ordem="' + CSS.escape(origem.dataset.ordem) + '"] [data-mover-carta]')?.focus());
+      requestAnimationFrame(() => {
+        const carta = document.querySelector('[data-baralho="' + grupo + '"] [data-ordem="' + CSS.escape(origem.dataset.ordem) + '"]');
+        (carta?.matches('button') ? carta : carta?.querySelector('[data-a="abrir-item"]'))?.focus();
+      });
     });
 
     FG.abas.arsenal = {
@@ -152,12 +192,12 @@
         return `<div class="fg-cols2 fg-cols2--painel-dir">
           <div>
             <div class="fg-sec">
-              <div class="fg-sec-head"><div style="display:flex;flex-direction:column;gap:8px"><span class="fg-kicker">Baralho de combate</span><h2 class="fg-h fg-h--big">Equipado</h2></div><span class="fg-muted" style="font-size:12.5px;max-width:320px;text-align:right">A moldura é o metal. Toque numa carta para editar.</span></div>
-              <div class="fg-items">${baralho(c, armas) || '<p class="fg-empty-line">Nada no arsenal. Adicione pela biblioteca ao lado.</p>'}</div>
+              <div class="fg-sec-head"><div style="display:flex;flex-direction:column;gap:8px"><span class="fg-kicker">Baralho de combate</span><h2 class="fg-h fg-h--big">Equipado</h2></div><span class="fg-muted" style="font-size:12.5px;max-width:320px;text-align:right">Toque para editar. Arraste uma carta para reorganizar.</span></div>
+              <div class="fg-items" data-baralho="arsenalOrder">${baralho(c, armas) || '<p class="fg-empty-line">Nada no arsenal. Adicione pela biblioteca ao lado.</p>'}</div>
             </div>
             <div class="fg-sec">
               <div class="fg-sec-head"><h3 class="fg-h">Consumíveis</h3><span class="fg-label">Usar desconta a quantidade</span></div>
-              ${consumiveis.length ? `<div class="fg-items" style="gap:26px">${consumiveis.map((it, i) => cartaItem(c, it, i)).join('')}</div>` : '<p class="fg-empty-line">Nenhum consumível. Adicione pela biblioteca ao lado.</p>'}
+              ${consumiveis.length ? `<div class="fg-items" data-baralho="consumableOrder">${ordenar(new Map(consumiveis.map((it, i) => [String(it.id), cartaItem(c, it, i)])), s.inventory.consumableOrder)}</div>` : '<p class="fg-empty-line">Nenhum consumível. Adicione pela biblioteca ao lado.</p>'}
             </div>
             <div class="fg-sec">
               <div class="fg-sec-head"><h3 class="fg-h">Outros itens</h3></div>
