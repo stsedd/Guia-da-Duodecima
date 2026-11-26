@@ -364,7 +364,11 @@
         <button class="os-btn on-btn-discord" type="button" data-on="entrar"><svg class="os-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5h4.5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H14"/><path d="M10 8l4 4-4 4M14 12H4.5"/></svg>${CELULAR ? 'Entrar pelo app do Discord' : 'Entrar com o Discord'}</button>
         ${CELULAR
           ? '<p class="on-hint">O app do Discord abre para você tocar em <b>Autorizar</b> e depois volta para o Guia no navegador. Se o app não abrir, o login continua pelo navegador. <button class="on-link" type="button" data-on="entrar-navegador">Entrar pelo navegador</button></p>'
-          : '<p class="on-hint">No computador, o Discord pede o login no navegador. Na página dele, escolha <b>Entrar com QR Code</b> e escaneie com o app do Discord no celular: não precisa digitar senha.</p>'}
+          : '<p class="on-hint">Use a conta que já está no servidor da Duodécima. Se o Discord já estiver conectado nessa conta, basta conferir o perfil e autorizar.</p>'}
+        <details class="on-privacy"><summary>Apareceu “este e-mail já está registrado” ou faltou o QR Code?</summary>
+          <p>Abra o <a class="on-link" href="https://discord.com/login" target="_blank" rel="noopener noreferrer">login do Discord</a> em outra aba deste navegador. Se aparecer outro perfil, saia dele e entre com a conta que você usa na Duodécima. No computador, também dá para usar o QR Code quando ele aparecer na tela de login.</p>
+          <p>Quando conseguir ver o servidor da Duodécima nessa aba, volte aqui e ${CELULAR ? '<button class="on-link" type="button" data-on="entrar-navegador">entre pelo navegador</button>' : 'clique em <b>Entrar com o Discord</b>'} para autorizar o Guia.</p>
+        </details>
         <button class="os-btn os-btn--ghost" type="button" data-on="fechar">Continuar como visitante</button>
         <details class="on-privacy"><summary>O que o site guarda</summary>
           <p>O seu ID, @, nome de exibição e avatar do Discord, e se a conta está no servidor da Duodécima (sim ou não, conferido no login). O site não lê cargos nem mensagens. O Discord manda a lista dos seus servidores só para essa conferência: o banco procura a Duodécima e não guarda o resto. O e-mail da conta fica apenas no sistema de login (Supabase). Você pode excluir a conta, com tudo o que está nela, aqui mesmo.</p>
