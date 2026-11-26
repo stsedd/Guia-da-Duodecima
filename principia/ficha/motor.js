@@ -352,7 +352,8 @@ window.FichaMotor = function criarMotor(DADOS, ganchos) {
     let cond=attrRollConditionPenalty(a);
     if(activeCondition('Desorientado')&&(name==='Percepção'||name==='Investigação'))cond+=-2;
     const prof=trained?bp()*(expertise?2:1):0;
-    return base+prof+fixed+globalD20Penalty()+receivedBonuses().d20+cond;
+    const effects = receivedBonuses();
+    return base+prof+fixed+globalD20Penalty()+effects.d20+cond+(name==='Furtividade' ? effects.stealth : 0);
   }
   function canUseInitialSkill(name){return !divineGranted().includes(name)}
   function abilityKey(a){return `${a.sourceGodId||state.godId}:${a.type}:${a.id}`}
@@ -373,7 +374,7 @@ window.FichaMotor = function criarMotor(DADOS, ganchos) {
   function armorDefense(){return state.armor?.equipped?(armorType(state.armor.type).defense||0):0}
   function armorReduction(){return state.armor?.equipped?(armorType(state.armor.type).reduction||0):0}
   function shieldDefense(){if(!state.shield?.equipped||Number(state.shield.stakes)<30)return 0;return hasTalent('mestre-escudos')?bp():Math.ceil(bp()/2)}
-  function damageReduction(){return receivedBonuses().defense+armorReduction()+(Number(state.tempMods?.damageReduction)||0)}
+  function damageReduction(){return receivedBonuses().reduction+armorReduction()+(Number(state.tempMods?.damageReduction)||0)}
   function defenseBonus(){const base=hasTalent('bruto')?effectiveAttr('con'):effectiveAttr('des'),defensor=hasTalent('defensor')?2:0,agil=hasTalent('agil')&&skillIsProficient('Agilidade')?Math.ceil(bp()/2):0;return receivedBonuses().defense+base+defensor+agil+armorDefense()+shieldDefense()+(Number(state.tempMods?.defense)||0)+globalD20Penalty()+receivedBonuses().d20+conditionDefenseMod()}
   function initiativeBonus(){return skillValue('Agilidade')}
   function weaponDiceCount(){return state.level>=80?3:state.level>=40?2:1}

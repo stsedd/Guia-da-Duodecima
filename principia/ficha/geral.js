@@ -70,35 +70,49 @@
     function recebidos({M,s}) {
       const E = window.FichaEfeitos, list = s.receivedEffects || [];
       const tags = ['0–15','16–29','30+'];
-      const cards = list.map(e => {
+      const cards = list.map((e,index) => {
         const def = E.find(e.id);
-        const power = M.abilitiesDb[def.god]?.actives?.find(a => a.id === e.id);
+        const kit = M.abilitiesDb[def.god];
+        const power = [...(kit?.actives || []), ...(kit?.passives || [])].find(a => a.id === e.id);
         const tiers = power?.tiers || {};
         const detail = [tiers.low, tiers.mid, tiers.high].slice(0, e.tier + 1).map((text,i) => text ? tags[i] + ' · ' + text : '').filter(Boolean);
         if (power?.extra) detail.push(power.extra);
+        if (def.god === 'netuno' && ['cataclismo','bencao-oceanica'].includes(def.id)) detail.push('A ficha usa o maior bônus entre aplicações desta mesma habilidade. Habilidades diferentes são combinadas. Encerre o efeito se deixar a área exigida.');
+        if (['restauracao','escudo-oceanico','cataclismo','murchar-florescer','frutos-colheita','dominio-sono-profundo'].includes(def.id)) detail.push('Use a Fé de quem concedeu o efeito. Marque na ficha o resultado de cura, absorção ou PV temporários resolvido na mesa.');
+        if (e.caster) detail.unshift('Concedido por ' + e.caster);
+        if (def.self) detail.unshift('Efeito da própria prole. Encerre ao sair da luz natural ou ao anoitecer.');
         const duration = e.rounds ? ' · ' + e.rounds + (e.rounds === 1 ? ' rodada' : ' rodadas') : '';
-        return `<details class="fg-box"><summary><b>${esc(def.name)}</b> · ${esc(def.summary(e.tier) + duration)}</summary>
-          <small class="fg-muted">${esc(def.source)} · estacas ${tags[e.tier]}</small>
+        return `<details class="fg-box"><summary><b>${esc(def.name)}</b> · ${esc(def.summary(e.tier) + (e.fire ? ' · resistência a fogo' : '') + duration)}</summary>
+          <small class="fg-muted">${esc(e.caster || def.source)} · estacas ${tags[e.tier]}</small>
           ${detail.map(t => `<p>${esc(t)}</p>`).join('')}
-          <button type="button" class="fg-btn fg-btn--sm" data-a="efeito-tirar" data-id="${e.id}">${e.id === 'inspiracao-divina' ? 'Marcar como usado / encerrar' : 'Encerrar efeito'}</button></details>`;
+          <button type="button" class="fg-btn fg-btn--sm" data-a="efeito-tirar" data-index="${index}">${['inspiracao-divina','escudo-oceanico','frutos-colheita','calma-sonhar'].includes(e.id) ? 'Marcar como usado / encerrar' : 'Encerrar efeito'}</button></details>`;
       }).join('');
-      const options = E.catalog.filter(d => !list.some(e => e.id === d.id));
+      const options = E.catalog.filter(d => (d.god === 'netuno' || !list.some(e => e.id === d.id)) && (!d.self || (M.effectiveAbilitySet()?.passives || []).some(a => a.id === d.id && (a.sourceGodId || s.godId) === d.god)));
       return `<div class="fg-box"><div class="fg-sec-head"><b class="fg-label">Afetado por</b>
         ${list.some(e => e.rounds) ? '<button type="button" class="fg-btn fg-btn--sm" data-a="efeito-rodada">Avançar rodada</button>' : ''}</div>
         ${cards}<details><summary class="fg-label">Adicionar efeito</summary><div class="fg-form">
-        <label class="fg-field"><span>Efeito recebido</span><select class="fg-in" name="efeito">${options.map(d => `<option value="${d.id}">${esc(d.name)} · ${esc(d.source)}</option>`).join('')}</select></label>
-        <label class="fg-field"><span>Estacas de quem concedeu</span><select class="fg-in" name="estaca">${tags.map((v,i) => `<option value="${i}">${v}</option>`).join('')}</select></label></div>
+        <label class="fg-field"><span>Efeito recebido</span><select class="fg-in" name="efeito" data-a="efeito-opcoes">${[...new Set(options.map(d => d.source))].map(source => `<optgroup label="${esc(source)}">${options.filter(d => d.source === source).map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+        <label class="fg-field"><span>Estacas de quem concedeu</span><select class="fg-in" name="estaca" data-a="efeito-opcoes">${tags.map((v,i) => `<option value="${i}" ${i < (options[0]?.min || 0) ? 'disabled' : ''}>${v}</option>`).join('')}</select></label>
+        <label class="fg-field"><span>Quem concedeu (opcional)</span><input class="fg-in" name="fonte" maxlength="60" placeholder="Nome do personagem"></label>
+        <label class="fg-check" style="display:none" data-fogo><input type="checkbox" name="fogo">Resistência a fogo (+40 EN pagos pela fonte)</label></div>
         <button class="fg-btn fg-btn--pri fg-btn--sm" type="button" data-a="efeito-por">Aplicar efeito</button></details></div>`;
     }
+    acoes['efeito-opcoes'] = el => {
+      const form = el.closest('details'), def = window.FichaEfeitos.find(form.querySelector('[name=efeito]').value);
+      const tier = form.querySelector('[name=estaca]');
+      for (const opt of tier.options) opt.disabled = Number(opt.value) < (def.min || 0);
+      if (Number(tier.value) < (def.min || 0)) tier.value = String(def.min);
+      form.querySelector('[data-fogo]').style.display = def.id === 'bencao-oceanica' && tier.value === '2' ? '' : 'none';
+    };
     acoes['efeito-por'] = el => {
       const form = el.closest('details'), s = FG.S.M.state;
-      const error = window.FichaEfeitos.add(s, form.querySelector('[name=efeito]').value, Number(form.querySelector('[name=estaca]').value));
+      const error = window.FichaEfeitos.add(s, form.querySelector('[name=efeito]').value, Number(form.querySelector('[name=estaca]').value), form.querySelector('[name=fonte]').value, form.querySelector('[name=fogo]').checked);
       if (error) { window.PRINCIPIA.api.toast(error); return; }
       salvarDesenhar(false);
     };
     acoes['efeito-tirar'] = el => {
       const s = FG.S.M.state;
-      s.receivedEffects = s.receivedEffects.filter(e => e.id !== el.dataset.id);
+      s.receivedEffects = s.receivedEffects.filter((e,i) => i !== Number(el.dataset.index));
       salvarDesenhar(false);
     };
     acoes['efeito-rodada'] = () => { window.FichaEfeitos.advance(FG.S.M.state); salvarDesenhar(false); };
