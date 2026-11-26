@@ -255,8 +255,89 @@
     ]
   }
 ];
+  additions.push(...[
+  {
+    "god": "juventas",
+    "source": "Juventas",
+    "id": "aura-protecao",
+    "name": "Aura da Proteção",
+    "rounds": [
+      0,
+      0,
+      0
+    ],
+    "labels": [
+      "+1 em resistências enquanto na aura",
+      "+2 em resistências enquanto na aura",
+      "+3 em resistências · repetir uma falha por combate"
+    ]
+  },
+  {
+    "god": "juventas",
+    "source": "Juventas",
+    "id": "discipula-vida",
+    "name": "Discípula da Vida",
+    "rounds": [
+      1,
+      2,
+      2
+    ],
+    "labels": [
+      "Vantagem em resistências · cura maximizada",
+      "Vantagem em resistências · Defesa +1 · cura maximizada",
+      "Vantagem em resistências · Defesa +2 · cura maximizada"
+    ]
+  },
+  {
+    "god": "jano",
+    "source": "Jano",
+    "id": "julgamento-possibilidades",
+    "name": "Julgamento das Possibilidades",
+    "rounds": [
+      2,
+      3,
+      3
+    ],
+    "labels": [
+      "+1 em Defesa, Intuição e reposicionamento na área",
+      "+1 em Defesa, Intuição e reposicionamento na área",
+      "+2 em Defesa, Intuição e reposicionamento na área"
+    ]
+  },
+  {
+    "god": "aeolos",
+    "source": "Aeolos",
+    "id": "dominio-correntes",
+    "name": "Domínio das Correntes",
+    "rounds": [
+      2,
+      3,
+      3
+    ],
+    "labels": [
+      "+2 em Defesa, deslocamento e ações coordenadas na área"
+    ]
+  },
+  {
+    "god": "bellona",
+    "source": "Bellona",
+    "id": "gloria-roma",
+    "name": "Glória de Roma",
+    "rounds": [
+      2,
+      2,
+      3
+    ],
+    "labels": [
+      "+1 em ataques corpo a corpo e contra medo e desorganização",
+      "+1 em ataques corpo a corpo (+2 com dois aliados próximos afetados)",
+      "+2 em testes, ataques, defesas e resistências · RD 1d6 uma vez por turno"
+    ]
+  }
+]);
+  const archived = new Set(['exploradora-natural','crescimento-purificacao','geocinese']);
   for (const effect of additions) {
-    catalog.push({...effect, summary:t => effect.labels[t] || effect.labels[0]});
+    catalog.push({...effect, archived:archived.has(effect.id), summary:t => effect.labels[t] || effect.labels[0]});
   }
   const casterName = value => typeof value === 'string' ? value.trim().slice(0,60) : '';
   // Fontes de Netuno têm durações próprias. Registros da mesma habilidade mantêm a duração por fonte.
@@ -269,7 +350,7 @@
       if (!def || ![0,1,2].includes(entry.tier) || entry.tier < (def.min || 0) || result.some(e => same(e,def,casterName(entry.caster)) || e.id === def.conflict)) continue;
       const max = def.rounds[entry.tier];
       if (max && !(Number.isInteger(entry.rounds) && entry.rounds > 0)) continue;
-      result.push({id:def.id, caster:casterName(entry.caster), fire:def.id === 'bencao-oceanica' && entry.tier === 2 && entry.fire === true, tier:entry.tier, rounds:max ? Math.min(entry.rounds,max) : 0});
+      result.push({id:def.id, caster:casterName(entry.caster), formation:def.id==='gloria-roma' && entry.tier===1 && entry.formation===true, fire:def.id === 'bencao-oceanica' && entry.tier === 2 && entry.fire === true, tier:entry.tier, rounds:max ? Math.min(entry.rounds,max) : 0});
     }
     return result;
   }
@@ -296,7 +377,12 @@
     const daylight = highest('senhor-dia') + 1;
     const dedication = list.find(e => e.id === 'dedicacao-compartilhada');
     const fortune = list.find(e => e.id === 'bencao-boa-hora' || e.id === 'mau-agouro');
-    return {stealth:highest('veu-natureza') === 2 ? 3 : 0, defense, reduction:defense + (storm < 0 ? 0 : storm === 0 ? 2 : 4), d20:daylight + (dedication ? dedication.tier + 1 : 0),
+    const aura = highest('aura-protecao') + 1, life = highest('discipula-vida');
+    const janus = highest('julgamento-possibilidades');
+    const insight = janus < 0 ? 0 : janus === 2 ? 2 : 1;
+    const glory = list.find(e => e.id === 'gloria-roma');
+    const melee = !glory || glory.tier === 2 ? 0 : (glory.tier === 1 && glory.formation ? 2 : 1);
+    return {resistance:aura, advantage:life >= 0, melee, insight, stealth:highest('veu-natureza') === 2 ? 3 : 0, defense:defense + insight + Math.max(0,life) + (highest('dominio-correntes') >= 0 ? 2 : 0), reduction:defense + (storm < 0 ? 0 : storm === 0 ? 2 : 4), d20:daylight + (glory?.tier === 2 ? 2 : 0) + (dedication ? dedication.tier + 1 : 0),
       fortune:fortune ? (fortune.id === 'mau-agouro' ? -1 : 1) : 0};
   }
   window.FichaEfeitos = {catalog, find, normalize, add, advance, bonuses};
