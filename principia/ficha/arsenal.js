@@ -82,6 +82,61 @@
       </div>`;
     }
 
+    function baralho(c, armas) {
+      const cartas = new Map(armas.map((w, i) => ['arma:' + w.id, cartaArma(c, w, i)]));
+      for (const tipo of ['armadura', 'escudo']) {
+        if (temProtecao(tipo === 'armadura' ? c.s.armor : c.s.shield, tipo))
+          cartas.set(tipo, cartaProtecao(c, tipo, cartas.size));
+      }
+      const ordemSalva = c.s.inventory?.arsenalOrder;
+      const ordem = [...new Set([...(Array.isArray(ordemSalva) ? ordemSalva : []), ...cartas.keys()])].filter(k => cartas.has(k));
+      return ordem.map(k => `<div class="fg-ordem-item" data-ordem="${esc(k)}">${cartas.get(k)}${ordem.length > 1 ? '<button type="button" class="fg-btn fg-btn--sm" data-mover-carta title="Arraste ou use as setas esquerda e direita">↔ Mover</button>' : ''}</div>`).join('');
+    }
+    function mover(origem, destino) {
+      if (!origem || !destino || origem === destino || origem.parentElement !== destino.parentElement) return;
+      const cartas = [...origem.parentElement.children];
+      const pos = cartas.indexOf(destino);
+      cartas.splice(cartas.indexOf(origem), 1);
+      cartas.splice(pos, 0, origem);
+      S.M.state.inventory.arsenalOrder = cartas.map(c => c.dataset.ordem);
+      FG.salvar();
+      FG.render();
+    }
+    let arraste;
+    document.addEventListener('pointerdown', ev => {
+      const botao = ev.target.closest('[data-mover-carta]');
+      if (!botao || ev.button !== 0 || arraste) return;
+      botao.setPointerCapture(ev.pointerId);
+      arraste = { id: ev.pointerId, origem: botao.parentElement };
+    });
+    function alvo(ev) {
+      const carta = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-ordem]');
+      return carta?.parentElement === arraste.origem.parentElement ? carta : null;
+    }
+    document.addEventListener('pointermove', ev => {
+      if (arraste?.id !== ev.pointerId) return;
+      arraste.destino?.classList.remove('fg-destino');
+      arraste.destino = alvo(ev);
+      arraste.destino?.classList.add('fg-destino');
+    });
+    function fim(ev) {
+      if (arraste?.id !== ev.pointerId) return;
+      arraste.destino?.classList.remove('fg-destino');
+      if (ev.type === 'pointerup') mover(arraste.origem, alvo(ev));
+      arraste = null;
+    }
+    document.addEventListener('pointerup', fim);
+    document.addEventListener('lostpointercapture', fim);
+    document.addEventListener('pointercancel', fim);
+    document.addEventListener('keydown', ev => {
+      const botao = ev.target.closest('[data-mover-carta]');
+      if (!botao || !['ArrowLeft','ArrowRight'].includes(ev.key)) return;
+      ev.preventDefault();
+      const origem = botao.parentElement;
+      mover(origem, ev.key === 'ArrowLeft' ? origem.previousElementSibling : origem.nextElementSibling);
+      requestAnimationFrame(() => document.querySelector('[data-ordem="' + CSS.escape(origem.dataset.ordem) + '"] [data-mover-carta]')?.focus());
+    });
+
     FG.abas.arsenal = {
       render(c) {
         const { M, s } = c;
@@ -98,7 +153,7 @@
           <div>
             <div class="fg-sec">
               <div class="fg-sec-head"><div style="display:flex;flex-direction:column;gap:8px"><span class="fg-kicker">Baralho de combate</span><h2 class="fg-h fg-h--big">Equipado</h2></div><span class="fg-muted" style="font-size:12.5px;max-width:320px;text-align:right">A moldura é o metal. Toque numa carta para editar.</span></div>
-              <div class="fg-items">${[...armas.map((w, i) => cartaArma(c, w, i)), ...['armadura', 'escudo'].filter(t => temProtecao(t === 'armadura' ? s.armor : s.shield, t)).map((t, k) => cartaProtecao(c, t, armas.length + k))].join('') || '<p class="fg-empty-line">Nada no arsenal. Adicione pela biblioteca ao lado.</p>'}</div>
+              <div class="fg-items">${baralho(c, armas) || '<p class="fg-empty-line">Nada no arsenal. Adicione pela biblioteca ao lado.</p>'}</div>
             </div>
             <div class="fg-sec">
               <div class="fg-sec-head"><h3 class="fg-h">Consumíveis</h3><span class="fg-label">Usar desconta a quantidade</span></div>

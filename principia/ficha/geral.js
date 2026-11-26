@@ -18,7 +18,6 @@
       return `<div class="fg-attr" title="${esc(partes.map(([n, v]) => `${n} ${sinal(v)}`).join(' · ') || 'sem bônus')}">
         <span>${ab}</span><b>${M.effectiveAttr(k)}</b>
         <small>${esc(nome)}${pen ? ` <span class="fg-attr-pen">${M.sanityAttrPenalty(k) ? 'sanidade ' + sinal(M.sanityAttrPenalty(k)) : 'sacrifício −' + M.magicSacrifice(k)}</span>` : ''}</small>
-        <button type="button" class="fg-btn fg-btn--sm" data-a="resistir" data-k="${esc(k)}" aria-label="Rolar resistência de ${esc(nome)}">RES ${sinal(M.resistanceBonus(k))}${M.fortuneSuffix()}${M.receivedBonuses().advantage ? ' · vantagem' : ''}</button>
       </div>`;
     }
 
@@ -246,6 +245,7 @@
 
     FG.abas.geral = {
       render(c) {
+        const { M } = c;
         return `<div class="fg-cols">
           <div class="fg-sec">
             <div class="fg-sec-head"><h3 class="fg-h">Atributos</h3><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="regra" data-p="personagem" data-anc="criacao">Regras</button></div>
@@ -255,6 +255,8 @@
           </div>
           <div class="fg-sec">
             <div class="fg-sec-head"><h3 class="fg-h">Perícias</h3><span class="fg-label">P = proficiente · E = expertise</span></div>
+            <h4 class="fg-label">Testes de resistência</h4>
+            <div class="fg-rolls">${attrsLista.map(([k, ab, nome]) => `<button type="button" class="fg-btn fg-btn--sm" data-a="resistir" data-k="${esc(k)}" aria-label="Rolar resistência de ${esc(nome)}">${esc(nome)} ${sinal(M.resistanceBonus(k))}${M.fortuneSuffix()}${M.receivedBonuses().advantage ? ' · vantagem' : ''}</button>`).join('')}</div>
             ${pericias(c)}
           </div>
           <div class="fg-sec fg-col-hand">

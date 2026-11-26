@@ -449,3 +449,10 @@ html[data-theme="light"] .os-ficha{--fg-gold:#a77a1e;--fg-ok:#2f8a46;--fg-warn:#
 .fg-fama-pend .fg-row{background:transparent}
 .fg-fama-pend .fg-row-main input{width:100%;margin-top:6px}
 .fg-fama-pend .fg-row-main a{color:inherit}
+
+.fg-stat-editor:not([hidden]){display:flex;align-items:center;flex-wrap:wrap;gap:3px}
+.fg-stat-editor input{box-sizing:border-box;min-width:0;width:4em;flex:1;padding:4px;border:1px solid var(--os-win-line);border-radius:6px;background:var(--os-win-bg);color:var(--os-win-ink);font:inherit}
+.fg-edit-stat{border:0;border-radius:6px;background:var(--os-win-bg);color:var(--os-win-ink);min-width:24px;min-height:24px;cursor:pointer}
+.fg-items [data-mover-carta]{touch-action:none;cursor:grab;user-select:none}
+.fg-items .fg-destino{outline:2px solid var(--fg-accent)}
+.fg-ordem-item{display:grid;justify-items:center;gap:4px}

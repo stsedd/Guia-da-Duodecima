@@ -474,19 +474,16 @@
     function stat(kind, rotulo, icone, valor, max, nota, notaCls, barra, ajuste) {
       const fx = S.fx[kind] || '';
       return `<div class="fg-stat ${fx}" data-stat="${kind}">
-        <div class="fg-stat-top"><span class="fg-label" style="display:inline-flex;align-items:center;gap:6px">${icone}${esc(rotulo)}</span>${ajuste ? '<span class="fg-label" aria-hidden="true" style="opacity:.6">±</span>' : ''}</div>
+        <div class="fg-stat-top"><span class="fg-label" style="display:inline-flex;align-items:center;gap:6px">${icone}${esc(rotulo)}</span>${['hp','en','san'].includes(kind) && ajuste ? `<button class="fg-edit-stat" type="button" data-a="editar-recurso" aria-expanded="false" aria-label="Ajustar ${esc(rotulo)}">±</button>` : ajuste ? '<span class="fg-label" aria-hidden="true" style="opacity:.6">±</span>' : ''}</div>
         <div class="fg-stat-num"><b>${valor}</b>${max != null ? `<small>/ ${max}</small>` : ''}</div>
         ${barra || ''}
         ${nota ? `<span class="fg-stat-note ${notaCls || ''}" title="${esc(nota)}">${esc(nota)}</span>` : ''}
         ${ajuste || ''}
       </div>`;
     }
-    const ajusteBtns = alvo => `<div class="fg-stat-adj">
-      <button type="button" data-a="ajuste" data-alvo="${alvo}" data-d="-5" aria-label="Menos 5">−5</button>
-      <button type="button" data-a="ajuste" data-alvo="${alvo}" data-d="-1" aria-label="Menos 1">−1</button>
-      <input type="text" inputmode="numeric" data-a="ajuste-campo" data-tecla data-alvo="${alvo}" placeholder="±" aria-label="Somar ou subtrair (ex.: -7, +3)">
-      <button type="button" data-a="ajuste" data-alvo="${alvo}" data-d="1" aria-label="Mais 1">+1</button>
-      <button type="button" data-a="ajuste" data-alvo="${alvo}" data-d="5" aria-label="Mais 5">+5</button>
+    const ajusteBtns = alvo => `<div class="fg-stat-editor" hidden>
+      <input type="text" inputmode="text" enterkeyhint="done" data-a="ajuste-campo" data-tecla data-alvo="${alvo}" placeholder="−7 / +3" aria-label="Variação de ${({hp:'vida',en:'energia',san:'sanidade'})[alvo]}">
+      <button type="button" class="fg-edit-stat" data-a="aplicar-recurso" aria-label="Aplicar ajuste">✓</button>
     </div>`;
     function hud() {
       const M = S.M, s = M.state;
@@ -729,16 +726,26 @@
       }
       agendarSalvar(); render();
     }
-    acoes.ajuste = el => aplicarAjuste(el.dataset.alvo, Number(el.dataset.d));
-    acoes['ajuste-campo'] = (el, ev) => {
-      if (ev.type !== 'keydown' || ev.key !== 'Enter') return;
-      ev.preventDefault();
-      const t = String(el.value || '').trim().replace(',', '.').replace('−', '-');
-      if (!t) return;
-      const n = Number(t.replace(/^[+=]/, ''));
-      if (!Number.isFinite(n)) { toast('Use um número, como -7 ou +3 (ou =20 para definir).'); return; }
+    acoes['editar-recurso'] = el => {
+      const editor = el.closest('.fg-stat').querySelector('.fg-stat-editor');
+      editor.hidden = !editor.hidden;
+      el.setAttribute('aria-expanded', String(!editor.hidden));
+      if (!editor.hidden) editor.querySelector('input').focus();
+    };
+    function confirmarAjuste(el) {
+      const t = el.value.trim().replace('−', '-');
+      if (!/^[=+-]?\d+$/.test(t) || !Number.isSafeInteger(Number(t.replace(/^=/, '')))) {
+        toast('Digite uma quantidade, como -7, +3 ou =20.');
+        el.focus();
+        return;
+      }
+      const n = Number(t.replace(/^=/, ''));
       if (t.startsWith('=')) aplicarAjuste(el.dataset.alvo, 0, n);
       else aplicarAjuste(el.dataset.alvo, n);
+    }
+    acoes['aplicar-recurso'] = el => confirmarAjuste(el.parentElement.querySelector('input'));
+    acoes['ajuste-campo'] = (el, ev) => {
+      if (ev.type === 'keydown' && ev.key === 'Enter') { ev.preventDefault(); confirmarAjuste(el); }
     };
     acoes.recurso = el => {
       const r = S.M.hudResources().concat(S.M.targetResources()).find(x => S.M.resourceKey(x) === el.dataset.key);
