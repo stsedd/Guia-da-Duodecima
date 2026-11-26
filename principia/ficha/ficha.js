@@ -511,7 +511,7 @@
       }
       partes.push(stat('def', 'Defesa', ICO.shield, sinal(M.defenseBonus()), null, `RD ${M.damageReduction()} · rolar 1d20 ${sinal(M.defenseBonus())}`, '', ''));
       partes.push(stat('dt', M.hasSheetCasting() ? 'DT' : 'Iniciativa', ICO.target, M.hasSheetCasting() ? M.castDT() : sinal(M.initiativeBonus()), null,
-        M.hasSheetCasting() ? `Conjuração 1d20 ${sinal(M.castAttack())}` : 'Sem conjuração', '', ''));
+        M.hasSheetCasting() ? `Conjuração 1d20 ${sinal(M.castAttack())}${M.fortuneSuffix()}` : 'Sem conjuração', '', ''));
       return `<div class="fg-hud${S.hudAberto ? ' is-open' : ''}" data-a="hud-toque">${partes.join('')}</div>`;
     }
 

@@ -24,11 +24,12 @@
     function rolagens(c) {
       const { M, s } = c;
       const lista = [['init', 'Iniciativa', '1d20 ' + sinal(M.initiativeBonus())], ['def', 'Defesa', '1d20 ' + sinal(M.defenseBonus())]];
-      if (M.hasSheetCasting()) lista.push(['conj', 'Conjuração', '1d20 ' + sinal(M.castAttack())]);
-      (s.weapons || []).filter(w => w.equipped).forEach(w => lista.push(['arma:' + w.id, 'Ataque · ' + (w.name || 'Arma'), `${sinal(M.weaponAttack(w))} · ${M.weaponDamageFormula(w)}`]));
-      lista.push(['d20', 'd20 livre', '1d20']);
-      const ultima = s.lastRoll ? `<div class="fg-last-roll" role="status"><b>${s.lastRoll.total}</b><div><span class="fg-label">${esc(s.lastRoll.label)}</span><div class="fg-muted" style="font-size:12.5px">${s.lastRoll.die} no d20 ${sinal(s.lastRoll.modifier)}${s.lastRoll.die === 20 ? ' · 20 natural' : s.lastRoll.die === 1 ? ' · 1 natural' : ''}</div></div><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="rolagem-copiar" title="Copiar o resultado para colar no Discord" style="margin-left:auto">Copiar</button></div>` : '';
-      return `${ultima}<div class="fg-rolls">${lista.map(([id, n, v]) => `<button class="fg-roll" type="button" data-a="rolar" data-r="${esc(id)}">${ICO.d20}<span>${esc(n)}</span><b>${esc(v)}</b></button>`).join('')}</div>`;
+      if (M.hasSheetCasting()) lista.push(['conj', 'Conjuração', '1d20 ' + sinal(M.castAttack()) + M.fortuneSuffix()]);
+      (s.weapons || []).filter(w => w.equipped).forEach(w => lista.push(['arma:' + w.id, 'Ataque · ' + (w.name || 'Arma'), `${sinal(M.weaponAttack(w))}${M.fortuneSuffix()} · ${M.weaponDamageFormula(w)}`]));
+      lista.push(['d20', 'd20 livre', '1d20' + (M.receivedBonuses().d20 ? ' ' + sinal(M.receivedBonuses().d20) : '')]);
+      const ultima = s.lastRoll ? `<div class="fg-last-roll" role="status"><b>${s.lastRoll.total}</b><div><span class="fg-label">${esc(s.lastRoll.label)}</span><div class="fg-muted" style="font-size:12.5px">${s.lastRoll.die} no d20 ${sinal(s.lastRoll.modifier)}${s.lastRoll.extra ? ' · Fortuna ' + sinal(Number(s.lastRoll.extra)) : ''}${s.lastRoll.die === 20 ? ' · 20 natural' : s.lastRoll.die === 1 ? ' · 1 natural' : ''}</div></div><button class="fg-btn fg-btn--sm fg-btn--ghost" type="button" data-a="rolagem-copiar" title="Copiar o resultado para colar no Discord" style="margin-left:auto">Copiar</button></div>` : '';
+      const inspiration = s.receivedEffects?.find(e => e.id === 'inspiracao-divina');
+      return `${ultima}${inspiration ? `<small class="fg-muted">Inspiração disponível · ${['1d4','1d6','1d8'][inspiration.tier]} em habilidade, ataque, defesa ou resistência.</small>` : ''}<div class="fg-rolls">${lista.map(([id, n, v]) => `<button class="fg-roll" type="button" data-a="rolar" data-r="${esc(id)}">${ICO.d20}<span>${esc(n)}</span><b>${esc(v)}</b></button>`).join('')}</div>`;
     }
 
     function pericias(c) {
@@ -59,11 +60,48 @@
     function equipado(c) {
       const { M, s } = c;
       const linhas = [];
-      (s.weapons || []).filter(w => w.equipped).forEach(w => linhas.push(`<button class="fg-row" type="button" data-a="abrir-item" data-tipo="arma" data-id="${esc(w.id)}" style="cursor:pointer;text-align:left"><span class="fg-row-main"><b>${esc(w.name || 'Arma')}</b><small>${esc(M.material(w.material)?.name || '')} · ${esc(M.weaponType(w.type)?.name || '')}</small></span><span class="fg-row-num">${sinal(M.weaponAttack(w))}</span><small class="fg-label">${esc(M.weaponDamageFormula(w))}</small></button>`));
+      (s.weapons || []).filter(w => w.equipped).forEach(w => linhas.push(`<button class="fg-row" type="button" data-a="abrir-item" data-tipo="arma" data-id="${esc(w.id)}" style="cursor:pointer;text-align:left"><span class="fg-row-main"><b>${esc(w.name || 'Arma')}</b><small>${esc(M.material(w.material)?.name || '')} · ${esc(M.weaponType(w.type)?.name || '')}</small></span><span class="fg-row-num">${sinal(M.weaponAttack(w))}${M.fortuneSuffix()}</span><small class="fg-label">${esc(M.weaponDamageFormula(w))}</small></button>`));
       if (s.armor?.equipped) linhas.push(`<button class="fg-row" type="button" data-a="abrir-item" data-tipo="armadura" style="cursor:pointer;text-align:left"><span class="fg-row-main"><b>${esc(s.armor.name || 'Armadura')}</b><small>${esc(M.armorType(s.armor.type)?.name || '')} · ${esc(M.material(s.armor.material)?.name || '')}</small></span><span class="fg-row-num">DEF ${sinal(M.armorDefense())}</span><small class="fg-label">RD ${M.armorReduction()}</small></button>`);
       if (s.shield?.equipped) linhas.push(`<button class="fg-row" type="button" data-a="abrir-item" data-tipo="escudo" style="cursor:pointer;text-align:left"><span class="fg-row-main"><b>${esc(s.shield.name || 'Escudo')}</b><small>${esc(M.material(s.shield.material)?.name || '')} · ${s.shield.stakes || 0}/30 estacas</small></span><span class="fg-row-num">DEF ${sinal(M.shieldDefense())}</span></button>`);
       return linhas.length ? `<div class="fg-rows">${linhas.join('')}</div>` : '<p class="fg-empty-line">Nada equipado. Equipe armas, armadura e escudo no Arsenal.</p>';
     }
+
+
+    function recebidos({M,s}) {
+      const E = window.FichaEfeitos, list = s.receivedEffects || [];
+      const tags = ['0–15','16–29','30+'];
+      const cards = list.map(e => {
+        const def = E.find(e.id);
+        const power = M.abilitiesDb[def.god]?.actives?.find(a => a.id === e.id);
+        const tiers = power?.tiers || {};
+        const detail = [tiers.low, tiers.mid, tiers.high].slice(0, e.tier + 1).map((text,i) => text ? tags[i] + ' · ' + text : '').filter(Boolean);
+        if (power?.extra) detail.push(power.extra);
+        const duration = e.rounds ? ' · ' + e.rounds + (e.rounds === 1 ? ' rodada' : ' rodadas') : '';
+        return `<details class="fg-box"><summary><b>${esc(def.name)}</b> · ${esc(def.summary(e.tier) + duration)}</summary>
+          <small class="fg-muted">${esc(def.source)} · estacas ${tags[e.tier]}</small>
+          ${detail.map(t => `<p>${esc(t)}</p>`).join('')}
+          <button type="button" class="fg-btn fg-btn--sm" data-a="efeito-tirar" data-id="${e.id}">${e.id === 'inspiracao-divina' ? 'Marcar como usado / encerrar' : 'Encerrar efeito'}</button></details>`;
+      }).join('');
+      const options = E.catalog.filter(d => !list.some(e => e.id === d.id));
+      return `<div class="fg-box"><div class="fg-sec-head"><b class="fg-label">Afetado por</b>
+        ${list.some(e => e.rounds) ? '<button type="button" class="fg-btn fg-btn--sm" data-a="efeito-rodada">Avançar rodada</button>' : ''}</div>
+        ${cards}<details><summary class="fg-label">Adicionar efeito</summary><div class="fg-form">
+        <label class="fg-field"><span>Efeito recebido</span><select class="fg-in" name="efeito">${options.map(d => `<option value="${d.id}">${esc(d.name)} · ${esc(d.source)}</option>`).join('')}</select></label>
+        <label class="fg-field"><span>Estacas de quem concedeu</span><select class="fg-in" name="estaca">${tags.map((v,i) => `<option value="${i}">${v}</option>`).join('')}</select></label></div>
+        <button class="fg-btn fg-btn--pri fg-btn--sm" type="button" data-a="efeito-por">Aplicar efeito</button></details></div>`;
+    }
+    acoes['efeito-por'] = el => {
+      const form = el.closest('details'), s = FG.S.M.state;
+      const error = window.FichaEfeitos.add(s, form.querySelector('[name=efeito]').value, Number(form.querySelector('[name=estaca]').value));
+      if (error) { window.PRINCIPIA.api.toast(error); return; }
+      salvarDesenhar(false);
+    };
+    acoes['efeito-tirar'] = el => {
+      const s = FG.S.M.state;
+      s.receivedEffects = s.receivedEffects.filter(e => e.id !== el.dataset.id);
+      salvarDesenhar(false);
+    };
+    acoes['efeito-rodada'] = () => { window.FichaEfeitos.advance(FG.S.M.state); salvarDesenhar(false); };
 
     function estado(c) {
       const { M, s, D } = c;
@@ -94,6 +132,7 @@
         <div style="display:flex;gap:8px">
           <select class="fg-in" data-a="condicao-por" aria-label="Adicionar condição"><option value="">Adicionar condição…</option>${disponiveis.map(x => `<option>${esc(x.name)}</option>`).join('')}</select>
         </div>
+        ${recebidos(c)}
         <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
           <div><span class="fg-label">Exaustão</span><div class="fg-stepper"><button type="button" data-a="exaustao" data-d="-1" aria-label="Menos exaustão">−</button><b>${s.exhaustion || 0}</b><button type="button" data-a="exaustao" data-d="1" aria-label="Mais exaustão">+</button><small class="fg-muted">/ 6</small></div></div>
           <label class="fg-check" title="+10 HP máximo enquanto marcada; desliga sozinha na virada do mês."><input type="checkbox" data-a="fortuna"${s.fortunaBlessing ? ' checked' : ''}> Bênção de Fortuna (+10 HP máx.)</label>
@@ -210,7 +249,7 @@
       const s = FG.S.M.state, r = s.lastRoll;
       if (!r) return;
       const nat = r.die === 20 ? ' · 20 natural' : r.die === 1 ? ' · 1 natural' : '';
-      const texto = `**${s.name || 'Personagem'}** · ${r.label}: **${r.total}** (d20 ${r.die} ${FG.sinal(r.modifier)}${nat})`;
+      const texto = `**${s.name || 'Personagem'}** · ${r.label}: **${r.total}** (d20 ${r.die} ${FG.sinal(r.modifier)}${r.extra ? ' · Fortuna ' + FG.sinal(Number(r.extra)) : ''}${nat})`;
       try { await navigator.clipboard.writeText(texto); window.PRINCIPIA.api.toast('Rolagem copiada. Cole no Discord.'); }
       catch { window.prompt('Copie o texto da rolagem:', texto); }
     };
@@ -218,9 +257,9 @@
       const M = FG.S.M, r = el.dataset.r;
       if (r === 'init') M.rollInitiative();
       else if (r === 'def') M.rollDefense();
-      else if (r === 'conj') M.rollD20('Conjuração', M.castAttack());
-      else if (r === 'd20') M.rollD20('d20', 0);
-      else if (r.startsWith('arma:')) { const w = (M.state.weapons || []).find(x => x.id === r.slice(5)); if (w) M.rollD20('Ataque · ' + (w.name || 'Arma'), M.weaponAttack(w)); }
+      else if (r === 'conj') M.rollD20('Conjuração', M.castAttack(), M.receivedBonuses().fortune);
+      else if (r === 'd20') M.rollD20('d20', M.receivedBonuses().d20);
+      else if (r.startsWith('arma:')) { const w = (M.state.weapons || []).find(x => x.id === r.slice(5)); if (w) M.rollD20('Ataque · ' + (w.name || 'Arma'), M.weaponAttack(w), M.receivedBonuses().fortune); }
     };
     acoes['pericia-rolar'] = el => { const M = FG.S.M; M.rollD20(el.dataset.nome, M.skillValue(el.dataset.nome)); };
     acoes['pericia-p'] = el => {

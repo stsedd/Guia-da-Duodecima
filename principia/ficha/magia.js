@@ -33,7 +33,7 @@
           <div class="fg-sec">
             <div style="display:flex;flex-direction:column;gap:8px"><span class="fg-kicker">Conjurador</span><h2 class="fg-h fg-h--big">Magia</h2></div>
             <div class="fg-box" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
-              <div><span class="fg-label">Ataque mágico</span><div class="fg-anton" style="font-size:34px">${sinal(M.magicCastBonus())}</div></div>
+              <div><span class="fg-label">Ataque mágico</span><div class="fg-anton" style="font-size:34px">${sinal(M.magicCastBonus())}${M.fortuneSuffix()}</div></div>
               <div><span class="fg-label">DT mágica</span><div class="fg-anton" style="font-size:34px">${M.magicCastDT()}</div></div>
             </div>
             <div class="fg-form">

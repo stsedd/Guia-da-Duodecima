@@ -31,7 +31,7 @@
           <span class="fg-icard-chips"><span class="fg-icard-tag">${w.equipped ? 'ARMA' : 'GUARDADA'}</span><span class="fg-icard-mat" title="${esc(mat.name || '')}">${esc(mat.name || '')}</span></span>
           <span class="fg-icard-body"><b>${esc(w.name || 'Arma')}</b><small>${esc(M.weaponType(w.type)?.name || '')} · ${esc(FG.attrsLista.find(a => a[0] === w.attr)?.[2] || '')}${w.isHeritage ? ' · herança' : ''}</small></span>
           <span class="fg-icard-foot">
-            <span class="fg-icard-stats"><span><small>ATAQUE</small><b>${sinal(M.weaponAttack(w))}</b></span><span><small>DANO</small><b>${esc(M.weaponDamageFormula(w))}</b></span></span>
+            <span class="fg-icard-stats"><span><small>ATAQUE</small><b>${sinal(M.weaponAttack(w))}${M.fortuneSuffix()}</b></span><span><small>DANO</small><b>${esc(M.weaponDamageFormula(w))}</b></span></span>
             <span class="fg-icard-res">RESIST. ${pips(w.resistanceCurrent, M.materialResistance(w))}</span>
           </span>
         </span>
@@ -144,7 +144,7 @@
       return `${cabeca(arte('arma', w.imageUrl), `<span class="fg-tag fg-tag--red">Arma</span><span class="fg-tag">${esc(M.material(w.material).name)}</span>`)}
         <div class="fg-drawer-body">
           <h3>${esc(w.name || 'Arma')}</h3>
-          <div class="fg-box" style="display:flex;gap:20px"><div><span class="fg-label">Ataque</span><div class="fg-anton" style="font-size:34px">${sinal(M.weaponAttack(w))}</div></div><div><span class="fg-label">Dano</span><div class="fg-anton" style="font-size:34px">${esc(M.weaponDamageFormula(w))}</div></div></div>
+          <div class="fg-box" style="display:flex;gap:20px"><div><span class="fg-label">Ataque</span><div class="fg-anton" style="font-size:34px">${sinal(M.weaponAttack(w))}${M.fortuneSuffix()}</div></div><div><span class="fg-label">Dano</span><div class="fg-anton" style="font-size:34px">${esc(M.weaponDamageFormula(w))}</div></div></div>
           <div class="fg-form">
             <label class="fg-field fg-wide"><span>Nome</span><input data-a="campo" data-render data-path="${p}.name" value="${esc(w.name || '')}"></label>
             <label class="fg-field"><span>Tipo</span><select data-a="campo" data-calc data-path="${p}.type">${opcoes((D.system.weaponTypes || []).map(t => [t.id, t.name]), w.type)}</select></label>
