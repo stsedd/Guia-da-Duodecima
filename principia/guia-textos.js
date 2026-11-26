@@ -240,6 +240,18 @@
 <p><strong>Filhos de Netuno perdem 15 pontos de Fama ao serem reclamados.</strong> O desconto entra automaticamente na Fama da conta. Ele também se aplica à prole estrangeira com a mecânica de Netuno e soma-se ao ajuste do panteão.</p>
 <p>No título de Rebento de Roma Aeterna, a Praetoria chama o personagem quando chegar a hora; recomendamos guardar um arquivo com seus grandes feitos. Ao atingir a pontuação e acreditar que cumpre os requisitos, fale com os Dii Consentis: ainda não há detalhes de como obter o cargo, mas ele exige participação em guerras e feitos realmente grandiosos.</p>` });
 
+  T.push({ page: 'cursus', fn(root) {
+    for (const simbolo of root.querySelectorAll('.money-card .coin-symbol')) {
+      const foto = new Image();
+      foto.alt = '';
+      foto.width = foto.height = 84;
+      foto.style.objectFit = 'contain';
+      foto.onload = () => simbolo.replaceWith(foto);
+      foto.src = simbolo.closest('.money-card').classList.contains('gold')
+        ? 'principia/aureo.png' : 'principia/denario.png';
+    }
+  } });
+
   T.push({ page: 'cursus', id: 'economia', fonte: M('§5 Sistema Monetário; Como Ganhar Dinheiro; Trabalhos Disponíveis'), append: `
 <h3 class="subheading">Regras gerais dos trabalhos</h3>
 <div class="grid two">
