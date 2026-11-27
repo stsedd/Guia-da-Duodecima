@@ -260,7 +260,11 @@ window.FichaMotor = function criarMotor(DADOS, ganchos) {
   function globalD20Penalty(){return energyRollPenalty()+exhaustionRollPenalty()}
   function attrRollConditionPenalty(k){return k==='des'?conditionDexRollMod():0}
   function castAttack(){if(isMortal())return state.magic?.enabled?magicCastBonus():0;const k=god().casting;return effectiveAttr(k)+bp()+(hasTalent('mestre-habilidades')?1:0)+globalD20Penalty()+receivedBonuses().d20+attrRollConditionPenalty(k)}
-  function castDT(){if(isMortal())return state.magic?.enabled?magicCastDT():0;return 8+effectiveAttr(god().casting)+bp()}
+  function castDT(key){
+    if(isMortal() && !state.magic?.enabled)return 0;
+    const base=isMortal()?magicCastDT():8+effectiveAttr(god().casting)+bp();
+    return base+(Number(state.abilityDtBonus)||0)+(Number(state.abilityDtAdjustments?.[key]?.bonus)||0);
+  }
   function energyValueText(){return energyMax()>0?`${state.currentEnergy}/${energyMax()}`:'—'}
   function castAttackText(){return hasSheetCasting()?`1d20 ${signed(castAttack())}`:'—'}
   function castDtText(){return hasSheetCasting()?String(castDT()):'—'}
@@ -353,7 +357,7 @@ window.FichaMotor = function criarMotor(DADOS, ganchos) {
     if(activeCondition('Desorientado')&&(name==='Percepção'||name==='Investigação'))cond+=-2;
     const prof=trained?bp()*(expertise?2:1):0;
     const effects = receivedBonuses();
-    return base+prof+fixed+globalD20Penalty()+effects.d20+cond+(name==='Furtividade' ? effects.stealth : name==='Intuição' ? effects.insight : 0);
+    return base+prof+fixed+(Number(skillMetaFor(name).bonus)||0)+globalD20Penalty()+effects.d20+cond+(name==='Furtividade' ? effects.stealth : name==='Intuição' ? effects.insight : 0);
   }
   function canUseInitialSkill(name){return !divineGranted().includes(name)}
   function abilityKey(a){return `${a.sourceGodId||state.godId}:${a.type}:${a.id}`}
@@ -436,6 +440,8 @@ window.FichaMotor = function criarMotor(DADOS, ganchos) {
     if(data?.skillMeta&&typeof data.skillMeta==='object')for(const [name,meta] of Object.entries(data.skillMeta))out.skillMeta[name]=Object.assign({proficient:false,expertise:false,source:'extras',detail:''},meta||{});
     for(const n of [20,40]){const name=data?.levelSkillChoices?.[n];if(name){out.skillMeta[name]=Object.assign({proficient:true,expertise:false,source:`nivel-${n}`,detail:''},out.skillMeta[name]||{}, {proficient:true,source:`nivel-${n}`})}}
     out.levelSkillChoices={20:'',40:''};
+    out.initialSkills = [...new Set([...(Array.isArray(out.initialSkills) ? out.initialSkills : []),
+      ...Object.entries(out.skillMeta).filter(([,m]) => m.proficient && m.source === 'inicial').map(([name]) => name)])];
     const legacyLineageNaming=!!data?.lineage&&Number(data.lineage.namingVersion||0)<2;
     out.lineage=Object.assign(defaultLineage(),data?.lineage||{});
     if(legacyLineageNaming){

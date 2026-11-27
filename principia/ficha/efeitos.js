@@ -343,18 +343,22 @@
   // Fontes de Netuno têm durações próprias. Registros da mesma habilidade mantêm a duração por fonte.
   const same = (e, def, caster) => e.id === def.id && (def.god !== 'netuno' || (e.caster || '').toLowerCase() === caster.toLowerCase());
   const find = id => catalog.find(def => def.id === id);
+  function aceitaQuerido(def, tier) {
+    return !!def && !def.self && def.id !== 'mau-agouro' && def.id !== 'chamado-oceano' && def.rounds[tier] > 0;
+  }
   function normalize(list) {
     const result = [];
     for (const entry of Array.isArray(list) ? list : []) {
       const def = find(entry?.id);
       if (!def || ![0,1,2].includes(entry.tier) || entry.tier < (def.min || 0) || result.some(e => same(e,def,casterName(entry.caster)) || e.id === def.conflict)) continue;
-      const max = def.rounds[entry.tier];
+      const querido = entry.querido === true && aceitaQuerido(def, entry.tier);
+      const max = def.rounds[entry.tier] + Number(querido);
       if (max && !(Number.isInteger(entry.rounds) && entry.rounds > 0)) continue;
-      result.push({id:def.id, caster:casterName(entry.caster), formation:def.id==='gloria-roma' && entry.tier===1 && entry.formation===true, fire:def.id === 'bencao-oceanica' && entry.tier === 2 && entry.fire === true, tier:entry.tier, rounds:max ? Math.min(entry.rounds,max) : 0});
+      result.push({id:def.id, querido, caster:casterName(entry.caster), formation:def.id==='gloria-roma' && entry.tier===1 && entry.formation===true, fire:def.id === 'bencao-oceanica' && entry.tier === 2 && entry.fire === true, tier:entry.tier, rounds:max ? Math.min(entry.rounds,max) : 0});
     }
     return result;
   }
-  function add(state, id, tier, sourceName = '', fire = false) {
+  function add(state, id, tier, sourceName = '', fire = false, comQuerido = false) {
     const def = find(id);
     if (!def || ![0,1,2].includes(tier)) return 'Selecione um efeito e a estaca de quem o concedeu.';
     const list = state.receivedEffects || [];
@@ -362,7 +366,8 @@
     const caster = casterName(sourceName);
     if (list.some(e => same(e,def,caster))) return 'Este efeito já está ativo.';
     if (list.some(e => e.id === def.conflict)) return 'Encerre ' + find(def.conflict).name + ' antes de aplicar este efeito.';
-    state.receivedEffects = [...list, {id, tier, caster, fire:id === 'bencao-oceanica' && tier === 2 && fire === true, rounds:def.rounds[tier]}];
+    const querido = comQuerido === true && aceitaQuerido(def, tier);
+    state.receivedEffects = [...list, {id, tier, caster, querido, fire:id === 'bencao-oceanica' && tier === 2 && fire === true, rounds:def.rounds[tier] + Number(querido)}];
     return '';
   }
   function advance(state) {
@@ -385,5 +390,5 @@
     return {resistance:aura, advantage:life >= 0, melee, insight, stealth:highest('veu-natureza') === 2 ? 3 : 0, defense:defense + insight + Math.max(0,life) + (highest('dominio-correntes') >= 0 ? 2 : 0), reduction:defense + (storm < 0 ? 0 : storm === 0 ? 2 : 4), d20:daylight + (glory?.tier === 2 ? 2 : 0) + (dedication ? dedication.tier + 1 : 0),
       fortune:fortune ? (fortune.id === 'mau-agouro' ? -1 : 1) : 0};
   }
-  window.FichaEfeitos = {catalog, find, normalize, add, advance, bonuses};
+  window.FichaEfeitos = {catalog, find, aceitaQuerido, normalize, add, advance, bonuses};
 })();

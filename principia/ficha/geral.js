@@ -65,12 +65,38 @@
         return `<div class="fg-skill${prof ? ' is-prof' : ''}" title="${esc(fontes.join(' · ') || 'Sem proficiência')}">
           <button class="fg-pe${prof ? ' on' : ''}${auto.length ? ' is-auto' : ''}" type="button" data-a="pericia-p" data-nome="${esc(sk.name)}" aria-pressed="${prof}" aria-label="Proficiência em ${esc(sk.name)}"${auto.length ? ' aria-disabled="true"' : ''}>P</button>
           <button class="fg-pe is-e${exp ? ' on' : ''}${autoE ? ' is-auto' : ''}" type="button" data-a="pericia-e" data-nome="${esc(sk.name)}" aria-pressed="${exp}" aria-label="Expertise em ${esc(sk.name)}"${prof && !autoE ? '' : ' aria-disabled="true"'}>E</button>
-          <span>${esc(sk.name)}</span>
+          <button class="fg-btn fg-btn--ghost fg-btn--sm" style="text-align:left;justify-content:flex-start" type="button" data-a="editar-pericia" data-nome="${esc(sk.name)}" aria-label="Editar ${esc(sk.name)}">${esc(sk.name)}</button>
           <b>${sinal(M.skillValue(sk.name))}</b>
           <button class="fg-btn fg-btn--sm fg-btn--ghost fg-btn--icon" type="button" data-a="pericia-rolar" data-nome="${esc(sk.name)}" aria-label="Rolar ${esc(sk.name)}" style="min-height:26px;width:26px">${ICO.d20}</button>
         </div>`;
       }).join('')}</div>`).join('')}</div>`;
     }
+
+    acoes['editar-pericia'] = el => FG.abrirGaveta('pericia', { nome: el.dataset.nome });
+    FG.gavetas.pericia = ({M,s}, {nome}) => {
+      const m = M.skillMetaFor(nome);
+      const inicial = s.initialSkills.includes(nome);
+      const origem = inicial ? 'inicial' : m.proficient ? m.source : '';
+      const opcoes = [['','Sem treino manual'],['inicial','Criação'],['nivel-20','Nível 20'],['nivel-40','Nível 40'],['treino','Treino'],['extras','Extra'],['prole','Prole'],['talento','Talento']];
+      return `<div class="fg-drawer-body"><div class="fg-sec-head"><h3>${esc(nome)}</h3><button type="button" class="fg-btn" data-a="fechar-gaveta">Fechar</button></div>
+        <div class="fg-form"><label class="fg-field"><span>Origem da proficiência manual</span><select data-a="origem-pericia" data-nome="${esc(nome)}">${opcoes.map(([id,label]) => `<option value="${id}" ${origem===id?'selected':''} ${id.startsWith('nivel-') && Number(id.slice(6))>s.level && origem!==id?'disabled':''}>${label}</option>`).join('')}</select></label>
+        <label class="fg-field"><span>Bônus manual da perícia</span><input type="number" step="1" data-a="campo" data-calc data-tipo="int" data-path="skillMeta.${esc(nome)}.bonus" value="${Number(m.bonus)||0}"></label>
+        <label class="fg-field"><span>Fonte do bônus</span><input data-a="campo" data-path="skillMeta.${esc(nome)}.bonusSource" value="${esc(m.bonusSource||'')}" placeholder="Herança ou habilidade"></label></div></div>`;
+    };
+    acoes['origem-pericia'] = el => {
+      const M = FG.S.M, s = M.state, nome = el.dataset.nome, origem = el.value;
+      const inicial = s.initialSkills.includes(nome);
+      if (origem === 'inicial' && !inicial && (!M.canUseInitialSkill(nome) || s.initialSkills.length >= M.initialSkillLimit())) {
+        window.PRINCIPIA.api.toast('Confira as vagas e as perícias de criação.'); FG.render(); return;
+      }
+      const m = M.skillMetaFor(nome);
+      s.initialSkills = s.initialSkills.filter(n => n !== nome);
+      if (origem === 'inicial') s.initialSkills.push(nome);
+      m.proficient = !!origem && origem !== 'inicial';
+      m.source = m.proficient ? origem : 'extras';
+      if (!M.skillIsProficient(nome)) m.expertise = false;
+      salvarDesenhar();
+    };
 
     function mao(c) {
       const { M } = c;
@@ -104,6 +130,7 @@
         if (['restauracao','escudo-oceanico','cataclismo','murchar-florescer','frutos-colheita','dominio-sono-profundo'].includes(def.id)) detail.push('Use a Fé de quem concedeu o efeito. Marque na ficha o resultado de cura, absorção ou PV temporários resolvido na mesa.');
         if (e.caster) detail.unshift('Concedido por ' + e.caster);
         if (def.self) detail.unshift('Efeito da própria prole. Encerre ao sair da luz natural ou ao anoitecer.');
+        if (e.querido) detail.unshift('Querido · duração ampliada em um turno.');
         const duration = e.rounds ? ' · ' + e.rounds + (e.rounds === 1 ? ' rodada' : ' rodadas') : '';
         return `<details class="fg-box"><summary><b>${esc(def.name)}</b> · ${esc(def.summary(e.tier) + (e.fire ? ' · resistência a fogo' : '') + duration)}</summary>
           <small class="fg-muted">${esc(e.caster || def.source)} · estacas ${tags[e.tier]}</small>
@@ -112,12 +139,13 @@
           <button type="button" class="fg-btn fg-btn--sm" data-a="efeito-tirar" data-index="${index}">${['inspiracao-divina','escudo-oceanico','frutos-colheita','calma-sonhar'].includes(e.id) ? 'Marcar como usado / encerrar' : 'Encerrar efeito'}</button></details>`;
       }).join('');
       const options = E.catalog.filter(d => !d.archived && (d.god === 'netuno' || !list.some(e => e.id === d.id)) && (!d.self || (M.effectiveAbilitySet()?.passives || []).some(a => a.id === d.id && (a.sourceGodId || s.godId) === d.god)));
-      return `<div class="fg-box"><div class="fg-sec-head"><b class="fg-label">Afetado por</b>
+      return `<div class="fg-box" style="display:grid;gap:12px"><div class="fg-sec-head"><div><span class="fg-kicker">Semideus</span><h3 class="fg-h">Efeitos recebidos</h3></div>
         ${list.some(e => e.rounds) ? '<button type="button" class="fg-btn fg-btn--sm" data-a="efeito-rodada">Avançar rodada</button>' : ''}</div>
-        ${cards}<details><summary class="fg-label">Adicionar efeito</summary><div class="fg-form">
+        ${cards || '<p class="fg-muted">Nenhum efeito ativo.</p>'}<details class="fg-box"><summary class="fg-label">Adicionar efeito</summary><div class="fg-form">
         <label class="fg-field"><span>Efeito recebido</span><select class="fg-in" name="efeito" data-a="efeito-opcoes">${[...new Set(options.map(d => d.source))].map(source => `<optgroup label="${esc(source)}">${options.filter(d => d.source === source).map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>
         <label class="fg-field"><span>Estacas de quem concedeu</span><select class="fg-in" name="estaca" data-a="efeito-opcoes">${tags.map((v,i) => `<option value="${i}" ${i < (options[0]?.min || 0) ? 'disabled' : ''}>${v}</option>`).join('')}</select></label>
         <label class="fg-field"><span>Quem concedeu (opcional)</span><input class="fg-in" name="fonte" maxlength="60" placeholder="Nome do personagem"></label>
+        <label class="fg-check" data-querido style="display:${E.aceitaQuerido(options[0], Math.max(0,options[0]?.min||0))?'':'none'}"><input type="checkbox" name="querido">Quem concedeu tem Querido (+1 turno)</label>
         <label class="fg-check" style="display:none" data-fogo><input type="checkbox" name="fogo">Resistência a fogo (+40 EN pagos pela fonte)</label></div>
         <button class="fg-btn fg-btn--pri fg-btn--sm" type="button" data-a="efeito-por">Aplicar efeito</button></details></div>`;
     }
@@ -126,11 +154,15 @@
       const tier = form.querySelector('[name=estaca]');
       for (const opt of tier.options) opt.disabled = Number(opt.value) < (def.min || 0);
       if (Number(tier.value) < (def.min || 0)) tier.value = String(def.min);
+      const querido = form.querySelector('[data-querido]');
+      const permite = window.FichaEfeitos.aceitaQuerido(def, Number(tier.value));
+      querido.style.display = permite ? '' : 'none';
+      if (!permite) querido.querySelector('input').checked = false;
       form.querySelector('[data-fogo]').style.display = def.id === 'bencao-oceanica' && tier.value === '2' ? '' : 'none';
     };
     acoes['efeito-por'] = el => {
       const form = el.closest('details'), s = FG.S.M.state;
-      const error = window.FichaEfeitos.add(s, form.querySelector('[name=efeito]').value, Number(form.querySelector('[name=estaca]').value), form.querySelector('[name=fonte]').value, form.querySelector('[name=fogo]').checked);
+      const error = window.FichaEfeitos.add(s, form.querySelector('[name=efeito]').value, Number(form.querySelector('[name=estaca]').value), form.querySelector('[name=fonte]').value, form.querySelector('[name=fogo]').checked, form.querySelector('[name=querido]').checked);
       if (error) { window.PRINCIPIA.api.toast(error); return; }
       salvarDesenhar(false);
     };
@@ -182,6 +214,7 @@
         </div>
         <details class="fg-box"><summary class="fg-label" style="cursor:pointer">Ajustes temporários</summary>
           <div class="fg-form" style="margin-top:10px">
+            <label class="fg-field"><span>Ajuste geral da DT de habilidade</span><input type="number" step="1" data-a="campo" data-calc data-tipo="int" data-path="abilityDtBonus" value="${Number(s.abilityDtBonus)||0}"></label>
             <label class="fg-field"><span>Rolagens</span><input type="number" step="1" data-a="campo" data-tipo="int" data-calc data-path="tempMods.rolls" value="${s.tempMods?.rolls || 0}"></label>
             <label class="fg-field"><span>Defesa</span><input type="number" step="1" data-a="campo" data-tipo="int" data-calc data-path="tempMods.defense" value="${s.tempMods?.defense || 0}"></label>
             <label class="fg-field"><span>Redução de dano</span><input type="number" step="1" data-a="campo" data-tipo="int" data-calc data-path="tempMods.damageReduction" value="${s.tempMods?.damageReduction || 0}"></label>
@@ -266,6 +299,7 @@
           </div>
           <div class="fg-sec">
             <div class="fg-sec-head"><h3 class="fg-h">Perícias</h3><span class="fg-label">P = proficiente · E = expertise</span></div>
+            <p class="fg-muted">Toque no nome da perícia para ajustar a origem do treino ou o bônus manual.</p>
             ${pericias(c)}
           </div>
           <div class="fg-sec fg-col-hand">

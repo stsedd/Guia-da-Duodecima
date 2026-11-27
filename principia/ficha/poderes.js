@@ -133,6 +133,9 @@
             <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="fg-label">Estacas desta habilidade</span><b class="fg-anton" style="font-size:24px">${est} <small class="fg-muted" style="font:600 13px Inter">/ ${maxEst}</small></b></div>
             <input type="range" min="0" max="${maxEst}" value="${est}" data-a="estacas" data-vivo data-key="${esc(key)}" aria-label="Estacas de ${esc(a.name)}">
           </div>` : ''}
+          ${M.hasSheetCasting() ? `<details class="fg-box"><summary class="fg-label">DT desta habilidade · ${M.castDT(key)}</summary><div class="fg-form">
+            <label class="fg-field"><span>Bônus específico da DT</span><input type="number" step="1" data-a="campo" data-tipo="int" data-calc data-path="abilityDtAdjustments.${esc(key)}.bonus" value="${Number(s.abilityDtAdjustments?.[key]?.bonus)||0}"></label>
+            <label class="fg-field"><span>Fonte do bônus</span><input data-a="campo" data-path="abilityDtAdjustments.${esc(key)}.source" value="${esc(s.abilityDtAdjustments?.[key]?.source||'')}" placeholder="Herança ou habilidade"></label></div></details>` : ''}
           ${blocos(M, a, est)}
           ${regra ? `<div class="fg-row"><div class="fg-row-main"><b>Usos</b><small>${regra.max} por ${esc(regra.label)}</small></div><div class="fg-stepper"><button type="button" data-a="usos" data-key="${esc(key)}" data-d="-1" aria-label="Menos um uso">−</button><b>${usos}</b><button type="button" data-a="usos" data-key="${esc(key)}" data-d="1" aria-label="Mais um uso">+</button><small class="fg-muted">/ ${regra.max}</small></div></div>` : ''}
           ${escolhas.map(ch => {
