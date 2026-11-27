@@ -66,7 +66,7 @@ html:not(.on-staff) [data-app="praetorium"]{display:none!important}
 .on-field{display:grid;gap:6px;min-width:0;font:700 10px/1.2 var(--os-font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--os-win-muted)}
 .on-field--wide{grid-column:1/-1}
 .on-field input,.on-field select,.on-tools input,.on-tools select,.on-tr select{all:unset;box-sizing:border-box;width:100%;min-width:0;height:38px;padding:0 12px;border-radius:10px;background:var(--os-win-bg);border:1px solid var(--os-win-line);font:500 13.5px/1 var(--os-font-ui);letter-spacing:0;text-transform:none;color:var(--os-win-ink)}
-.on-field select,.on-tools select,.on-tr select{padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 15px) 50%,calc(100% - 10px) 50%;background-size:5px 5px;background-repeat:no-repeat;cursor:pointer}
+.on-field select,.on-tools select,.on-tr select{display:inline-block;appearance:none;line-height:18px;padding:9px 30px 9px 12px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 15px) 50%,calc(100% - 10px) 50%;background-size:5px 5px;background-repeat:no-repeat;cursor:pointer}
 .on-field input::placeholder,.on-tools input::placeholder{color:var(--os-win-muted)}
 .on-field input:focus,.on-field select:focus,.on-tools input:focus,.on-tools select:focus,.on-tr select:focus{border-color:var(--os-red-hi);box-shadow:0 0 0 3px rgba(211,17,42,.14)}
 .on-field option,.on-field optgroup,.on-tools option,.on-tr option{background:var(--os-win-bg);color:var(--os-win-ink)}
@@ -174,7 +174,7 @@ html[data-theme="light"] .on-badge--odiado{background:#3a2f33}
 .on-td--num{font:400 22px/1 var(--f-cond,"Anton",Impact,sans-serif);justify-items:end}
 .on-td--act{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 .on-td--act .os-btn{height:32px;padding:0 11px;font-size:12px;text-decoration:none;color:inherit}
-.on-td--act select{width:auto;height:32px}
+.on-td--act select{width:auto;height:32px;padding-block:6px}
 .on-td--player{grid-template-columns:28px minmax(0,1fr);column-gap:10px;align-items:center}
 .on-td--player img{grid-row:span 2;width:28px;height:28px;border-radius:50%}
 .on-table>.on-form{margin:0}
