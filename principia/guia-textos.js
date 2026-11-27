@@ -244,11 +244,11 @@
     for (const simbolo of root.querySelectorAll('.money-card .coin-symbol')) {
       const foto = new Image();
       foto.alt = '';
-      foto.width = foto.height = 84;
+      foto.width = foto.height = 70;
       foto.style.objectFit = 'contain';
-      foto.onload = () => simbolo.replaceWith(foto);
       foto.src = simbolo.closest('.money-card').classList.contains('gold')
         ? 'principia/aureo.png' : 'principia/denario.png';
+      simbolo.replaceWith(foto);
     }
   } });
 
